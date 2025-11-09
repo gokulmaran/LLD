@@ -1,1 +1,16 @@
 LLD Github link: https://github.com/ashishps1/awesome-low-level-design
+1) C++
+    -->Basics, OOPS, OS, DBMS, CN
+
+2)DSA
+    -->Understand, Logic break, equal code
+    -->Recursion think for one, remain will do recursion
+
+3)LLD
+    -->Requirements, UML, Code [OOPS, UML, SOLID Principles, Design Patterns]
+
+4)HLD
+    -->Functional, Non Functional, Design Diagram [Networking, Scalability, Queues, Databases]
+
+5)Managerial Round
+    -->Behavioral Round(STAR), Project
