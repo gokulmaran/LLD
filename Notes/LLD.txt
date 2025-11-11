@@ -14,3 +14,34 @@ LLD Github link: https://github.com/ashishps1/awesome-low-level-design
 
 5)Managerial Round
     -->Behavioral Round(STAR), Project
+
+Creational Design pattern
+Singleton       → Only one instance (global access)
+Factory Method  → Subclass decides object creation
+Abstract Factory→ Family of related objects
+Builder         → Step-by-step object creation
+Prototype       → Copy existing object (clone)
+
+Structural Design pattern
+Adapter    →  Converts interface
+Bridge     →  Decouples abstraction & implementation
+Composite  →  Tree structure (whole-part)
+Decorator  →  Adds behavior dynamically
+Facade     →  Simplified interface to subsystem
+Flyweight  →  Shares common data
+Proxy      →  Controls access / lazy loading
+
+Behavioral Design Patterns
+Chain of Responsibility → Pass request along chain
+Command                → Encapsulate actions as objects
+Interpreter            → Define grammar & interpreter
+Iterator               → Sequential access to collection
+Mediator               → Central controller for communication
+Memento                → Save & restore state
+Observer               → Notify dependents on change
+State                  → Change behavior by state
+Strategy               → Swap algorithms dynamically
+Template Method        → Define algorithm skeleton
+Visitor                → Add operations without changing classes
+
+
