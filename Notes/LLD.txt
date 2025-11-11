@@ -8,6 +8,7 @@ LLD Github link: https://github.com/ashishps1/awesome-low-level-design
 
 3)LLD
     -->Requirements, UML, Code [OOPS, UML, SOLID Principles, Design Patterns]
+    -->main to code  flow should be
 
 4)HLD
     -->Functional, Non Functional, Design Diagram [Networking, Scalability, Queues, Databases]
