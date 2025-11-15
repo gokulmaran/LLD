@@ -1,36 +1,38 @@
 /*
-        ┌────────────────────────┐
-        │       Singleton        │
-        ├────────────────────────┤
-        │ - instance : Singleton*│
-        ├────────────────────────┤
-        │ - Singleton()          │
-        │ + getInstance() : Singleton* │
-        │ + showMessage() : void │
-        └────────────────────────┘
+       Client--> class singleton(instance finc, show message func) 
 */
 
 #include <iostream>
 using namespace std;
 
-class Singleton {
-private:
-    static Singleton* instance;
-    Singleton() { cout << "Instance created\n"; }
-public:
-    static Singleton* getInstance() {
-        if (instance == nullptr)
-            instance = new Singleton();
-        return instance;
-    }
-    void showMessage() { cout << "Hello from Singleton!\n"; }
+class Singleton{
+  public: 
+     static Singleton*instance;
+     Singleton(){
+       cout<<"Instance created\n";
+     }
+     
+     static Singleton*getInstance(){
+       if(instance==NULL){
+         cout<<"first time ";
+         instance= new Singleton();
+       }
+       return instance;
+     }
+     
+     void showMessage(){
+       cout<<"Hello message printed"<<endl;
+     }
 };
-
-Singleton* Singleton::instance = nullptr;
-
-int main() {
-    Singleton* s1 = Singleton::getInstance();
-    Singleton* s2 = Singleton::getInstance();
-    s1->showMessage();
-    cout << (s1 == s2 ? "Same instance\n" : "Different instances\n");
+Singleton*Singleton::instance=nullptr;
+int main() 
+{
+  Singleton*s1= Singleton::getInstance();
+  Singleton*s2= Singleton::getInstance();
+  
+  s1->showMessage();
+  if(s1==s2){
+    cout<<"Both instances have been created"<<endl;
+  }
+  
 }

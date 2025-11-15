@@ -22,44 +22,40 @@
 */
 //Converts interface of a class into another expected interface
 #include <iostream>
-#include <string>
 using namespace std;
 
-// 🎯 Target Interface
-class PaymentProcessor {
-public:
-    virtual void pay(double amount) = 0;
-    virtual ~PaymentProcessor() = default;
+/*
+client-->target-->Adaptee->adapter
+*/
+//target
+class UpiPayment{
+  public:
+     virtual void payUsingUPI(int amt)=0;
 };
 
-// ⚙️ Adaptee (Existing class with incompatible interface)
-class PayPal {
-public:
-    void sendPayment(double totalAmount) {
-        cout << "Processing payment via PayPal: $" << totalAmount << endl;
+//adaptee
+class PayPal{
+  public:
+    void sendMoney(int amt){
+      cout<<"Sending money"<<" Rs."<<amt<<endl;
     }
 };
-
-// 🔄 Adapter
-class PayPalAdapter : public PaymentProcessor {
-    PayPal* paypal;
-public:
-    PayPalAdapter(PayPal* p) : paypal(p) {}
-
-    void pay(double amount) override {
-        cout << "[Adapter] Converting PaymentProcessor request to PayPal format...\n";
-        paypal->sendPayment(amount);
+//adapter
+class PayPalAdapter: public UpiPayment{
+   public:
+     PayPal*pay;
+     PayPalAdapter(PayPal* pp) {
+        pay = pp;
     }
+      void payUsingUPI(int amt){
+         cout<<"adapter makes send pay call.. "<<endl;
+         pay->sendMoney(amt);
+     }
 };
-
-// 🧠 Client code
-int main() {
-    PayPal* paypal = new PayPal();
-    PaymentProcessor* processor = new PayPalAdapter(paypal);
-
-    processor->pay(250.75);  // Client works with PaymentProcessor interface
-
-    delete processor;
-    delete paypal;
+int main() 
+{
+    PayPal pay;
+    PayPalAdapter adapter(&pay);
+    adapter.payUsingUPI(100);
     return 0;
 }

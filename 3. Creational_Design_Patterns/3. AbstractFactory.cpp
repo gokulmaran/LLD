@@ -9,65 +9,87 @@
 ┌──────────────┐                   ┌──────────────┐
 │ ShapeFactory │                   │ ColorFactory │
 └──────────────┘                   └──────────────┘
+client-->abstractfactories
+           \\
+           Concrete factories--> abstract class-->abstract interface
 */
 
 #include <iostream>
 using namespace std;
 
-class Shape { 
-    public: virtual void draw() = 0; 
-};
-class Circle : public Shape { 
-    public: void draw() override { 
-        cout << "Circle\n"; 
-    }
- };
-class Square : public Shape { public: void draw() override { cout << "Square\n"; } };
-
-class Color { public: virtual void fill() = 0; };
-
-class Red : public Color { public: void fill() override { cout << "Red\n"; } };
-class Blue : public Color { public: void fill() override { cout << "Blue\n"; } };
-
-class AbstractFactory {
-public:
-    virtual Shape* getShape(string type) { return nullptr; }
-    virtual Color* getColor(string type) { return nullptr; }
+//Abstract classes
+class Button{
+  public: 
+     virtual void draw()=0;
 };
 
-class ShapeFactory : public AbstractFactory {
-public:
-    Shape* getShape(string type) override {
-        if (type == "circle") return new Circle();
-        if (type == "square") return new Square();
-        return nullptr;
-    }
+class checkbox{
+  public:
+     virtual void draw()=0;
 };
-
-class ColorFactory : public AbstractFactory {
-public:
-    Color* getColor(string type) override {
-        if (type == "red") return new Red();
-        if (type == "blue") return new Blue();
-        return nullptr;
-    }
+//concrete classes
+class LightButton:public Button{
+  public:
+     void draw(){
+       cout<<"drwing lightButton"<<endl;
+     }
 };
-
-class FactoryProducer {
-public:
-    static AbstractFactory* getFactory(string type) {
-        if (type == "shape") return new ShapeFactory();
-        if (type == "color") return new ColorFactory();
-        return nullptr;
-    }
+class Darkbutton: public Button{
+  public:
+     void draw(){
+       cout<<"drawing darkbutton"<<endl;
+     }
 };
-
-int main() {
-    AbstractFactory* shapeFactory = FactoryProducer::getFactory("shape");
-    Shape* s1 = shapeFactory->getShape("circle");
-    s1->draw();
-
-    AbstractFactory* colorFactory = FactoryProducer::getFactory("color");
-    Color* c1 = colorFactory->getColor("red");
-    c1->fill();
+class Lightcheckbox:public checkbox{
+  public:
+     void draw(){
+       cout<<"drwing lightCheckbox"<<endl;
+     }
+};
+class Darkcheckbox: public checkbox{
+  public:
+     void draw(){
+       cout<<"drawing darkCheckbox"<<endl;
+     }
+};
+//Abstract factory
+class GUIFactory{
+  public:
+  virtual Button*createButton()=0;
+  virtual checkbox*createcheckbox()=0;
+};
+//concrete factory
+class LightFactory: public GUIFactory{
+  public:
+     Button*createButton(){
+       return new LightButton();
+     }
+     checkbox*createcheckbox(){
+       return new Lightcheckbox();
+     }
+};
+class DarkFactory: public GUIFactory{
+  public:
+     Button*createButton(){
+       return new Darkbutton();
+     }
+     checkbox*createcheckbox(){
+       return new Darkcheckbox();
+     }
+};
+int main() 
+{
+    GUIFactory*light=new LightFactory();
+    DarkFactory*dark=new DarkFactory();
+    
+    Button*btn=light->createButton();
+    checkbox*chkbox=light->createcheckbox();
+    btn->draw();
+    chkbox->draw();
+    
+     Button*btnd=dark->createButton();
+    checkbox*chkboxd=dark->createcheckbox();
+    btnd->draw();
+    chkboxd->draw();
+    return 0;
 }

@@ -31,76 +31,75 @@
                              │   Pizza          │
                              └──────────────────┘
 ```
+client-->creates a concrete builder and passes to director, and get a Burger
 */
 #include <iostream>
-#include <string>
-#include <vector>
+using namespace std;
 
-// Product class: Represents the complex object being built
-class Pizza {
-public:
-    std::string dough;
-    std::string sauce;
-    std::string topping;
+/*
+ client--> Product ->builder interface--> director
+                      \-->concrete builder
+*/
 
-    void display() const {
-        std::cout << "Pizza with:\n";
-        std::cout << "Dough: " << dough << "\n";
-        std::cout << "Sauce: " << sauce << "\n";
-        std::cout << "Topping: " << topping << "\n";
-    }
+//Product
+class Burger{
+ public:
+     string cheese;
+     string tomato;
+     string sauce;
+     void display(){
+       cout<<"Burger with "<<"\n"<<
+              "tomato: "<<tomato<<"\n"<<
+              "cheese: "<<cheese<<"\n"<<
+              "sauce: "<<sauce<<endl;
+                   
+     }
 };
 
-// Abstract Builder interface
-class PizzaBuilder {
-public:
-    virtual ~PizzaBuilder() = default;
-    virtual void setDough(const std::string& dough) = 0;
-    virtual void setSauce(const std::string& sauce) = 0;
-    virtual void setTopping(const std::string& topping) = 0;
-    virtual Pizza getPizza() = 0;
+//builder interface--
+class BurgerBuilder{
+  public:
+      virtual void setTomato(string tomato)=0;
+      virtual void setCheese(string cheese)=0;
+      virtual void setSauce(string sauce)=0;
+      virtual Burger getBurger()=0;
+      virtual ~BurgerBuilder() {}
 };
 
-// Concrete Builder
-class HawaiianPizzaBuilder : public PizzaBuilder {
-private:
-    Pizza pizza;
-
-public:
-    void setDough(const std::string& dough) override {
-        pizza.dough = dough;
-    }
-
-    void setSauce(const std::string& sauce) override {
-        pizza.sauce = sauce;
-    }
-
-    void setTopping(const std::string& topping) override {
-        pizza.topping = topping;
-    }
-
-    Pizza getPizza() override {
-        return pizza;
-    }
+//concrete builder 
+class VegBurger:public BurgerBuilder{
+  public:
+      Burger burger;
+      void setTomato(string tomato){
+         burger.tomato=tomato;
+      }
+      void setCheese(string cheese){
+         burger.cheese=cheese;
+      }
+      void setSauce(string sauce){
+         burger.sauce=sauce;
+      }
+      Burger getBurger(){
+        return burger;
+      }
 };
-
-// Director: Orchestrates the building process
-class PizzaDirector {
-public:
-    void makeHawaiianPizza(PizzaBuilder& builder) {
-        builder.setDough("cross");
-        builder.setSauce("mild");
-        builder.setTopping("ham+pineapple");
-    }
+//director
+class BurgerDirector{
+  public:
+      void makeVegBurger(BurgerBuilder &builder){
+          builder.setTomato("redTomato");
+          builder.setSauce("redSauce");
+          builder.setCheese("redCheese");
+      }
 };
-
-int main() {
-    PizzaDirector director;
-    HawaiianPizzaBuilder builder;
-
-    director.makeHawaiianPizza(builder);
-    Pizza pizza = builder.getPizza();
-
-    pizza.display();
+int main() 
+{
+    BurgerDirector director;
+    VegBurger builder;
+    
+    director.makeVegBurger(builder);
+    
+    Burger burger=builder.getBurger();
+    burger.display();
     return 0;
 }
