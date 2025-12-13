@@ -44,5 +44,28 @@ State                  → Change behavior by state
 Strategy               → Swap algorithms dynamically
 Template Method        → Define algorithm skeleton
 Visitor                → Add operations without changing classes
+===============================================
 
+4)Interview Questions
 
+Design Parking Lot
+Design Vending Machine
+Design Splitwise (User,Split(Exact,Equal,Percent,Expense,Balance))
+Design Elevator System
+Design Library Management System
+Design Tic Tac Toe Game
+Design Chess Game
+Design Snake & Food Game
+Design Inventory Management System
+Design Car Rental System
+Design File System
+Design Logging System 
+Design ATM Machine
+Design Rate Limiter
+Design online shopping cart(Amazon)
+Design Notification system
+Design cricbuzz
+Design Book my show
+Design LRU cache
+Design Ride Sharing App (Uber/Ola)
+=============================================
