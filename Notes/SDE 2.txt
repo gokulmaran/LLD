@@ -1,0 +1,125 @@
+	SDE 2
+	
+1	DSA
+	
+	Array & Hashing (Notes)
+	Matrix (Notes)
+	String (Notes)
+	2 Pointers (Notes)
+	Prefix sum (Notes)
+	Sliding window (Notes)
+	Binary Search (Notes)
+	Bitmasking (Notes)
+	Stack (Notes)
+	Queue (Notes)
+	Heap (Notes)
+	Greedy(Notes)
+	Recursion (Notes) (one case func call  return)
+	Backtracking (Notes)
+	Linked List (Notes)
+	Trees (Notes)
+	Graphs (Dec 7)
+	DP(Dec 14)
+	Time and Space Complexity (neetcode)
+	
+	Links:
+	Striver: https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2
+=======================================================	
+2	LLD
+	
+	Introduction to LLD
+	SOLID (S.O.L.)
+	SOLID (I.D.) + DRY + KISS
+	Creational Design Pattern
+	Structural Design Pattern
+	Behavioral Design Pattern
+	Event Bus-LLD
+	Design Splitwise--LLD
+	Rate Limiter -- LLD
+	Parking Lot Design-- LLD
+	
+	Design Parking Lot
+	Design Vending Machine
+	Design Splitwise (User,Split(Exact,Equal,Percent,Expense,Balance))
+	Design Elevator System
+	Design Library Management System
+	Design Tic Tac Toe Game
+	Design Chess Game
+	Design Snake & Food Game
+	Design Inventory Management System
+	Design Car Rental System
+	Design File System
+	Design Logging System
+	Design ATM Machine
+	Design Rate Limiter
+	Design online shopping cart(Amazon)
+	Design Notification system
+	Design cricbuzz
+	Design Book my show
+	Design LRU cache
+	Design Ride Sharing App (Uber/Ola)
+
+	Links
+	Shrayas Jain: https://www.youtube.com/watch?v=rliSgjoOFTs&list=PL6W8uoQQ2c61X_9e6Net0WdYZidm7zooW
+	Approach: class diagram with desing patterns, in main func connect with classes accordingly
+=====================================================	
+3	HLD
+	
+	HLD Fundamentals
+	Databases and Sharding
+	Caching & Data Consistency
+	Rate Limiter--HLD
+	Proxies and Load Balancers
+	Asynchronous Comm.
+	Networks, Data Replication and Migration
+	ADS: CDN Architecture, Security, and Observability
+	Tinder System Design-HLD
+	Whatsapp Calling App - HLD
+	Chess Game Website - HLD
+	Hotstar - HLD
+	
+	URL Shortener
+	Rate Limiter
+	Distributed Cache
+	Chat / Messaging System (WhatsApp)
+	News Feed System (Instagram / Tinder)
+	Online Payment System(RazorPay,Paypal)
+	Design YouTube
+	Design Ad Click Aggregator
+	Ride Sharing System (Uber)
+	Video Streaming Platform (Hotstar)
+	Distributed Queue
+	E-commerce System (Amazon,Flipkart)
+	Banking / Wallet System(PhonePe)
+	Notification System
+	Logging & Monitoring System
+	File Storage System
+	Search Autocomplete
+	Chess Game (OOP Design)
+	
+	Links
+	Nikhil lohia: https://www.youtube.com/watch?v=JR-5rtt6_ME&list=PLFdAYMIVJQHOWJgRrjv_RH-ng95B2h3ON
+	Shrayas: https://www.youtube.com/watch?v=rliSgjoOFTs&list=PL6W8uoQQ2c63W58rpNFDwdrBnq5G3EfT7
+====================================================	
+4	CS fundamentals (Core subjects)
+	SQL: https://www.geeksforgeeks.org/sql/sql-cheat-sheet/
+	OS: https://www.geeksforgeeks.org/operating-systems/last-minute-notes-operating-systems/
+	DBMS: https://www.geeksforgeeks.org/dbms/last-minute-notes-dbms/
+	CS: https://www.geeksforgeeks.org/computer-networks/last-minute-notes-computer-network/
+==================================================
+5	Intro 
+	Sure. My name is Gokulraaj Manimaran, and I have around 4 years of experience as a Software Engineer on building high-performance scalable backend systems
+	Currently, I’m working on the SBI Securities project, where I build real-time market data and order-execution APIs using C++, Mysql. My main focus is on delivering low-latency, secure, and reliable trading flows for end users.
+	Before this, I worked at Market Simplified, where I was involved in developing high-performance backend systems for financial applications. I worked extensively on optimizing API performance, C++,Ktor framework ,Restful APIs.
+	Prior to that, I worked at ADLINK, where I contributed to driver development and system-level programming.
+	I started my career at Valeo, where I worked on automating test scripts and improving validation workflows,
+	Across my roles, I’ve consistently worked with C++,JIRA,Git, clouding technologies like Azure.
+	
+	Projects
+	In my current role, I’m working on the SBI Securities project, which is a trading and investment platform used by retail customers for equity, F&O, and other market segments. My primary responsibility is to build and optimize backend systems that handle real-time market data and order execution.
+	One of the major challenges we faced was a CPU spike in a specific module where the request volume suddenly increased. Because of this, our RPS was getting capped and response times were degrading. I worked on optimizing that module by introducing an efficient memory-caching mechanism. This reduced redundant computations, lowered CPU usage, and significantly increased the RPS and overall throughput during peak hours.
+	Apart from core trading flows, I also contributed to a major feature: the SBI Explore. I developed multiple modules including Explore, Stocks, F&O, and Mutual Funds. Within these modules, I built services for trending stocks, top-performing schemes, most-bought mutual funds, learning videos, and 52-week high/low insights. These APIs help users quickly discover market opportunities and improve engagement on the platform.
+	I also focus heavily on performance tuning, optimizing API response times, improving throughput, session management, reconnections, and enhancing logs and monitoring so issues can be quickly detected during market hours.
+	Overall, the project is about building a stable, secure, and high-performance trading backend for SBI Securities, ensuring smooth order execution and real-time updates for thousands of concurrent users.”
+
+==========================================================

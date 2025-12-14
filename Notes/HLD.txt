@@ -1,0 +1,44 @@
+
+Design System Design
+
+URL Shortener
+Rate Limiter
+Distributed Cache
+Notification System
+File Storage System
+Chat / Messaging System (whats app)
+News Feed System (instagram,tinder)
+Search Autocomplete
+Ride Sharing System(uber)
+Online Payment System
+Logging & Monitoring System
+Video Streaming Platform (hotstar)
+Distributed Queue
+E-commerce System
+Banking / Wallet System
+CHess game
+Design You tube
+Design Ad click Aggregator
+
+==============================
+These appear in almost every HLD round
+
+URL Shortener
+Rate Limiter
+Distributed Cache
+Chat / Messaging System (WhatsApp)
+News Feed System (Instagram / Tinder)
+Online Payment System(RazorPay,Paypal)
+Design YouTube
+Design Ad Click Aggregator
+Ride Sharing System (Uber)
+Video Streaming Platform (Hotstar)
+Distributed Queue
+E-commerce System (Amazon,Flipkart)
+Banking / Wallet System(PhonePe)
+Notification System
+Logging & Monitoring System
+File Storage System
+Search Autocomplete
+Chess Game (OOP Design)
+======================================
