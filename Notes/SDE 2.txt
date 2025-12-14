@@ -1,6 +1,6 @@
 	SDE 2
 	
-1	DSA
+1	DSA (understand,diagram,code)(Rishab)
 	
 	Array & Hashing (Notes)
 	Matrix (Notes)
@@ -25,7 +25,7 @@
 	Links:
 	Striver: https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2
 =======================================================	
-2	LLD
+2	LLD (Shubham)
 	
 	Introduction to LLD
 	SOLID (S.O.L.)
@@ -101,13 +101,13 @@
 	Nikhil lohia: https://www.youtube.com/watch?v=JR-5rtt6_ME&list=PLFdAYMIVJQHOWJgRrjv_RH-ng95B2h3ON
 	Shrayas: https://www.youtube.com/watch?v=rliSgjoOFTs&list=PL6W8uoQQ2c63W58rpNFDwdrBnq5G3EfT7
 ====================================================	
-4	CS fundamentals (Core subjects)
+4	CS fundamentals (Core subjects) (Rishab)
 	SQL: https://www.geeksforgeeks.org/sql/sql-cheat-sheet/
 	OS: https://www.geeksforgeeks.org/operating-systems/last-minute-notes-operating-systems/
 	DBMS: https://www.geeksforgeeks.org/dbms/last-minute-notes-dbms/
 	CS: https://www.geeksforgeeks.org/computer-networks/last-minute-notes-computer-network/
 ==================================================
-5	Intro 
+5	Intro (Rishab)
 	Sure. My name is Gokulraaj Manimaran, and I have around 4 years of experience as a Software Engineer on building high-performance scalable backend systems
 	Currently, I’m working on the SBI Securities project, where I build real-time market data and order-execution APIs using C++, Mysql. My main focus is on delivering low-latency, secure, and reliable trading flows for end users.
 	Before this, I worked at Market Simplified, where I was involved in developing high-performance backend systems for financial applications. I worked extensively on optimizing API performance, C++,Ktor framework ,Restful APIs.
