@@ -1,70 +1,90 @@
-/*
-client--> Handler -->Concrete handler
-                        class1 ,class 2
-
-*/#include <iostream>
-#include <string>
-
+#include <iostream>
 using namespace std;
 
-// Abstract Handler class
-class Handler {
+/* ===================== ABSTRACT HANDLER ===================== */
+
+class CashDispenser {
 protected:
-    Handler* next = nullptr;  // Pointer to next handler in chain
-public:
-    virtual ~Handler() {}
+    CashDispenser* nextDispenser;
 
-    void setNext(Handler* handler) {
-        next = handler;
+public:
+    CashDispenser() : nextDispenser(nullptr) {}
+
+    void setNext(CashDispenser* next) {
+        nextDispenser = next;
     }
 
-    virtual void request(const string& req) {
-        if (next) {
-            next->request(req);
-        } else {
-            cout << "It's the last handle. Request: " << req << " cannot be processed." << endl;
+    virtual void dispense(int amount) = 0;
+
+    virtual ~CashDispenser() = default;
+};
+
+/* ===================== ₹2000 DISPENSER ===================== */
+
+class Dispenser2000 : public CashDispenser {
+public:
+    void dispense(int amount) override {
+        int count = amount / 2000;
+        int remainder = amount % 2000;
+
+        if (count > 0) {
+            cout << "Dispensing " << count << " ₹2000 notes" << endl;
+        }
+
+        if (remainder > 0 && nextDispenser) {
+            nextDispenser->dispense(remainder);
         }
     }
 };
 
-// Concrete handler for low level requests
-class LowLevelHandler : public Handler {
+/* ===================== ₹500 DISPENSER ===================== */
+
+class Dispenser500 : public CashDispenser {
 public:
-    void request(const string& req) override {
-        if (req == "low") {
-            cout << "Handling the low level request." << endl;
-        } else if (next) {
-            next->request(req);
-        } else {
-            cout << "No handler available for request: " << req << endl;
+    void dispense(int amount) override {
+        int count = amount / 500;
+        int remainder = amount % 500;
+
+        if (count > 0) {
+            cout << "Dispensing " << count << " ₹500 notes" << endl;
+        }
+
+        if (remainder > 0 && nextDispenser) {
+            nextDispenser->dispense(remainder);
         }
     }
 };
 
-// Concrete handler for high level requests
-class HighLevelHandler : public Handler {
+/* ===================== ₹100 DISPENSER ===================== */
+
+class Dispenser100 : public CashDispenser {
 public:
-    void request(const string& req) override {
-        if (req == "high") {
-            cout << "Handling the high level request." << endl;
-        } else if (next) {
-            next->request(req);
-        } else {
-            cout << "No handler available for request: " << req << endl;
+    void dispense(int amount) override {
+        int count = amount / 100;
+
+        if (count > 0) {
+            cout << "Dispensing " << count << " ₹100 notes" << endl;
         }
     }
 };
+
+/* ===================== CLIENT (MAIN) ===================== */
 
 int main() {
-    LowLevelHandler low;
-    HighLevelHandler high;
+    // Create handlers
+    CashDispenser* d2000 = new Dispenser2000();
+    CashDispenser* d500  = new Dispenser500();
+    CashDispenser* d100  = new Dispenser100();
 
-    // Set chain: low -> high
-    low.setNext(&high);
+    // Chain: 2000 → 500 → 100
+    d2000->setNext(d500);
+    d500->setNext(d100);
 
-    low.request("high");  // Will be handled by high level handler
-    low.request("low");   // Will be handled by low level handler
-    low.request("mid");   // No handler handles it, goes through chain till end
+    int amount = 5000;
+    cout << "Withdrawing ₹" << amount << endl;
+
+    // Start chain
+    d2000->dispense(amount);
 
     return 0;
 }

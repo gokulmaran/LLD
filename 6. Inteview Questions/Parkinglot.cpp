@@ -1,187 +1,228 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <ctime>
+#include <cmath>
+
+#ifdef _WIN32
+#include <windows.h>
+#define sleep(x) Sleep((x) * 1000)
+#else
+#include <unistd.h>
+#endif
+
 using namespace std;
 
-/* ---------- ENUMS ---------- */
-enum class GameStatus {
-    WIN,
-    DRAW,
-    IN_PROGRESS
-};
+/* ================= ENUMS ================= */
 
-enum class PieceType {
-    X,
-    O,
-    EMPTY
-};
+enum class VehicleType { BIKE, CAR, TRUCK };
+enum class SpotType { SMALL, MEDIUM, LARGE };
 
-/* ---------- PLAYING PIECE ---------- */
-class PlayingPiece {
+/* ================= VEHICLE ================= */
+
+class Vehicle {
+protected:
+    string number;
+    VehicleType type;
+
 public:
-    PieceType type;
-    PlayingPiece(PieceType t) : type(t) {}
+    Vehicle(string num, VehicleType t) : number(num), type(t) {}
+    virtual ~Vehicle() {}
+
+    VehicleType getType() const { return type; }
+    string getNumber() const { return number; }
 };
 
-/* ---------- PLAYER ---------- */
-class Player {
+class Car : public Vehicle {
 public:
-    string name;
-    PlayingPiece piece;
-
-    Player(string n, PieceType t) : name(n), piece(t) {}
+    Car(string num) : Vehicle(num, VehicleType::CAR) {}
 };
 
-/* ---------- BOARD ---------- */
-class Board {
+class Bike : public Vehicle {
 public:
-    int size;
-    vector<vector<PlayingPiece*>> grid;
-
-    Board(int n) : size(n) {
-        grid.resize(size, vector<PlayingPiece*>(size, nullptr));
-    }
-
-    bool addPiece(int row, int col, PlayingPiece* piece) {
-        if (row < 0 || col < 0 || row >= size || col >= size)
-            return false;
-        if (grid[row][col] != nullptr)
-            return false;
-
-        grid[row][col] = piece;
-        return true;
-    }
-
-    void printBoard() {
-        cout << "\n";
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (grid[i][j] == nullptr)
-                    cout << " _ ";
-                else if (grid[i][j]->type == PieceType::X)
-                    cout << " X ";
-                else
-                    cout << " O ";
-            }
-            cout << "\n";
-        }
-        cout << "\n";
-    }
-
-    bool isFull() {
-        for (auto &row : grid)
-            for (auto &cell : row)
-                if (cell == nullptr)
-                    return false;
-        return true;
-    }
+    Bike(string num) : Vehicle(num, VehicleType::BIKE) {}
 };
 
-/* ---------- GAME ---------- */
-class TicTacToeGame {
+/* ================= PARKING SPOT ================= */
+
+class ParkingSpot {
+protected:
+    SpotType type;
+    Vehicle* vehicle;
+
 public:
-    Board board;
-    deque<Player*> players;
-    Player* winner = nullptr;
+    ParkingSpot(SpotType t) : type(t), vehicle(nullptr) {}
+    virtual ~ParkingSpot() {}
 
-    TicTacToeGame() : board(3) {}
-
-    void initializeGame() {
-        Player* p1 = new Player("Player1", PieceType::X);
-        Player* p2 = new Player("Player2", PieceType::O);
-
-        players.push_back(p1);
-        players.push_back(p2);
+    bool isFree() const {
+        return vehicle == nullptr;
     }
 
-    GameStatus startGame() {
-        while (true) {
-            Player* currPlayer = players.front();
-            players.pop_front();
-
-            board.printBoard();
-            cout << currPlayer->name << " (" 
-                 << (currPlayer->piece.type == PieceType::X ? "X" : "O")
-                 << ") enter row and col: ";
-
-            int row, col;
-            cin >> row >> col;
-
-            bool success = board.addPiece(row, col, &currPlayer->piece);
-            if (!success) {
-                cout << "Invalid move! Try again.\n";
-                players.push_front(currPlayer);
-                continue;
-            }
-
-            if (checkWinner(row, col, currPlayer->piece.type)) {
-                board.printBoard();
-                winner = currPlayer;
-                return GameStatus::WIN;
-            }
-
-            if (board.isFull()) {
-                board.printBoard();
-                return GameStatus::DRAW;
-            }
-
-            players.push_back(currPlayer);
-        }
-    }
-
-    bool checkWinner(int row, int col, PieceType type) {
-        bool win;
-
-        // Row check
-        win = true;
-        for (int j = 0; j < board.size; j++)
-            if (board.grid[row][j] == nullptr || board.grid[row][j]->type != type)
-                win = false;
-        if (win) return true;
-
-        // Column check
-        win = true;
-        for (int i = 0; i < board.size; i++)
-            if (board.grid[i][col] == nullptr || board.grid[i][col]->type != type)
-                win = false;
-        if (win) return true;
-
-        // Diagonal
-        if (row == col) {
-            win = true;
-            for (int i = 0; i < board.size; i++)
-                if (board.grid[i][i] == nullptr || board.grid[i][i]->type != type)
-                    win = false;
-            if (win) return true;
-        }
-
-        // Anti-diagonal
-        if (row + col == board.size - 1) {
-            win = true;
-            for (int i = 0; i < board.size; i++)
-                if (board.grid[i][board.size - i - 1] == nullptr ||
-                    board.grid[i][board.size - i - 1]->type != type)
-                    win = false;
-            if (win) return true;
-        }
-
+    bool canFit(VehicleType v) {
+        if (v == VehicleType::BIKE) return true;
+        if (v == VehicleType::CAR && type != SpotType::SMALL) return true;
+        if (v == VehicleType::TRUCK && type == SpotType::LARGE) return true;
         return false;
     }
+
+    void park(Vehicle* v) {
+        vehicle = v;
+    }
+
+    void unpark() {
+        vehicle = nullptr;
+    }
 };
 
-/* ---------- MAIN ---------- */
+/* ================= TICKET ================= */
+
+class Ticket {
+public:
+    int ticketId;
+    time_t entryTime;
+    ParkingSpot* spot;
+    Vehicle* vehicle;
+
+    Ticket(int id, Vehicle* v, ParkingSpot* s)
+        : ticketId(id), vehicle(v), spot(s) {
+        entryTime = time(nullptr);
+    }
+};
+
+/* ================= PRICING STRATEGY ================= */
+
+class PricingStrategy {
+public:
+    virtual double calculate(time_t entry, time_t exitTime) = 0;
+    virtual ~PricingStrategy() {}
+};
+
+class HourlyPricing : public PricingStrategy {
+public:
+    double calculate(time_t entry, time_t exitTime) override {
+        double hours = difftime(exitTime, entry) / 3600.0;
+        return ceil(hours) * 50; // ₹50 per hour
+    }
+};
+
+/* ================= PAYMENT STRATEGY ================= */
+
+class PaymentStrategy {
+public:
+    virtual void pay(double amount) = 0;
+    virtual ~PaymentStrategy() {}
+};
+
+class CashPayment : public PaymentStrategy {
+public:
+    void pay(double amount) override {
+        cout << "Payment Successful: ₹" << amount << " via Cash" << endl;
+    }
+};
+
+/* ================= ENTRY GATE ================= */
+
+class EntryGate {
+    int ticketCounter = 0;
+
+public:
+    Ticket* generateTicket(Vehicle* v, ParkingSpot* s) {
+        cout << "Vehicle Parked. Ticket Generated.\n";
+        return new Ticket(++ticketCounter, v, s);
+    }
+};
+
+/* ================= EXIT GATE ================= */
+
+class ExitGate {
+public:
+    void processExit(Ticket* ticket,
+                     PricingStrategy* pricing,
+                     PaymentStrategy* payment) {
+
+        time_t exitTime = time(nullptr);
+        double fee = pricing->calculate(ticket->entryTime, exitTime);
+
+        payment->pay(fee);
+        ticket->spot->unpark();
+
+        cout << "Vehicle Exited Successfully.\n";
+    }
+};
+
+/* ================= PARKING LOT (SINGLETON) ================= */
+
+class ParkingLot {
+private:
+    vector<ParkingSpot*> spots;
+    EntryGate entryGate;
+    ExitGate exitGate;
+
+    ParkingLot() {}
+
+public:
+    static ParkingLot& getInstance() {
+        static ParkingLot instance;
+        return instance;
+    }
+
+    void addSpot(ParkingSpot* spot) {
+        spots.push_back(spot);
+    }
+
+    ParkingSpot* findSpot(VehicleType v) {
+        for (auto spot : spots) {
+            if (spot->isFree() && spot->canFit(v))
+                return spot;
+        }
+        return nullptr;
+    }
+
+    Ticket* parkVehicle(Vehicle* v) {
+        ParkingSpot* spot = findSpot(v->getType());
+        if (!spot) {
+            cout << "No Parking Spot Available\n";
+            return nullptr;
+        }
+        spot->park(v);
+        return entryGate.generateTicket(v, spot);
+    }
+
+    void exitVehicle(Ticket* ticket) {
+        PricingStrategy* pricing = new HourlyPricing();
+        PaymentStrategy* payment = new CashPayment();
+
+        exitGate.processExit(ticket, pricing, payment);
+
+        delete pricing;
+        delete payment;
+        delete ticket;
+    }
+};
+
+/* ================= MAIN ================= */
+
 int main() {
-    cout << "\n===>>> TicTacToe Game\n";
+    ParkingLot& lot = ParkingLot::getInstance();
 
-    TicTacToeGame game;
-    game.initializeGame();
-    GameStatus status = game.startGame();
+    // Add parking spots
+    lot.addSpot(new ParkingSpot(SpotType::SMALL));
+    lot.addSpot(new ParkingSpot(SpotType::MEDIUM));
+    lot.addSpot(new ParkingSpot(SpotType::LARGE));
 
-    cout << "\n===>>> GAME OVER: ";
-    if (status == GameStatus::WIN)
-        cout << game.winner->name << " won the game\n";
-    else if (status == GameStatus::DRAW)
-        cout << "It's a Draw!\n";
-    else
-        cout << "Game Ended\n";
+    // Create vehicle
+    Vehicle* car = new Car("TN-01-1234");
 
+    // Park vehicle
+    Ticket* ticket = lot.parkVehicle(car);
+
+    // Simulate parking time
+    sleep(2);
+
+    // Exit vehicle
+    if (ticket)
+        lot.exitVehicle(ticket);
+
+    delete car;
     return 0;
 }

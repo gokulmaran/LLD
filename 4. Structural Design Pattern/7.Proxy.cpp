@@ -1,44 +1,64 @@
-/*
-Client-->  YouTubeDownloadProxy(Youtube instance),(download())
-                  ||
-           Downloader(download)
-                 ||
-           YouTubeDownload(download)
-*/
 #include <iostream>
+#include <string>
 using namespace std;
 
-//interface
-class Downloader{
+/* ===================== SUBJECT INTERFACE ===================== */
+
+class Image {
 public:
-      virtual void download()=0;
-virtual ~Downloader(){};
+    virtual void display() = 0;
+    virtual ~Image() = default;
 };
 
-class YouTubeDownload: public Downloader{
-    public:
-        void download(){
-          cout<<"YouTUbe videos Downloaded"<<endl;
+/* ===================== REAL OBJECT ===================== */
+
+class RealImage : public Image {
+    string filename;
+
+public:
+    RealImage(const string& name) : filename(name) {
+        cout << "Loading image from disk: " << filename << endl;
+    }
+
+    void display() override {
+        cout << "Displaying image: " << filename << endl;
+    }
+};
+
+/* ===================== PROXY ===================== */
+
+class ProxyImage : public Image {
+    RealImage* realImage;
+    string filename;
+
+public:
+    ProxyImage(const string& name)
+        : realImage(nullptr), filename(name) {}
+
+    void display() override {
+        if (realImage == nullptr) {
+            // Lazy initialization
+            realImage = new RealImage(filename);
         }
+        realImage->display();
+    }
+
+    ~ProxyImage() {
+        delete realImage;
+    }
 };
 
-class YouTubeDownloadProxy: public Downloader{
-     public: 
-         YouTubeDownload *youTube;
-         
-         void download(){
-             if(!youTube){
-               cout<<"Initial call"<<endl;
-               youTube=new YouTubeDownload();
-             }
-             youTube->download();
-         }
-};
-int main() 
-{
-    Downloader*proxy =new YouTubeDownloadProxy();
-    proxy->download();
-    cout<<"proxy call"<<endl;
-    proxy->download();
-  
+/* ===================== CLIENT ===================== */
+
+int main() {
+    Image* image = new ProxyImage("photo.png");
+
+    cout << "First call:\n";
+    image->display();   // Image loaded from disk
+
+    cout << "\nSecond call:\n";
+    image->display();   // Cached image used
+
+    delete image;
+    return 0;
 }

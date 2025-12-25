@@ -1,99 +1,114 @@
 #include <iostream>
 using namespace std;
-
 /*
- State interface --> Concrete states --> Context
++------------------+
+|     Product      |
++------------------+
+| - state:         |
+|   ProductState   |
++------------------+
+| + setCurrentState|
++------------------+
+          |
+          | has-a
+          v
++------------------------+
+|     ProductState      |
++------------------------+
+| + operation1(Product)|
+| + operation2(Product)|
+| + operationN(Product)|
++------------------------+
+     ^           ^           ^
+     | is-a      | is-a      | is-a
++---------+  +---------+  +---------+
+| State 1 |  | State 2 |  | State 3 |
++---------+  +---------+  +---------+
 */
+/* =======================
+   Forward Declarations
+   ======================= */
+class TrafficLight;
 
-class Order; // forward declare ONLY class name, not methods (allowed)
 
-
-// ---- State Interface ----
-class OrderStates {
+/* =======================
+   State Interface
+   ======================= */
+class TrafficLightState {
 public:
-    virtual string name() = 0;
-    virtual void proceed(Order* order) = 0;
-    virtual ~OrderStates() {}
+    virtual void action(TrafficLight* signal) = 0;
+    virtual ~TrafficLightState() = default;
 };
 
+/* =======================
+   Context
+   ======================= */
+class TrafficLight {
+private:
+    TrafficLightState* state;
 
-// ---- Context ----
-class Order {
 public:
-    OrderStates* state;
+    TrafficLight(TrafficLightState* initialState) : state(initialState) {}
 
-    Order(OrderStates* s) : state(s) {}
-
-    void setState(OrderStates* s) {
-        delete state;     // free old state
-        state = s;
+    void setState(TrafficLightState* newState) {
+        delete state;
+        state = newState;
     }
 
-    void next() {
-        state->proceed(this);
+    void change() {
+        state->action(this);
     }
 
-    void show() {
-        cout << "Current State: " << state->name() << endl;
-    }
-
-    ~Order() {
+    ~TrafficLight() {
         delete state;
     }
 };
 
-
-// ---- Concrete States ----
-class Placed : public OrderStates {
+/* =======================
+   Concrete States (DECLARATION)
+   ======================= */
+class RedState : public TrafficLightState {
 public:
-    string name() {
-        return "Placed";
-    }
-    void proceed(Order* order);
+    void action(TrafficLight* signal) override;
 };
 
-class Shipped : public OrderStates {
+class GreenState : public TrafficLightState {
 public:
-    string name() {
-        return "Shipped";
-    }
-    void proceed(Order* order);
+    void action(TrafficLight* signal) override;
 };
 
-class Delivered : public OrderStates {
+class YellowState : public TrafficLightState {
 public:
-    string name() {
-        return "Delivered";
-    }
-    void proceed(Order* order) {
-        cout << "Order already delivered. No further transitions.\n";
-    }
+    void action(TrafficLight* signal) override;
 };
 
-
-// ---- Proceed Implementations (after all classes exist) ----
-
-void Placed::proceed(Order* order) {
-    order->setState(new Shipped());
+/* =======================
+   Concrete States (DEFINITION)
+   ======================= */
+void RedState::action(TrafficLight* signal) {
+    cout << "RED → STOP\n";
+    signal->setState(new GreenState());
 }
 
-void Shipped::proceed(Order* order) {
-    order->setState(new Delivered());
+void GreenState::action(TrafficLight* signal) {
+    cout << "GREEN → GO\n";
+    signal->setState(new YellowState());
 }
 
+void YellowState::action(TrafficLight* signal) {
+    cout << "YELLOW → SLOW DOWN\n";
+    signal->setState(new RedState());
+}
 
-// ---- Main ----
+/* =======================
+   Client
+   ======================= */
 int main() {
-    Order order(new Placed());
+    TrafficLight trafficLight(new RedState());
 
-    order.show();
-    order.next();
-
-    order.show();
-    order.next();
-
-    order.show();
-    order.next(); // calling again on Delivered
+    trafficLight.change(); // RED → GREEN
+    trafficLight.change(); // GREEN → YELLOW
+    trafficLight.change(); // YELLOW → RED
 
     return 0;
 }
