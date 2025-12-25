@@ -1,0 +1,130 @@
+LLD
+
+1️⃣ Core LLD Concepts (VERY IMPORTANT)
+🔹 1️⃣ Object-Oriented Principles
+
+1️⃣ Encapsulation (Hide internal state, expose behavior)
+2️⃣ Abstraction (Interfaces / abstract classes)
+3️⃣ Inheritance (Reuse common behavior)
+4️⃣ Polymorphism (Same interface, different behavior)
+
+👉 Interview Question:
+❓ Why composition over inheritance?
+
+🔹 2️⃣ SOLID Principles
+
+1️⃣ S – SRP (Single Responsibility Principle) One class, one reason to change
+2️⃣ O – OCP (Open/Closed Principle) Open for extension, closed for modification
+3️⃣ L – LSP (Liskov Substitution Principle) Subclasses must be substitutable
+4️⃣ I – ISP (Interface Segregation Principle) Small, specific interfaces
+5️⃣ D – DIP (Dependency Inversion Principle) Depend on abstractions, not concretions
+
+🔹 3️⃣ Relationships
+
+1️⃣ IS-A → Inheritance
+2️⃣ HAS-A → Composition
+3️⃣ Association
+Uses relationship
+4️⃣ Aggregation vs Composition
+Weak vs strong ownership
+
+👉 Interview Question:
+❓ Difference between aggregation and composition?
+
+🔹 4️⃣ UML & Modeling
+
+1️⃣ Class Diagrams
+2️⃣ Sequence Diagrams
+3️⃣ State Diagrams
+
+🔹 5️⃣ Concurrency
+
+1️⃣ Thread Safety
+2️⃣ Locks / Synchronized Blocks
+3️⃣ Atomic Operations
+4️⃣ Idempotency
+
+👉 Interview Question:
+❓ How do you make your design thread-safe?
+📌 MOST IMPORTANT FOR INTERVIEWS
+
+⭐ = Very Frequently Asked
+
+============================================================================
+
+2️⃣ Must-Know Design Patterns (LLD Focus)
+
+
+🅰️ Creational Design Patterns (Object Creation)
+
+1️⃣ Singleton (Single instance, global access Logger, Configuration, DB Connection)
+2️⃣ Factory Method (Object creation without exposing logic,  Shape, Payment, Notification)
+3️⃣ Abstract Factory (Factory of related objects, UI themes, OS-based components)
+4️⃣ Builder (Step-by-step object construction, Immutable objects, Config builders)
+5️⃣ Prototype (Clone existing objects, Object copying, Cache optimization)
+
+
+🅱️ Structural Design Patterns (Object Composition)
+
+6️⃣ Adapter (Interface conversion, Legacy system, Third-party API)
+7️⃣ Bridge (Decouple abstraction from implementation, Device + Remote, Platform independence)
+8️⃣ Composite (Tree structure, part-whole hierarchy, File system, Org hierarchy)
+9️⃣ Decorator (Add behavior dynamicallyPizza toppings, Logging)
+🔟 Facade (Simplified interface for complex system,Library wrappers, Service layers )
+1️⃣1️⃣ Flyweight (Memory optimization via shared objects, Text editor, Game objects)
+1️⃣2️⃣ Proxy (Control access to object, Caching, Security, Lazy loading)
+
+🅲 Behavioral Design Patterns (Object Interaction)
+
+1️⃣3️⃣ Iterator (Sequential access without exposing structure, Collections traversal)
+1️⃣4️⃣ Observer (One-to-many dependency,Notification system, Stock price updates)
+1️⃣5️⃣ Strategy (Runtime algorithm selection, Payment methods, Rate limiter)
+1️⃣6️⃣ Command (Encapsulate request as object,  Undo/Redo, Remote control)
+1️⃣7️⃣ State ⭐(Behavior changes with state,Vending machine, Elevator)
+1️⃣8️⃣ Template Method (Algorithm skeleton, subclass steps, Frameworks, Workflows)
+1️⃣9️⃣ Visitor (Add operations without modifying objects,Tax calculation, Reporting)
+2️⃣0️⃣ Mediator (Centralized communication,Chat system, Air traffic control)
+2️⃣1️⃣ Memento (Capture & restore state,Undo feature, Checkpoints)
+2️⃣2️⃣ Chain of Responsibility (Pass request along chain, Logging, Validation, Middleware)
+==============================================================================
+
+
+3️⃣ Top LLD Interview Questions (With Focus)
+
+🅰️ Core System Designs (Very High Frequency)  
+
+1️⃣ Parking Lot System Vehicle types, slots, tickets OOP, Strategy pattern
+2️⃣ Library Management System Book issue/return, fine calculation User roles (Admin / Member)
+3️⃣ Movie Ticket Booking System (BookMyShow) Seat locking, concurrency Payments & shows 
+4️⃣ Elevator System Request scheduling Multiple elevators, concurrency
+5️⃣ Online Shopping Cart Cart, checkout, discounts Order lifecycle
+
+🅱️ Cache, API & Backend-Focused   
+
+6️⃣ LRU Cache HashMap + Doubly Linked List O(1) operations
+7️⃣ Rate Limiter Token bucket / Leaky bucket API throttling 
+8️⃣ URL Shortener Hashing, expiry Collision handling
+9️⃣ Logger System Log levels Singleton pattern
+🔟 Notification System Email / SMS / Push Observer patter
+
+
+🅲 Game-Based Designs (Interview Favorite)   
+
+1️⃣1️⃣ Tic-Tac-Toe Board design Win conditions
+1️⃣2️⃣ Snake and Ladder Dice, board, players Game loop
+1️⃣3️⃣ Chess Game Piece hierarchy Move validation
+1️⃣4️⃣ Ludo Game Turn handling Token movement
+
+🅳 Finance & Real-World Systems  
+
+1️⃣5️⃣ Splitwise Expense sharing Balance simplification
+1️⃣6️⃣ ATM System Cash dispensing Transaction validation
+1️⃣7️⃣ Wallet System Add money, transfer Transaction history
+
+🅴 Advanced / Design-Pattern Heavy   
+
+1️⃣8️⃣ File System Directory & file hierarchy Composite pattern
+1️⃣9️⃣ Vending Machine State pattern Inventory management
+2️⃣0️⃣ Cab Booking System (Uber/Ola) Driver matching
+
+=================================================================
