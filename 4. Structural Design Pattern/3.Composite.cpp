@@ -1,69 +1,104 @@
-/*
-                 ┌──────────────────┐
-                 │   Shape           │  ← Abstract Component
-                 │ + draw()          │
-                 └─────────▲────────┘
-                           │
-       ┌───────────────────┴────────────────────┐
-       │                                        │
-┌──────────────┐                     ┌────────────────────┐
-│   Circle     │                     │  CompositeShape    │
-│ + draw()     │                     │ + add(Shape*)      │
-└──────────────┘                     │ + remove(Shape*)   │
-                                     │ + draw()           │
-                                     └────────────────────┘
-*/
-//The Composite Pattern lets you treat individual objects and groups of objects uniformly.
-#include <bits/stdc++.h>
-using namespace std;
-/*
-Client--> Componeent(leaf1,2)--> Composite 
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
 
-*/
-//Component
-class Shape{
-  public:
-     virtual void draw()=0;
-      virtual ~Shape() {};
+using namespace std;
+
+// =======================
+// Component Interface
+// =======================
+class FileSystemComponent {
+public:
+    virtual void printContents() = 0;
+    virtual ~FileSystemComponent() {}
 };
-//leaf1
-class Circle: public Shape{
-    public:
-       void draw(){
-         cout<<"Drawing a circle"<<endl;
-       }
+
+// =======================
+// Leaf - File
+// =======================
+class File : public FileSystemComponent {
+private:
+    string fileName;
+
+public:
+    File(const string& name) : fileName(name) {}
+
+    void printContents() override {
+        cout << "File name: " << fileName << endl;
+    }
 };
-//Leaf2
-class Square: public Shape{
-    public:
-       void draw(){
-         cout<<"Drawing a square"<<endl;
-       }
+
+// =======================
+// Composite - Directory
+// =======================
+class Directory : public FileSystemComponent {
+private:
+    string directoryName;
+    vector<FileSystemComponent*> children;
+
+public:
+    Directory(const string& name) : directoryName(name) {}
+
+    void add(FileSystemComponent* component) {
+        children.push_back(component);
+    }
+
+    void remove(FileSystemComponent* component) {
+    children.erase(
+        std::remove(children.begin(), children.end(), component),
+        children.end()
+    );
+}
+
+    void printContents() override {
+        cout << "Directory Name: " << directoryName << endl;
+        for (auto child : children) {
+            child->printContents();
+        }
+    }
+
+    // Destructor: delete all children
+    ~Directory() {
+        for (auto child : children) {
+            delete child;
+        }
+    }
 };
-//Composite
-class CompositeShape: public Shape{
-  public:
-     vector<Shape*>children;
-     
-     void add(Shape*a){
-       children.push_back(a);
-     }
-     void draw(){
-       cout<<"Drawing a shapes: ";
-       for(auto c:children){
-         c->draw();
-       }
-     }
-};
-int main() 
-{
-   Circle c;
-   Square s;
-   
-   CompositeShape comp;
-   comp.add(&c);
-   comp.add(&s);
-    
-    comp.draw();
+
+// =======================
+// Client Code
+// =======================
+int main() {
+    cout << "======= Composite Design Pattern =======" << endl;
+
+    // Create files
+    FileSystemComponent* receipt = new File("receipt.pdf");
+    FileSystemComponent* invoice = new File("invoice.pdf");
+    FileSystemComponent* torrentLinks = new File("torrentLinks.txt");
+    FileSystemComponent* tomCruise = new File("tomCruise.jpg");
+    FileSystemComponent* dumbAndDumber = new File("DumbAndDumber.mp4");
+    FileSystemComponent* hangoverI = new File("HangoverI.mp4");
+
+    // Create directories
+    Directory* moviesDirectory = new Directory("Movies");
+    Directory* comedyMovieDirectory = new Directory("ComedyMovies");
+
+    // Build directory structure
+    moviesDirectory->add(receipt);
+    moviesDirectory->add(invoice);
+    moviesDirectory->add(torrentLinks);
+    moviesDirectory->add(tomCruise);
+    moviesDirectory->add(comedyMovieDirectory);
+
+    comedyMovieDirectory->add(dumbAndDumber);
+    comedyMovieDirectory->add(hangoverI);
+
+    // Print full structure
+    moviesDirectory->printContents();
+
+    // Clean up (recursively deletes all children)
+    delete moviesDirectory;
+
     return 0;
 }

@@ -1,105 +1,121 @@
-/*
-```
-┌─────────────────┐          ┌──────────────────┐          ┌─────────────────┐
-│      Pizza      │          │  PizzaBuilder    │          │  PizzaDirector   │
-├─────────────────┤          ├──────────────────┤          ├─────────────────┤
-│ - dough: string │<>------->│ + setDough()     │          │ + makeHawaiian   │
-│ - sauce: string │          │   (string): void │          │   Pizza()        │
-│ - topping:      │          │ + setSauce()     │          │   (builder:      │
-│   string        │          │   (string): void │          │    PizzaBuilder │
-│ + display():    │          │ + setTopping()   │          │   ): void        │
-│   void          │          │   (string): void │          └─────────────────┘
-└─────────────────┘          │ + getPizza():    │
-                             │   Pizza          │
-                             └──────────────────┘
-                                      ^
-                                      |
-                             ┌──────────────────┐
-                             │HawaiianPizza     │
-                             │Builder           │
-                             ├──────────────────┤
-                             │ - pizza:         │
-                             │   Pizza          │
-                             ├──────────────────┤
-                             │ + setDough()     │
-                             │   (string): void │
-                             │ + setSauce()     │
-                             │   (string): void │
-                             │ + setTopping()   │
-                             │   (string): void │
-                             │ + getPizza():    │
-                             │   Pizza          │
-                             └──────────────────┘
-```
-client-->creates a concrete builder and passes to director, and get a Burger
-*/
 #include <iostream>
+#include <string>
+
 using namespace std;
 
-/*
- client--> Product ->builder interface--> director
-                      \-->concrete builder
-*/
+// =======================
+// Product
+// =======================
+class Student {
+public:
+    string name;
+    int age;
+    string course;
+    string email;
+    bool hostel;
+    bool scholarship;
 
-//Product
-class Burger{
- public:
-     string cheese;
-     string tomato;
-     string sauce;
-     void display(){
-       cout<<"Burger with "<<"\n"<<
-              "tomato: "<<tomato<<"\n"<<
-              "cheese: "<<cheese<<"\n"<<
-              "sauce: "<<sauce<<endl;
-                   
-     }
-};
-
-//builder interface--
-class BurgerBuilder{
-  public:
-      virtual void setTomato(string tomato)=0;
-      virtual void setCheese(string cheese)=0;
-      virtual void setSauce(string sauce)=0;
-      virtual Burger getBurger()=0;
-      virtual ~BurgerBuilder() {}
+    void printDetails() {
+        cout << "Name: " << name << endl;
+        cout << "Age: " << age << endl;
+        cout << "Course: " << course << endl;
+        cout << "Email: " << email << endl;
+        cout << "Hostel: " << (hostel ? "Yes" : "No") << endl;
+        cout << "Scholarship: " << (scholarship ? "Yes" : "No") << endl;
+    }
 };
 
-//concrete builder 
-class VegBurger:public BurgerBuilder{
-  public:
-      Burger burger;
-      void setTomato(string tomato){
-         burger.tomato=tomato;
-      }
-      void setCheese(string cheese){
-         burger.cheese=cheese;
-      }
-      void setSauce(string sauce){
-         burger.sauce=sauce;
-      }
-      Burger getBurger(){
-        return burger;
-      }
+// =======================
+// Builder Interface
+// =======================
+class StudentBuilder {
+public:
+    virtual void buildName() = 0;
+    virtual void buildAge() = 0;
+    virtual void buildCourse() = 0;
+    virtual void buildEmail() = 0;
+    virtual void buildHostel() = 0;
+    virtual void buildScholarship() = 0;
+    virtual Student* getStudent() = 0;
+    virtual ~StudentBuilder() {}
 };
-//director
-class BurgerDirector{
-  public:
-      void makeVegBurger(BurgerBuilder &builder){
-          builder.setTomato("redTomato");
-          builder.setSauce("redSauce");
-          builder.setCheese("redCheese");
-      }
+
+// =======================
+// Concrete Builder
+// =======================
+class EngineeringStudentBuilder : public StudentBuilder {
+private:
+    Student* student;
+
+public:
+    EngineeringStudentBuilder() {
+        student = new Student();
+    }
+
+    void buildName() override {
+        student->name = "Gokul";
+    }
+
+    void buildAge() override {
+        student->age = 22;
+    }
+
+    void buildCourse() override {
+        student->course = "Computer Science";
+    }
+
+    void buildEmail() override {
+        student->email = "gokul@student.edu";
+    }
+
+    void buildHostel() override {
+        student->hostel = true;
+    }
+
+    void buildScholarship() override {
+        student->scholarship = false;
+    }
+
+    Student* getStudent() override {
+        return student;
+    }
 };
-int main() 
-{
-    BurgerDirector director;
-    VegBurger builder;
-    
-    director.makeVegBurger(builder);
-    
-    Burger burger=builder.getBurger();
-    burger.display();
+
+// =======================
+// Director
+// =======================
+class StudentDirector {
+private:
+    StudentBuilder* builder;
+
+public:
+    StudentDirector(StudentBuilder* b) : builder(b) {}
+
+    Student* createStudent() {
+        builder->buildName();
+        builder->buildAge();
+        builder->buildCourse();
+        builder->buildEmail();
+        builder->buildHostel();
+        builder->buildScholarship();
+        return builder->getStudent();
+    }
+};
+
+// =======================
+// Client
+// =======================
+int main() {
+    cout << "======= Builder Design Pattern =======" << endl;
+
+    StudentBuilder* builder = new EngineeringStudentBuilder();
+    StudentDirector director(builder);
+
+    Student* student = director.createStudent();
+    student->printDetails();
+
+    delete student;
+    delete builder;
+
     return 0;
 }
