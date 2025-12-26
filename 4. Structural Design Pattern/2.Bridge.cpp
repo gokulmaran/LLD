@@ -1,91 +1,110 @@
-/*
-             ┌──────────────────┐
-             │   Color (Implementor) │
-             │ + applyColor()        │
-             └────────▲───────────┘
-                      │
-      ┌──────────────────────────────┐
-      │                              │
-┌──────────────┐             ┌──────────────┐
-│ RedColor     │             │ BlueColor    │
-│ + applyColor()│            │ + applyColor()│
-└──────────────┘             └──────────────┘
-
-             ┌─────────────────────┐
-             │ Shape (Abstraction) │
-             │ + drawShape()       │
-             │ - color: Color*     │
-             └────────▲────────────┘
-                      │
-      ┌──────────────────────────────┐
-      │                              │
-┌──────────────┐             ┌──────────────┐
-│ Circle       │             │ Square       │
-│ + drawShape()│             │ + drawShape()│
-└──────────────┘             └──────────────┘
-*/
-//Decouples abstraction from implementation
 #include <iostream>
 using namespace std;
-/*Client--> Abstract class ----->abstract Implemtator-->concrete implementors
-             |-> refined abstractions
-             
-*/
-//Implementor
-class Color{
-  public:
-      virtual void applyColor()=0;
+
+/* =======================
+   Step 1: Implementor
+   ======================= */
+class BreathingProcess {
+public:
+    virtual void breathe() = 0;
+    virtual ~BreathingProcess() = default;
 };
-//Concrete Implementors
-class RedColor:public Color{
-   public:
-      void applyColor(){
-        cout<<" Applying Red color"<<endl;
-      }
-};
-class BlueColor:public Color{
-   public:
-      void applyColor(){
-        cout<< " Applying Blue color"<<endl;
-      }
-};
-//Abstract class
-class Shape{
-  public:
-    Color*color; //Bridge
-    Shape(Color*c){
-      color=c;
+
+/* =======================
+   Step 2: Concrete Implementors
+   ======================= */
+class GillBreathing : public BreathingProcess {
+public:
+    void breathe() override {
+        cout << "Breathing through gills." << endl;
     }
-    virtual void draw()=0;
 };
-//concrete abstractors
-class Circle:public Shape{
-  public:
-      Circle(Color*c):Shape(c){};
-      void draw(){
-        cout<<"Drawing a Circle shape with";
-        color->applyColor();
-        cout<<endl;
-      }
+
+class LungBreathing : public BreathingProcess {
+public:
+    void breathe() override {
+        cout << "Breathing through lungs." << endl;
+    }
 };
-class Square:public Shape{
-  public:
-      Square(Color*c):Shape(c){};
-      void draw(){
-        cout<<"Drawing a Square shape with";
-        color->applyColor();
-        cout<<endl;
-      }
+
+class Photosynthesis : public BreathingProcess {
+public:
+    void breathe() override {
+        cout << "Breathing through process of photosynthesis. "
+             << "Releases Oxygen through leaves." << endl;
+    }
 };
-int main() 
-{
-    Color*red=new RedColor();
-    Color*Blue=new BlueColor();
-    
-    Shape*circle=new Circle(red);
-    Shape*square=new Square(Blue);
-    
-    circle->draw();
-    square->draw();
+
+/* =======================
+   Step 3: Abstraction
+   ======================= */
+class LivingThings {
+protected:
+    BreathingProcess* breathingProcess;
+
+public:
+    LivingThings(BreathingProcess* bp) : breathingProcess(bp) {}
+    virtual void breathe() = 0;
+    virtual ~LivingThings() = default;
+};
+
+/* =======================
+   Step 4: Refined Abstractions
+   ======================= */
+class Dog : public LivingThings {
+public:
+    Dog(BreathingProcess* bp) : LivingThings(bp) {}
+
+    void breathe() override {
+        cout << "Dog: ";
+        breathingProcess->breathe();
+    }
+};
+
+class Fish : public LivingThings {
+public:
+    Fish(BreathingProcess* bp) : LivingThings(bp) {}
+
+    void breathe() override {
+        cout << "Fish: ";
+        breathingProcess->breathe();
+    }
+};
+
+class Tree : public LivingThings {
+public:
+    Tree(BreathingProcess* bp) : LivingThings(bp) {}
+
+    void breathe() override {
+        cout << "Tree: ";
+        breathingProcess->breathe();
+    }
+};
+
+/* =======================
+   Client Code
+   ======================= */
+int main() {
+    BreathingProcess* lungBreathing = new LungBreathing();
+    BreathingProcess* gillBreathing = new GillBreathing();
+    BreathingProcess* photosynthesis = new Photosynthesis();
+
+    LivingThings* dog = new Dog(lungBreathing);
+    LivingThings* fish = new Fish(gillBreathing);
+    LivingThings* tree = new Tree(photosynthesis);
+
+    dog->breathe();
+    fish->breathe();
+    tree->breathe();
+
+    // Cleanup
+    delete dog;
+    delete fish;
+    delete tree;
+
+    delete lungBreathing;
+    delete gillBreathing;
+    delete photosynthesis;
+
     return 0;
 }

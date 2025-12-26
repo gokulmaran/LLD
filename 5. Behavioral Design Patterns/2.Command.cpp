@@ -1,68 +1,89 @@
 #include <iostream>
 using namespace std;
-/*
-Client--> Receiver-->Command Interface(Concrete commands)--> Invoker
-*/
-//Receiver
-class Light{
-  public:
-     void on(){
-       cout<<"Light is on"<<endl;
-     }
-     void off(){
-       cout<<"Light is off"<<endl;
-     }
+
+/* =========================
+   Receiver
+   ========================= */
+class Light {
+public:
+    void turnOn() {
+        cout << "Light is ON\n";
+    }
+
+    void turnOff() {
+        cout << "Light is OFF\n";
+    }
 };
-//Command Interface
-class LightCommand{
-    public:
-       virtual void execute()=0;
+
+/* =========================
+   Command Interface
+   ========================= */
+class Command {
+public:
+    virtual void execute() = 0;
+    virtual ~Command() = default;
 };
-///concrete commanders
-class LightOn:public LightCommand{
-  public:
-     Light*l;
-    LightOn(Light* light) : l(light) {}
-     
-     void execute(){
-       l->on();
-     }
+
+/* =========================
+   Concrete Commands
+   ========================= */
+class LightOnCommand : public Command {
+private:
+    Light* light;
+
+public:
+    LightOnCommand(Light* l) : light(l) {}
+
+    void execute() override {
+        light->turnOn();
+    }
 };
-class LightOff:public LightCommand{
-  public:
-     Light*l;
-      LightOff(Light* light) : l(light) {}
-     
-     void execute(){
-       l->off();
-     }
+
+class LightOffCommand : public Command {
+private:
+    Light* light;
+
+public:
+    LightOffCommand(Light* l) : light(l) {}
+
+    void execute() override {
+        light->turnOff();
+    }
 };
-//Invoker
-class RemoteControl{
-  public:
-       LightCommand*lc;
-       void setCommand(LightCommand*c){
-          lc=c;
-       }
-       void pressButton(){
-         if(lc){
-           lc->execute();
-         }
-       }
+
+/* =========================
+   Invoker
+   ========================= */
+class RemoteControl {
+private:
+    Command* command;
+
+public:
+    void setCommand(Command* cmd) {
+        command = cmd;
+    }
+
+    void pressButton() {
+        command->execute();
+    }
 };
+
+/* =========================
+   Client
+   ========================= */
 int main() {
-    Light lamp;
+    cout << "===== Simple Command Pattern Demo =====\n\n";
 
-    LightOn lightOnCmd(&lamp);    // ✔ pass receiver
-    LightOff lightOffCmd(&lamp);  // ✔ pass receiver
+    Light livingRoomLight;
+    RemoteControl remote;
 
-    RemoteControl rc;
+    // Turn ON light
+    remote.setCommand(new LightOnCommand(&livingRoomLight));
+    remote.pressButton();
 
-    rc.setCommand(&lightOnCmd);
-    rc.pressButton();  // Light ON
-
-    rc.setCommand(&lightOffCmd);
-    rc.pressButton();  // Light OFF
+    // Turn OFF light
+    remote.setCommand(new LightOffCommand(&livingRoomLight));
+    remote.pressButton();
 
     return 0;
 }
