@@ -45,26 +45,68 @@ Chess Game (OOP Design)
 Design URL Shortener (TinyURL)
 Design Rate Limiter
 Design Notification System
-Design Cache (Redis-like)
-Design API Gateway
-Design WhatsApp / Chat System
-Design News Feed (Facebook / Instagram)
-Design YouTube / Netflix
-Design Uber
-Design Food Delivery System (Swiggy / Zomato)
-Design UPI / Payment System
-Design Wallet System
-Design Order Matching Engine
-Design Transaction Ledger
-Design Fraud Detection System (High-level)
-Design Distributed Lock
-Design Leader Election
-Design Log Aggregation System
-Design Metrics & Monitoring System
-Design Feature Flag System
-Design Search Autocomplete
-Design Recommendation System (High-level only)
-Design Real-Time Analytics System
 Design Distributed Queue (Kafka-like)
 Design Cloud File Storage (Dropbox)
+Design Cache (Redis-like)
+Design WhatsApp / Chat System
+Design News Feed (Facebook / Instagram)
+Design Twitter
+Design Food Delivery System (Swiggy / Zomato)
+Design YouTube / Netflix
+Design Uber
+Design UPI / Payment System
+Design Wallet System
+Design Search Autocomplete
+Design Recommendation System (High-level only)
+Design Webhook Callbac
+Design Ticket Booking / Concurrency-heavy Reservation (e.g. BookMyShow, Ticketmaster – seat locking, overbooking prevention)
+Design API Gateway
+Design Ad Click / Impression Aggregator
+===========================================
+Final order Category wise
+===============
+Basic Questions
+Design URL Shortener (TinyURL)
+
+Distributed infrastructure
+Design Distributed Queue (Kafka-like)
+Design Cache (Redis-like)
+Design Rate Limiter
+Design API Gateway
+
+Asynchronous system
+Design Notification System
+Design Webhook Callback
+
+Real time communication
+Design WhatsApp / Chat System
+
+Social Media
+Design News Feed (Facebook / Instagram)
+Design Twitter
+Design Tinder
+
+Media streaming
+Design YouTube / Netflix/Spotify
+Design Google Drive
+Design Cloud File Storage (Dropbox)
+
+Search &Aggrgation Systems
+Design Ad Click / Impression Aggregator
+Design Search Autocomplete
+Design Recommendation System
+
+Location based
+Design Food Delivery System (Swiggy / Zomato)
+Design Uber
+
+Ecommerce/Marketplace
+Design Ticket Booking / Concurrency-heavy Reservation (e.g. BookMyShow, Ticketmaster – seat locking, overbooking prevention)
+
+Payment/Financial System
+Design UPI / Payment System
+Design Wallet System
+
+Specialized System 
+Design Chess
 ===========================================
