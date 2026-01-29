@@ -42,3 +42,29 @@ File Storage System
 Search Autocomplete
 Chess Game (OOP Design)
 ======================================
+Design URL Shortener (TinyURL)
+Design Rate Limiter
+Design Notification System
+Design Cache (Redis-like)
+Design API Gateway
+Design WhatsApp / Chat System
+Design News Feed (Facebook / Instagram)
+Design YouTube / Netflix
+Design Uber
+Design Food Delivery System (Swiggy / Zomato)
+Design UPI / Payment System
+Design Wallet System
+Design Order Matching Engine
+Design Transaction Ledger
+Design Fraud Detection System (High-level)
+Design Distributed Lock
+Design Leader Election
+Design Log Aggregation System
+Design Metrics & Monitoring System
+Design Feature Flag System
+Design Search Autocomplete
+Design Recommendation System (High-level only)
+Design Real-Time Analytics System
+Design Distributed Queue (Kafka-like)
+Design Cloud File Storage (Dropbox)
+===========================================

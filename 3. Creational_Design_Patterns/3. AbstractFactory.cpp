@@ -1,95 +1,127 @@
-/*        ┌────────────────────────┐
-          │   AbstractFactory      │
-          ├────────────────────────┤
-          │ + createShape()        │
-          │ + createColor()        │
-          └────────────────────────┘
-                 ▲                ▲
-     ┌────────────┘                └────────────┐
-┌──────────────┐                   ┌──────────────┐
-│ ShapeFactory │                   │ ColorFactory │
-└──────────────┘                   └──────────────┘
-client-->abstractfactories
-           \\
-           Concrete factories--> abstract class-->abstract interface
-*/
-
 #include <iostream>
 using namespace std;
 
-//Abstract classes
-class Button{
-  public: 
-     virtual void draw()=0;
+/* =======================
+   Abstract Products
+   ======================= */
+class MainItem {
+public:
+    virtual void prepare() = 0;
+    virtual ~MainItem() {}
 };
 
-class checkbox{
-  public:
-     virtual void draw()=0;
+class SideItem {
+public:
+    virtual void prepare() = 0;
+    virtual ~SideItem() {}
 };
-//concrete classes
-class LightButton:public Button{
-  public:
-     void draw(){
-       cout<<"drwing lightButton"<<endl;
-     }
+
+/* =======================
+   Concrete Products
+   ======================= */
+// Pizza Meal
+class Pizza : public MainItem {
+public:
+    void prepare() override {
+        cout << "Preparing Pizza" << endl;
+    }
 };
-class Darkbutton: public Button{
-  public:
-     void draw(){
-       cout<<"drawing darkbutton"<<endl;
-     }
+
+class GarlicBread : public SideItem {
+public:
+    void prepare() override {
+        cout << "Preparing Garlic Bread" << endl;
+    }
 };
-class Lightcheckbox:public checkbox{
-  public:
-     void draw(){
-       cout<<"drwing lightCheckbox"<<endl;
-     }
+
+// Burger Meal
+class Burger : public MainItem {
+public:
+    void prepare() override {
+        cout << "Preparing Burger" << endl;
+    }
 };
-class Darkcheckbox: public checkbox{
-  public:
-     void draw(){
-       cout<<"drawing darkCheckbox"<<endl;
-     }
+
+class Fries : public SideItem {
+public:
+    void prepare() override {
+        cout << "Preparing Fries" << endl;
+    }
 };
-//Abstract factory
-class GUIFactory{
-  public:
-  virtual Button*createButton()=0;
-  virtual checkbox*createcheckbox()=0;
+
+/* =======================
+   Abstract Factory
+   ======================= */
+class MealFactory {
+public:
+    virtual MainItem* createMainItem() = 0;
+    virtual SideItem* createSideItem() = 0;
+    virtual ~MealFactory() {}
 };
-//concrete factory
-class LightFactory: public GUIFactory{
-  public:
-     Button*createButton(){
-       return new LightButton();
-     }
-     checkbox*createcheckbox(){
-       return new Lightcheckbox();
-     }
+
+/* =======================
+   Concrete Factories
+   ======================= */
+class PizzaMealFactory : public MealFactory {
+public:
+    MainItem* createMainItem() override {
+        return new Pizza();
+    }
+
+    SideItem* createSideItem() override {
+        return new GarlicBread();
+    }
 };
-class DarkFactory: public GUIFactory{
-  public:
-     Button*createButton(){
-       return new Darkbutton();
-     }
-     checkbox*createcheckbox(){
-       return new Darkcheckbox();
-     }
+
+class BurgerMealFactory : public MealFactory {
+public:
+    MainItem* createMainItem() override {
+        return new Burger();
+    }
+
+    SideItem* createSideItem() override {
+        return new Fries();
+    }
 };
-int main() 
-{
-    GUIFactory*light=new LightFactory();
-    DarkFactory*dark=new DarkFactory();
-    
-    Button*btn=light->createButton();
-    checkbox*chkbox=light->createcheckbox();
-    btn->draw();
-    chkbox->draw();
-    
-     Button*btnd=dark->createButton();
-    checkbox*chkboxd=dark->createcheckbox();
-    btnd->draw();
-    chkboxd->draw();
+
+/* =======================
+   Client
+   ======================= */
+class Restaurant {
+private:
+    MealFactory* factory;
+
+public:
+    Restaurant(MealFactory* f) : factory(f) {}
+
+    void orderMeal() {
+        MainItem* mainItem = factory->createMainItem();
+        SideItem* sideItem = factory->createSideItem();
+
+        mainItem->prepare();
+        sideItem->prepare();
+
+        delete mainItem;
+        delete sideItem;
+    }
+};
+
+/* =======================
+   Main
+   ======================= */
+int main() {
+    MealFactory* pizzaFactory = new PizzaMealFactory();
+    Restaurant pizzaRestaurant(pizzaFactory);
+    pizzaRestaurant.orderMeal();
+
+    cout << "----------------" << endl;
+
+    MealFactory* burgerFactory = new BurgerMealFactory();
+    Restaurant burgerRestaurant(burgerFactory);
+    burgerRestaurant.orderMeal();
+
+    delete pizzaFactory;
+    delete burgerFactory;
+
     return 0;
 }
