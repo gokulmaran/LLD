@@ -48,26 +48,25 @@ Visitor                → Add operations without changing classes
 
 4)Interview Questions(20)
 
-Design Parking Lot
-Design Vending Machine
-Design Splitwise (User,Split(Exact,Equal,Percent,Expense,Balance))
-Design Elevator System
-Design Library Management System
-Design Tic Tac Toe Game
+
+
+
+
+
 Design Chess Game
-Design Snake & Food Game
-Design Inventory Management System
-Design Car Rental System
-Design File System
-Design Logging System 
-Design ATM Machine
+
+
+
+
+
+
 Design Rate Limiter
 Design online shopping cart(Amazon)
 Design Notification system
-Design cricbuzz
-Design Book my show
-Design LRU cache
-Design Ride Sharing App (Uber/Ola)
+
+
+
+
 =============================================
 1️⃣ Parking Lot
 2️⃣ ATM System
@@ -85,3 +84,50 @@ Design Ride Sharing App (Uber/Ola)
 1️⃣4️⃣ Splitwise
 1️⃣5️⃣ Design Tic-Tac-Toe 
 ==============================================
+
+Design Parking Lot
+Design Tic Tac Toe Game
+Design Elevator System
+Design Car Rental System
+Design Snake & ladder Game
+Design Logging System 
+Design Book my show
+Design Vending Machine
+Design ATM Machine
+Design Splitwise (User,Split(Exact,Equal,Percent,Expense,Balance))
+Design cricbuzz
+Design Inventory Management System
+Design Online Auction
+Design LRU cache
+Design Library Management System
+Design File System
+Design Ride Sharing App (Uber/Ola)
+
+===============================================
+Easy
+
+Design Tic Tac Toe
+Design Snake and Ladder game
+Design LRU Cache
+Design Parking Lot
+Design Task Management System
+
+Medium
+Design Logging System 
+Design Book my show
+Design Vending Machine
+Design ATM Machine
+Design Pub Sub system
+Design Splitwise (User,Split(Exact,Equal,Percent,Expense,Balance))
+Design Car Rental System
+Design Elevator System
+Design Library Management System
+Design File System
+Design Inventory Management System
+Design Rate Limiter
+
+Hard
+Design cricbuzz
+Design Online Auction
+Design Ride Sharing App (Uber/Ola)
+================================================
