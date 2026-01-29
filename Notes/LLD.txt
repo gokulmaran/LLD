@@ -69,3 +69,19 @@ Design Book my show
 Design LRU cache
 Design Ride Sharing App (Uber/Ola)
 =============================================
+1️⃣ Parking Lot
+2️⃣ ATM System
+3️⃣ Elevator System
+4️⃣ Vending Machine
+5️⃣ BookMyShow / Ticket Booking (LLD version)
+6️⃣ Library Management System
+7️⃣ Chess / Board Game
+8️⃣ Ride Booking (Uber – LLD)
+9️⃣ Design Logger
+🔟 Design Cache (LRU / LFU)
+1️⃣1️⃣ Design Rate Limiter (LLD)
+1️⃣2️⃣ Notification System (LLD)
+1️⃣3️⃣ File System (Basic)
+1️⃣4️⃣ Splitwise
+1️⃣5️⃣ Design Tic-Tac-Toe 
+==============================================
