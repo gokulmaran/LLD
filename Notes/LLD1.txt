@@ -157,7 +157,7 @@ Pub-Sub
 6️⃣ Car Rental System
 🔟 Inventory Management
 ==============================================
-🅲 Game-Based Designs (Interview Favorites)
+🅰️  Game-Based Designs (Interview Favorites)
 
 1️⃣ Tic-Tac-Toe
 2️⃣ Snake and Ladder
@@ -165,7 +165,7 @@ Pub-Sub
 4️⃣ Connect Four
 5️⃣ Cricbuzz (LLD scope)
 
-🅴 Advanced / Design-Pattern Heavy
+🅱️ Advanced / Design-Pattern Heavy
 
 1️⃣ File System
 2️⃣ Vending Machine
@@ -174,7 +174,7 @@ Pub-Sub
 5️⃣ Traffic Signal Control System
 6️⃣ Online Auction
 
-🅱️ Cache, API & Backend-Focused
+🅲 Cache, API & Backend-Focused
 
 1️⃣ LRU Cache
 2️⃣ Rate Limiter
@@ -189,8 +189,7 @@ Pub-Sub
 3️⃣ Payment System & Gateway 
 4️⃣ Bank Account System
 
-
-🅰️ Management & Booking Systems
+🅴 Management & Booking Systems
 
 1️⃣ Parking Lot System
 2️⃣ Movie Ticket Booking System (BookMyShow)
