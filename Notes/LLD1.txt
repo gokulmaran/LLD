@@ -91,40 +91,118 @@ Weak vs strong ownership
 
 3️⃣ Top LLD Interview Questions (With Focus)
 
-🅰️ Core System Designs (Very High Frequency)  
+5️⃣ My hard recommendation (do this, don’t argue)
 
-1️⃣ Parking Lot System Vehicle types, slots, tickets OOP, Strategy pattern
-2️⃣ Library Management System Book issue/return, fine calculation User roles (Admin / Member)
-3️⃣ Movie Ticket Booking System (BookMyShow) Seat locking, concurrency Payments & shows 
-4️⃣ Elevator System Request scheduling Multiple elevators, concurrency
-5️⃣ Online Shopping Cart Cart, checkout, discounts Order lifecycle
+From your entire list, master these 8:
+
+LRU Cache
+
+Rate Limiter
+
+Vending Machine
+
+Parking Lot
+
+BookMyShow
+
+Cab Booking
+
+Wallet
+
+Pub-Sub
+=================================================================
+🅲 Game-Based Designs (Interview Favorite)   
+
+1️⃣1️⃣ Tic-Tac-Toe Board design Win conditions
+1️⃣2️⃣ Snake and Ladder Dice, board, players Game loop
+1️⃣3️⃣ Chess Game Piece hierarchy Move validation
+1️⃣4️⃣ Connect four
+1️⃣4️⃣ Design Cricbuzz
+
+🅴 Advanced / Design-Pattern Heavy   
+
+1️⃣8️⃣ File System Directory & file hierarchy Composite pattern
+1️⃣9️⃣ Vending Machine State pattern Inventory management
+2️⃣0️⃣ ATM Machine
+2️⃣1️⃣ Pub Sub system
+2️⃣1️⃣ Traffic Signal Control
 
 🅱️ Cache, API & Backend-Focused   
 
 6️⃣ LRU Cache HashMap + Doubly Linked List O(1) operations
 7️⃣ Rate Limiter Token bucket / Leaky bucket API throttling 
 8️⃣ URL Shortener Hashing, expiry Collision handling
-9️⃣ Logger System Log levels Singleton pattern
+9️⃣ Design a Multi-Level Cache (L1 + L2)
 🔟 Notification System Email / SMS / Push Observer patter
-
-
-🅲 Game-Based Designs (Interview Favorite)   
-
-1️⃣1️⃣ Tic-Tac-Toe Board design Win conditions
-1️⃣2️⃣ Snake and Ladder Dice, board, players Game loop
-1️⃣3️⃣ Chess Game Piece hierarchy Move validation
-1️⃣4️⃣ Ludo Game Turn handling Token movement
 
 🅳 Finance & Real-World Systems  
 
-1️⃣5️⃣ Splitwise Expense sharing Balance simplification
-1️⃣6️⃣ ATM System Cash dispensing Transaction validation
-1️⃣7️⃣ Wallet System Add money, transfer Transaction history
+✅ Splitwise
+✅ Wallet
+✅ Payment System
+✅ Bank Account System
 
-🅴 Advanced / Design-Pattern Heavy   
 
-1️⃣8️⃣ File System Directory & file hierarchy Composite pattern
-1️⃣9️⃣ Vending Machine State pattern Inventory management
-2️⃣0️⃣ Cab Booking System (Uber/Ola) Driver matching
+🅰️  Management & Booking Systems 
 
-=================================================================
+1️⃣ Parking Lot System Vehicle types, slots, tickets OOP, Strategy pattern
+3️⃣ Movie Ticket Booking System (BookMyShow) Seat locking, concurrency Payments & shows
+2️⃣ Library Management System Book issue/return, fine calculation User roles (Admin / Member)
+5️⃣ Airline Reservation System (Simplified)
+4️⃣ Cab Booking System (Uber/Ola – LLD scope)
+3️⃣ Hotel Room Booking System
+1️⃣1️⃣ Train Reservation System (LLD only)
+4️⃣ Elevator System Request scheduling Multiple elevators, concurrency
+5️⃣ Online Shopping Cart Cart, checkout, discounts Order lifecycle
+6️⃣ Car Rental System
+🔟 Inventory Management
+==============================================
+🅲 Game-Based Designs (Interview Favorites)
+
+1️⃣ Tic-Tac-Toe
+2️⃣ Snake and Ladder
+3️⃣ Chess Game
+4️⃣ Connect Four
+5️⃣ Cricbuzz (LLD scope)
+
+🅴 Advanced / Design-Pattern Heavy
+
+1️⃣ File System
+2️⃣ Vending Machine
+3️⃣ ATM Machine
+4️⃣ Pub-Sub System
+5️⃣ Traffic Signal Control System
+6️⃣ Online Auction
+
+🅱️ Cache, API & Backend-Focused
+
+1️⃣ LRU Cache
+2️⃣ Rate Limiter
+3️⃣ URL Shortener
+4️⃣ Multi-Level Cache (L1 + L2)
+5️⃣ Notification System
+
+🅳 Finance & Real-World Systems
+
+1️⃣ Splitwise
+2️⃣ Wallet System
+3️⃣ Payment System & Gateway 
+4️⃣ Bank Account System
+
+
+🅰️ Management & Booking Systems
+
+1️⃣ Parking Lot System
+2️⃣ Movie Ticket Booking System (BookMyShow)
+3️⃣ Library Management System
+4️⃣ Airline Reservation System (Simplified)
+5️⃣ Cab Booking System (Uber/Ola – LLD scope)
+6️⃣ Hotel Room Booking System
+7️⃣ Train Reservation System (LLD only)
+8️⃣ Elevator System
+9️⃣ Online Shopping Cart
+🔟 Car Rental System
+1️⃣1️⃣ Inventory Management System
+
+================================================
+
