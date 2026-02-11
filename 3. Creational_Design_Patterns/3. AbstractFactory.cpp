@@ -1,127 +1,125 @@
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
+/*Programmatic Example
+Translating the door example above. First of all we have our Door interface
+and some implementation for it*/
 /* =======================
    Abstract Products
    ======================= */
-class MainItem {
+
+class Door {
 public:
-    virtual void prepare() = 0;
-    virtual ~MainItem() {}
+    virtual void getDescription() = 0;
+    virtual ~Door() = default;
 };
 
-class SideItem {
+class DoorFittingExpert {
 public:
-    virtual void prepare() = 0;
-    virtual ~SideItem() {}
+    virtual void getDescription() = 0;
+    virtual ~DoorFittingExpert() = default;
 };
 
 /* =======================
    Concrete Products
    ======================= */
 // Pizza Meal
-class Pizza : public MainItem {
+class WoodenDoor : public Door {
 public:
-    void prepare() override {
-        cout << "Preparing Pizza" << endl;
+    void getDescription() override {
+        cout << "I am a wooden door\n";
     }
 };
 
-class GarlicBread : public SideItem {
+class IronDoor : public Door {
 public:
-    void prepare() override {
-        cout << "Preparing Garlic Bread" << endl;
+    void getDescription() override {
+        cout << "I am an iron door\n";
     }
 };
 
-// Burger Meal
-class Burger : public MainItem {
+class Carpenter : public DoorFittingExpert {
 public:
-    void prepare() override {
-        cout << "Preparing Burger" << endl;
+    void getDescription() override {
+        cout << "I can only fit wooden doors\n";
     }
 };
 
-class Fries : public SideItem {
+class Welder : public DoorFittingExpert {
 public:
-    void prepare() override {
-        cout << "Preparing Fries" << endl;
+    void getDescription() override {
+        cout << "I can only fit iron doors\n";
     }
 };
-
+/*Now we have our abstract factory that would let us make family of related
+objects i.e. wooden door factory would create a wooden door and wooden door
+fitting expert and iron door factory would create an iron door and iron door fitting
+expert.*/
 /* =======================
    Abstract Factory
    ======================= */
-class MealFactory {
+class DoorFactory {
 public:
-    virtual MainItem* createMainItem() = 0;
-    virtual SideItem* createSideItem() = 0;
-    virtual ~MealFactory() {}
+    virtual Door* makeDoor() = 0;
+    virtual DoorFittingExpert* makeFittingExpert() = 0;
+    virtual ~DoorFactory() {}
 };
 
 /* =======================
    Concrete Factories
    ======================= */
-class PizzaMealFactory : public MealFactory {
+class WoodenDoorFactory : public DoorFactory {
 public:
-    MainItem* createMainItem() override {
-        return new Pizza();
+    Door* makeDoor() override {
+        return new WoodenDoor();
     }
 
-    SideItem* createSideItem() override {
-        return new GarlicBread();
+    DoorFittingExpert* makeFittingExpert() override {
+        return new Carpenter();
     }
 };
 
-class BurgerMealFactory : public MealFactory {
+class IronDoorFactory : public DoorFactory {
 public:
-    MainItem* createMainItem() override {
-        return new Burger();
+    Door* makeDoor() override {
+        return new IronDoor();
     }
 
-    SideItem* createSideItem() override {
-        return new Fries();
+    DoorFittingExpert* makeFittingExpert() override {
+        return new Welder();
     }
 };
 
-/* =======================
-   Client
-   ======================= */
-class Restaurant {
-private:
-    MealFactory* factory;
 
-public:
-    Restaurant(MealFactory* f) : factory(f) {}
-
-    void orderMeal() {
-        MainItem* mainItem = factory->createMainItem();
-        SideItem* sideItem = factory->createSideItem();
-
-        mainItem->prepare();
-        sideItem->prepare();
-
-        delete mainItem;
-        delete sideItem;
-    }
-};
-
-/* =======================
-   Main
-   ======================= */
+//And then it can be used as
 int main() {
-    MealFactory* pizzaFactory = new PizzaMealFactory();
-    Restaurant pizzaRestaurant(pizzaFactory);
-    pizzaRestaurant.orderMeal();
+    DoorFactory* woodenFactory = new WoodenDoorFactory();
 
-    cout << "----------------" << endl;
+    Door* door = woodenFactory->makeDoor();
+    DoorFittingExpert* expert = woodenFactory->makeFittingExpert();
 
-    MealFactory* burgerFactory = new BurgerMealFactory();
-    Restaurant burgerRestaurant(burgerFactory);
-    burgerRestaurant.orderMeal();
+    door->getDescription();
+    expert->getDescription();
 
-    delete pizzaFactory;
-    delete burgerFactory;
+    // cleanup
+    delete door;
+    delete expert;
+    delete woodenFactory;
+
+    cout << "----\n";
+
+    DoorFactory* ironFactory = new IronDoorFactory();
+
+    door = ironFactory->makeDoor();
+    expert = ironFactory->makeFittingExpert();
+
+    door->getDescription();
+    expert->getDescription();
+
+    // cleanup
+    delete door;
+    delete expert;
+    delete ironFactory;
 
     return 0;
 }
