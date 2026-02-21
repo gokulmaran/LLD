@@ -1,50 +1,64 @@
 #include <bits/stdc++.h>
 using namespace std;
-/*
-   interface (observer)-->concrete observer-->Subject class
-*/
-//observer interface
-class Observers{
-  public:
-      virtual void update(int newValue)=0;
+
+// Observer Interface
+class Observer {
+public:
+    virtual void update(int state) = 0;
+    virtual ~Observer() = default;
 };
 
-//concrete observer
-class ConcreteObserver: public Observers{
-  public:
-     string name;
-     ConcreteObserver(string n):name(n){};
-     
-     void update(int n){
-        cout<<"Observers values: "<<n<<endl;
-     }
-};
-//Subject
-class Subject{
-   public:
-      int value=0;
-      vector<Observers*>observer;
-      
-      void attach(Observers*obs){
-        observer.push_back(obs);
-      }
-      void setValue(int v){
-        value=v;
-        for(Observers*obs:observer){
-          obs->update(value);
+// Subject
+class Subject {
+private:
+    vector<Observer*> observers;
+    int state;
+
+public:
+    void setState(int s) {
+        state = s;
+        notify();
+    }
+
+    void attach(Observer* obs) {
+        observers.push_back(obs);
+    }
+
+    void detach(Observer* obs) {
+        auto it = find(observers.begin(), observers.end(), obs);
+        if (it != observers.end()) {
+            observers.erase(it);
         }
-      }
-      
+    }
+
+    void notify() {
+        for (auto os : observers) {
+            os->update(state);
+        }
+    }
 };
-int main() 
-{
-   Subject sub;
-   ConcreteObserver c1("A");
-   ConcreteObserver c2("B");
-   
-   sub.attach(&c1);
-   sub.attach(&c2);
-   
-   sub.setValue(10);
-   sub.setValue(20);
+
+// Concrete Observer
+class ConcreteObserver : public Observer {
+private:
+    string name;
+
+public:
+    ConcreteObserver(string name) : name(name) {}
+
+    void update(int state) override {
+        cout << name << " notified. New state: " << state << endl;
+    }
+};
+
+int main() {
+    Subject sub;
+
+    ConcreteObserver obs1("Observer1");
+    ConcreteObserver obs2("Observer2");
+
+    sub.attach(&obs1);
+    sub.attach(&obs2);
+
+    sub.setState(10);
 }

@@ -1,51 +1,53 @@
 #include <iostream>
-#include <string>
+using namespace std;
 
-/*ISP--High-level modules should not depend on low-level modules. Both should depend on abstractions.*/
-
-class DBConnectionInterface {
-public:
-    virtual std::string connect() = 0;
-    virtual ~DBConnectionInterface() {};
+//abstraction
+class Switchable{
+    public:
+      virtual void turnOn()=0;
+      virtual void turnOff()=0;
+};
+class LightBulb: public Switchable{
+  public:
+     void turnOn(){
+         cout<<"LightBulb turning ON"<<endl;
+     }
+     void turnOff(){
+         cout<<"LightBulb turning Off"<<endl;
+     }
 };
 
-class MySQLConnection : public DBConnectionInterface {
-public:
-    std::string connect() override {
-        // handle the database connection
-        return "Database connection";
+class LED: public Switchable{
+  public:
+     void turnOn(){
+         cout<<"LED turning ON"<<endl;
+     }
+     void turnOff(){
+         cout<<"LED turning Off"<<endl;
+     }
+};
+class LightSwitch{
+  public:
+    Switchable*s;
+    bool isOn=false;
+    
+    LightSwitch(Switchable*s):s(s){}
+    
+    void toggle(){
+        if(isOn){
+            s->turnOff();
+            isOn=false;
+        }
+        else{
+            s->turnOn();
+            isOn=true;
+        }
     }
 };
-
-class PostgreSQLConnection : public DBConnectionInterface {
-public:
-    std::string connect() override {
-        // handle PostgreSQL database connection
-        return "PostgreSQL connection";
-    }
-};
-
-class PasswordReminder {
-private:
-    DBConnectionInterface* dbConnection;
-
-public:
-    PasswordReminder(DBConnectionInterface* dbConnection) : dbConnection(dbConnection) {}
-
-    // Added this method to demonstrate usage of the injected connection
-    std::string sendReminder() {
-        return dbConnection->connect();
-    }
-};
-
-int main() {
-    MySQLConnection mysql;
-    PasswordReminder pr1(&mysql);
-    std::cout << pr1.sendReminder() << std::endl;
-
-    PostgreSQLConnection pg;
-    PasswordReminder pr2(&pg);
-    std::cout << pr2.sendReminder() << std::endl;
-
-    return 0;
+int main(){
+   LightBulb bulb;
+   LightSwitch l(&bulb);
+   
+   l.toggle();
+   
 }

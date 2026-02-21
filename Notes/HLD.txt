@@ -110,3 +110,135 @@ Design Wallet System
 Specialized System 
 Design Chess
 ===========================================
+
+5 Minimal HLD Categories (That Cover Everything)
+1️⃣ Core Infrastructure Systems
+
+👉 Backbone building blocks. Interview gold.
+
+Covers:
+
+URL Shortener (TinyURL)
+
+Cache (Redis-like)
+
+Rate Limiter
+
+Distributed Queue (Kafka-like)
+
+API Gateway
+
+CDN
+
+Web Crawler
+
+What interviewer checks
+
+Scalability
+
+Consistency vs availability
+
+Sharding, replication
+
+Throughput, latency
+
+If you master this category, 50% of HLD interviews are already handled.
+
+2️⃣ Real-Time & Event-Driven Systems
+
+👉 Systems where timing, ordering, and concurrency matter.
+
+Covers:
+
+WhatsApp / Chat System
+
+Notification System
+
+Webhooks
+
+Chess (turn-based real-time logic)
+
+Ride status updates (Uber)
+
+What interviewer checks
+
+WebSockets vs polling
+
+Event queues
+
+Ordering guarantees
+
+Fan-out problems
+
+Miss this → you’ll freeze when asked “real-time updates”.
+
+3️⃣ Social & Feed-Based Systems
+
+👉 Fan-out, ranking, personalization.
+
+Covers:
+
+Facebook / Instagram News Feed
+
+Twitter
+
+Tinder (matching + feed logic)
+
+Recommendation System
+
+Search Autocomplete
+
+What interviewer checks
+
+Push vs pull feeds
+
+Ranking pipelines
+
+Caching strategies
+
+Read-heavy optimizations
+
+This category separates mid-level vs senior candidates.
+
+4️⃣ Media, Storage & Large Data Systems
+
+👉 Heavy data, bandwidth, durability.
+
+Covers:
+
+YouTube / Netflix / Spotify
+
+Google Drive
+
+Dropbox
+
+Cloud File Storage
+
+What interviewer checks
+
+Chunking
+
+Metadata vs blob storage
+
+Streaming protocols
+
+Consistency models
+
+Here they test if you understand data at scale, not CRUD apps.
+
+5️⃣ Transactional & Financial Systems
+
+👉 Hardest category. Precision matters.
+
+Covers:
+
+Wallet System
+
+UPI / Payment System
+
+Ticket Booking (BookMyShow)
+
+Seat Locking / Inventory
+
+Ad Click / Impression Aggregator
+==========================================================
