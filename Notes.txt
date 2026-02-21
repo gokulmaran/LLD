@@ -1,0 +1,16 @@
+Top 5 LLD questions
+
+1. Design a Parking Lot
+The classic LLD question. You're expected to model entities like ParkingLot, ParkingSpot (Compact, Large, Handicapped), Vehicle, Ticket, and a Payment system. Focus on OOP principles, spot allocation strategy, and handling multiple floors.
+2
+. Design a URL Shortener (like bit.ly)
+Cover classes for URL mapping, encoding (Base62), expiry, redirection, and analytics. Key design decisions include the hashing strategy and handling collisions.
+
+3. Design an Elevator System
+Model Elevator, ElevatorController, Request, and Direction. The tricky part is the scheduling algorithm — SCAN (look algorithm) is commonly expected. Handle multiple elevators and edge cases like emergency stops.
+
+4. Design a Library Management System
+Entities include Book, BookItem, Member, Librarian, Loan, Reservation, and Fine. Covers search (by title/author/ISBN), checkout/return flow, and reservation queue logic.
+
+5. Design a Chess Game / Snake and Ladders
+Board games test your ability to model a Board, Piece (with polymorphism in Chess), Player, Move validation, and Game state. Chess also requires modeling special moves like castling and en passant.
