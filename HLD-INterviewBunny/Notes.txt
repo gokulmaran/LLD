@@ -1,0 +1,56 @@
+HLD Quesitons categories
+ 
+ 1) Basic Questions
+    -Design URL Shortener
+ 2) Real time COmmunication
+    -Design Whatsapp
+	-Design Google Docs
+ 3) Social Media
+    -Design Instagram
+	-Design Tinder
+ 4) Media Streaming&Storage
+    -Design Youtube
+	-Design Netflix
+	-Design Google Drive
+ 5) Location Based
+    -Design Uber
+	-Design Food Delivery service
+ 6) Search & Aggregation system
+    -Design Search Autocomplete
+	-Design Gogole Search
+	-Design Ad click Aggregator
+	-Design Web Crawler
+ 7) E commerce
+    -Design Amazon
+	-Design Movie Booking System
+ 8) Payment & Financial
+    -Design Payment system
+	-Design Stock Exchange
+ 9) Distributed Infrastructure
+    -Design Load Balncer
+	-Design CDN
+	-Design Distributed Cache
+	-Design Messaging Queue
+	-Design Key Value store
+ 10) Counting  Ranking
+    -Design Realtime Leaderboard
+	-Design Top K
+ 11) Asynchrnous System
+     -Design Notification Service
+	 -Design CI/CD Pipeline
+ 12) Specialized System
+     -Design Leetcode
+	 -Design Calendar 
+	 -Design Chess
+=============================== 
+1: Design Tiny URL 
+3: E-Commerce Platform like Amazon / Flipkart 
+5: Design Hotel Booking Application like AirBnb / Booki
+6: Design Food Delivery Application like Zomato / Swigg
+10: Design Real-time Collaborative Text Editor like Goog
+12: Design Stock Broker Trading Application like Zerodha | Grow
+14: Design Top K Leaderboard | Ranking System | Trendin
+15: Design Scalable Notifications System
+16: Design Distributed Logging System
+17: Design Payment Gateway
+==========================================
