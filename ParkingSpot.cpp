@@ -9,7 +9,8 @@ Features
 
 Entities
 1. Vehicle class should be absstract class should be inherited by car,bike,
-2. Parking lot class follows the singleton pattern to ensure only one instance of parkig lot exists.It maintains a list of levels and provide methods to park ad unpark vehicles
+2. Parking lot class follows the singleton pattern to ensure only one instance of parkig lot exists.
+It maintains a add spots and find spots and allows the park vehicle and exit the vehicle
 3. Parking Spot class respresents an individual parking spot nad tracks the availability using parked and unparked vehicle
 4. The Entry gate class Handles vehicle entry,ticket generation and spot type
 5. The Exit Gate class handles the vehicle exit, cost computation should have  happened,strategies for cost computation likeFixed price,hourly based computation

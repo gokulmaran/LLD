@@ -1,3 +1,10 @@
+LLD Questions Categories
+1. Games (Tic Tac,Toe,Chess)
+2. Management System(Parking Spot,Elevator,Library)
+3. Pattern(Vending machine,State,Observer,Composite)
+4. Developer Tools &Infrastructure (LRU Cache,Rate limiter,Url Shortener)
+5. Finance (Splitwise,Payment Gateway)
+======================================================
 Top 5 LLD questions
 
 1. Design a Parking Lot
