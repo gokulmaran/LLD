@@ -82,7 +82,7 @@ public:
 };
 
 // =======================
-// Director
+// Director-->Use the builder
 // =======================
 class StudentDirector {
 private:

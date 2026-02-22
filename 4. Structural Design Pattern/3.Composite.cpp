@@ -45,11 +45,11 @@ public:
     }
 
     void remove(FileSystemComponent* component) {
-    children.erase(
-        std::remove(children.begin(), children.end(), component),
-        children.end()
-    );
-}
+       auto it = std::find(children.begin(), children.end(), component);
+        if (it != children.end()) {
+            children.erase(it);
+        }
+    }
 
     void printContents() override {
         cout << "Directory Name: " << directoryName << endl;
