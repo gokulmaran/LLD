@@ -5,7 +5,8 @@ LLD Questions Categories
 4. Developer Tools &Infrastructure (LRU Cache,Rate limiter,Url Shortener)
 5. Finance (Splitwise,Payment Gateway)
 ======================================================
-Top 5 LLD questions
+Top 5 LLD questions (4 step process) [FeaturesRequirement, Identify Entities with responseiblities,
+                                      class Diagram, Implementation]
 
 1. Design a Parking Lot
 The classic LLD question. You're expected to model entities like ParkingLot, ParkingSpot (Compact, Large, Handicapped), Vehicle, Ticket, and a Payment system. Focus on OOP principles, spot allocation strategy, and handling multiple floors.
