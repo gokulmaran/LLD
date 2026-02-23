@@ -1,3 +1,6 @@
+HLD [4 Step process] --[Functional&Non Functional, Entities, APIs, Design diagram]
+
+===============================
 HLD Quesitons categories
  
  1) Basic Questions
