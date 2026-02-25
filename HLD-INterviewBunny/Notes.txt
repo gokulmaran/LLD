@@ -1,5 +1,5 @@
 HLD [4 Step process] --[Functional&Non Functional, Entities, APIs, Design diagram]
-1.Core Infrastructure Systems
+1.Core Infrastructure Systems {CDN, Load balancer-->Internal Working]}
 2.Real time and eventDriveen Systems
 3.Social,Feed and Search Systems
 4.Media Streaming and Storage Systems
