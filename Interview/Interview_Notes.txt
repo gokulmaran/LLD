@@ -1,0 +1,36 @@
+DSA Patterns(saved)
+1. Arrays/2D Array/Strings
+2. Two pointer/Prefix Sum
+3. Sliding Window
+4. Binary Search & Sorting
+5. DS-> Stacks & Queues, Heaps
+6. Linked List
+7. Recursion & Backtracking
+8. Trees
+9. DP
+10. Graphs
+====================================
+LLD Questions Categories
+1. Games (Tic Tac,Toe,Chess)
+2. Management System(Parking Spot,Elevator,Library)
+3. Pattern(Vending machine,State,Observer,Composite)
+4. Developer Tools &Infrastructure (LRU Cache,Rate limiter,Url Shortener)
+5. Finance (Splitwise,Payment Gateway)
+======================================================
+HLD [4 Step process] --[Functional&Non Functional, Entities, APIs, Design diagram]
+1.Core Infrastructure Systems
+2.Real time and eventDriveen Systems
+3.Social,Feed and Search Systems
+4.Media Streaming and Storage Systems
+5.Transactional, Financial &Consistemcy System (Locking based) 
+===============================
+Tech Questions
+1.OOPS (Virtual Func,V ptr,vtable)
+2. OS
+3.DBMS
+4.CDN
+==============================
+Managerial Round
+1. Behavioral Quesitons
+2.Salary Negotiation
+=============================
