@@ -22,3 +22,10 @@ Entities include Book, BookItem, Member, Librarian, Loan, Reservation, and Fine.
 
 5. Design a Chess Game / Snake and Ladders
 Board games test your ability to model a Board, Piece (with polymorphism in Chess), Player, Move validation, and Game state. Chess also requires modeling special moves like castling and en passant.
+========================
+Questins to solve
+
+1.Vendingmachine
+2.Rate limiter
+3. Url Shortener
+===============================================
