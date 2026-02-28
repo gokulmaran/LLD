@@ -29,3 +29,14 @@ Questins to solve
 2.Rate limiter
 3. Url Shortener
 ===============================================
+Must-know top 8 (in rough order of frequency):
+
+Singleton — Logger, configuration, DB connection pool
+Factory / Abstract Factory — Creating families of related objects
+Strategy — Payment methods, sorting algorithms, compression — extremely common in 2025 interviews
+Observer — Event listeners, pub-sub lite, stock ticker, notifications
+Decorator — Adding responsibilities dynamically (pizza toppings, streams)
+Adapter — Integrating incompatible interfaces
+Builder — Complex object construction (HTTP request, document)
+Command — Undo/redo, queueing tasks, remote control
+================================================
