@@ -29,14 +29,36 @@ Questins to solve
 2.Rate limiter
 3. Url Shortener
 ===============================================
+OOPS
+ Abstraction
+ Interface
+ is-a-->
+ has-a(Association(loose) vs Aggregation(week) vs Composition(strong)) -->
+ inheritance
+ UML
+
+SOLID Principles
+ Single Responsibility-
+ Open closed Principle
+ Liskov Substitution
+ Interface Segragation
+ Dependency Inversion Principle
+
+Design Patterns
 Must-know top 8 (in rough order of frequency):
+
+defn -->class diag (client to interface to concrete class) --> Code (each class code and mai func relate code)
 
 Singleton — Logger, configuration, DB connection pool
 Factory / Abstract Factory — Creating families of related objects
-Strategy — Payment methods, sorting algorithms, compression — extremely common in 2025 interviews
-Observer — Event listeners, pub-sub lite, stock ticker, notifications
+Strategy — The Strategy Design Pattern is a behavioral pattern that lets you define a family of algorithms, encapsulate each one in its own class, and make them interchangeable at runtime.
+            Payment methods, sorting algorithms, compression — extremely common in 2025 interviews
+State pattern-- The State Design Pattern is a behavioral design pattern that lets an object change its behavior when its internal state changes, as if it were switching to a different class at runtime.
+Observer — The Observer Design Pattern is a behavioral pattern that defines a one-to-many dependency between objects so that when one object (the subject) changes its state, all its dependents (observers) are automatically notified and updated.
 Decorator — Adding responsibilities dynamically (pizza toppings, streams)
 Adapter — Integrating incompatible interfaces
 Builder — Complex object construction (HTTP request, document)
-Command — Undo/redo, queueing tasks, remote control
+Command — Undo/redo, queueing tasks, remote control 
 ================================================
+INterview Questions
+1. 
