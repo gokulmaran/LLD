@@ -44,7 +44,7 @@ SOLID Principles
  Interface Segragation
  Dependency Inversion Principle
 
-Design Patterns
+Design Patterns (Single-class daigram)
 Must-know top 8 (in rough order of frequency):
 
 defn -->class diag (client to interface to concrete class) --> Code (each class code and mai func relate code)
@@ -59,6 +59,8 @@ Decorator — Adding responsibilities dynamically (pizza toppings, streams)
 Adapter — Integrating incompatible interfaces
 Builder — Complex object construction (HTTP request, document)
 Command — Undo/redo, queueing tasks, remote control 
-================================================
-INterview Questions
-1. 
+
+INterview Questions (Multiple design patterns-class daigram)
+1. Requiremnt,Entities, Class diagram,Code
+
+============================================================================
