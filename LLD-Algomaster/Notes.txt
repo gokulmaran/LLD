@@ -64,3 +64,200 @@ INterview Questions (Multiple design patterns-class daigram)
 1. Requiremnt,Entities, Class diagram,Code
 
 ============================================================================
+#include <iostream>
+using namespace std;
+//strategypattern
+
+class PaymentStrategy{
+  public:
+     virtual void pay(double amount)=0;
+};
+
+class CreditCardPayment: public PaymentStrategy{
+  public:
+     void pay (double amount){
+       cout<<"Amount "<<amount <<" Paid using credit card"<<endl;
+     }
+};
+class UPIPayment: public PaymentStrategy{
+  public:
+     void pay (double amount){
+       cout<<"Amount "<<amount <<" Paid using UPI"<<endl;
+     }
+};
+
+class Payment{
+  public:
+     PaymentStrategy*strategy;
+     
+     Payment(PaymentStrategy*strategy):strategy(strategy){}
+     
+     void setStrategy(PaymentStrategy*s){
+       strategy=s;
+     }
+     
+     void executePayment(double amount){
+       strategy->pay(amount);
+     }
+};
+int main() 
+{
+    CreditCardPayment credit;
+    UPIPayment upi;
+    
+    Payment p(&credit);
+    p.executePayment(100);
+    
+    p.setStrategy(&upi);
+    p.executePayment(200);
+}
+=====================================================================
+#include <iostream>
+using namespace std;
+//state pattern
+
+class Order;
+class OrderState{
+  public:
+     virtual void next(Order*order)=0;
+     virtual void printStatus()=0;
+};
+
+class Order{
+  public:
+     OrderState*state;
+     Order(OrderState*s):state(s){}
+     
+     void setState(OrderState*s){
+       state=s;
+     }
+     
+     void nextState(){
+       state->next(this);
+     }
+     
+     void printStatus(){
+       state->printStatus();
+     }
+};
+
+class PaidState;
+class CreatedState:public OrderState{
+   public:
+      void next(Order*order) override;
+      void printStatus(){
+        cout<<"Order is created"<<endl;
+      }
+};
+
+class ShippedState;
+class PaidState:public OrderState{
+   public:
+      void next(Order*order) override;
+      void printStatus(){
+        cout<<"Order is paid"<<endl;
+      }
+};
+
+class DeliveredState;
+class ShippedState:public OrderState{
+  public:
+     void next (Order*order) override;
+     void printStatus(){
+       cout<<"Order is shipped"<<endl;
+     }
+};
+
+class DeliveredState:public OrderState{
+  public:
+     void next (Order*order) override{
+       cout<<"Order already delivered no further state"<<endl;
+     }
+     void printStatus(){
+       cout<<"Order is delivered"<<endl;
+     }
+};
+
+void CreatedState::next(Order*order){
+       order->setState(new PaidState());
+};
+void PaidState::next(Order*order){
+       order->setState(new ShippedState());
+};
+void ShippedState::next(Order*order){
+       order->setState(new DeliveredState());
+};
+
+int main(){
+  Order*order= new Order(new CreatedState());
+  
+  order->printStatus();
+  order->nextState();
+  
+   order->printStatus();
+  order->nextState();
+}
+===================================================================================
+#include <bits/stdc++.h>
+using namespace std;
+//Observer pattern
+
+class OrderObserver{
+  public:
+    virtual void orderPlace(int orderId)=0;
+};
+
+class OrderService{
+  public:
+     vector<OrderObserver*>observers;
+     
+     void addObserver(OrderObserver*o){
+       observers.push_back(o);
+     }
+     
+     void placeOrder(int orderId){
+       cout<<"Order Placed with "<<orderId<< "successfully"<<endl;
+       notifyObservers(orderId);
+     }
+     
+     void notifyObservers(int orderId){
+       for(auto obs:observers){
+         obs->orderPlace(orderId);
+       }
+     }
+};
+
+class InventoryManager: public OrderObserver{
+  public:
+     void orderPlace(int orderId){
+       cout<<"Inventory manager sent for place"<<orderId;
+     }
+};
+
+class EmailService: public OrderObserver{
+  public:
+     void orderPlace(int orderId){
+       cout<<"Email Id sent for place"<<orderId;
+     }
+};
+class AnalyticsService: public OrderObserver{
+  public:
+     void orderPlace(int orderId){
+       cout<<"Analytics order sent for place"<<orderId;
+     }
+};
+
+int main(){
+  OrderService orderService;
+  
+  InventoryManager inventory;
+  EmailService email;
+  AnalyticsService analytics;
+  
+  orderService.addObserver(&inventory);
+  orderService.addObserver(&email);
+  orderService.addObserver(&analytics);
+  
+  orderService.placeOrder(100);
+}
+==============================================================================
