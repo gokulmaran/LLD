@@ -62,7 +62,16 @@ Command — Undo/redo, queueing tasks, remote control
 
 INterview Questions (Multiple design patterns-class daigram)
 1. Requiremnt,Entities, Class diagram,Code
-
+Parkinglot
+Vending Machine
+ATM Machine
+LRU Cache
+TicTac Toe
+Snake Ladder
+BookMyShow
+Elevator
+Library 
+Splitwise
 ============================================================================
 #include <iostream>
 using namespace std;

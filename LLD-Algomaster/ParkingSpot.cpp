@@ -250,3 +250,189 @@ int main() {
 
     return 0;
 }
+//============================================
+/*
+#include<bits/stdc++.h>
+using namespace std;
+//Parking lot system
+
+//Vehicle- It has vehicle type and number of car and bike
+//Parking spot- It will responsible for park and unpark vehicle and canfit the vehicle
+//Ticket --need to be generated with entry time
+//Entry gate-ticket need to be genrated while vehicle reinterpret_cast
+//Exit gate--> based on vehicle exits we need to calculate the price and send atof(strategy pattern)
+//Parking lot-->It should be singleton class where we need to add spots and aaprk and unpark vehicle
+//main --Using parkinglot object will park and unpark vehicle and ticket need to be generated
+
+//enums
+enum class VehicleType{BIKE,CAR,TRUCK};
+enum class SpotType{SMALL,MEDIUM,LARGE};
+
+//Vehicle class
+class Vehicle{
+  public:
+     VehicleType type;
+     string number;
+    
+    Vehicle(string number,VehicleType v):number(number),type(v){}
+    
+    string getNumber(){
+      return number;
+    }
+    
+    VehicleType getType(){
+      return type;
+    }
+};
+class Car: public Vehicle{
+  public:
+     Car(string num): Vehicle(num,VehicleType::CAR) {}
+};
+class Bike: public Vehicle{
+  public:
+     Bike(string num): Vehicle(num,VehicleType::BIKE) {}
+};
+//Parking spot
+class ParkingSpot{
+  public:
+    Vehicle*vehicle;
+    SpotType type;
+    ParkingSpot(SpotType t): type(t),vehicle(nullptr) {}
+    
+    bool isFree(){
+      return vehicle==nullptr;
+    }
+    void park(Vehicle*v){
+      vehicle=v;
+    }
+    void unPark(){
+      vehicle=nullptr;
+    }
+    bool canFit(VehicleType v){
+      if(v==VehicleType::BIKE) return true;
+      if(v==VehicleType::CAR and type!=SpotType::SMALL) return true;
+      if(v==VehicleType::TRUCK and type==SpotType::LARGE) return true;
+      return false;
+    }
+};
+
+//ticket
+class Ticket{
+  public:
+     int ticketId;
+     time_t entryTime;
+     ParkingSpot*spot;
+     Vehicle*vehicle;
+     
+     Ticket(int id,Vehicle*v,ParkingSpot*s):ticketId(id),vehicle(v),spot(s){
+        entryTime=time(nullptr); 
+     }
+};
+
+class EntryGate{
+  public:
+     int ticketCounter=0;
+     
+     Ticket* generateTicket(Vehicle*v,ParkingSpot*s){
+         cout << "Vehicle Parked. Ticket Generated.\n";
+       return new Ticket(++ticketCounter,v,s);
+     }
+};
+
+//pricing strategy
+class PricingStrategy{
+  public:
+     virtual double calculate(time_t startTime,time_t endTime)=0;
+};
+class HrlyPricingStrategy: public PricingStrategy{
+  public:
+     double calculate (time_t startTime,time_t endTime){
+        double hrs = difftime(endTime, startTime) / 3600.0;
+        return ceil(hrs) * 50;
+     }
+};
+
+class PaymentStrategy{
+  public:
+    virtual void pay(double amt)=0;
+};
+class CashPayment: public PaymentStrategy{
+  public:
+    void pay(double amt){
+      cout<<"Amount "<<amt<<" paid successfully"<<endl;
+    }
+};
+class ExitGate{
+  public: 
+    void exitGate(Ticket*t,PricingStrategy*p,PaymentStrategy*p1){
+      time_t exitTime=time(nullptr);
+      double price=p->calculate(t->entryTime,exitTime);
+      p1->pay(price);
+      t->spot->unPark();
+      cout<<"Vehicle Exited successsfully";
+    }
+     
+};
+class Parkinglot{
+  public:
+     vector<ParkingSpot*>v;
+     EntryGate entry;
+     ExitGate exit1;
+     
+     static Parkinglot& getInstance(){
+       static Parkinglot instance;
+       return instance;
+     }
+     
+     void addSpot(ParkingSpot*p){
+       v.push_back(p);
+     }
+     
+     Ticket*ParkVehicle(Vehicle*v){
+       ParkingSpot*s=findSpot(v->getType());
+       
+       if(!s){
+          cout << "No Parking Spot Available\n";
+          return nullptr;
+       }
+       s->park(v);
+        return entry.generateTicket(v, s);
+     }
+     
+     void exitVehicle(Ticket*ticket){
+       PricingStrategy*price=new HrlyPricingStrategy();
+       PaymentStrategy*payment=new CashPayment();
+       
+       exit1.exitGate(ticket,price,payment);
+     }
+    private:
+      ParkingSpot*findSpot(VehicleType type){
+        for(auto s:v){
+          if(s->isFree() and s->canFit(type)){
+            return s;
+          }
+        }
+        return nullptr;
+      }
+};
+
+int main() 
+{
+    Parkinglot &lot=Parkinglot::getInstance();
+    
+    lot.addSpot(new ParkingSpot(SpotType::SMALL));
+    lot.addSpot(new ParkingSpot(SpotType::LARGE));
+    lot.addSpot(new ParkingSpot(SpotType::MEDIUM));
+    
+    Vehicle*car=new Car("TN-63810");
+    
+    Ticket*ticket=lot.ParkVehicle(car);
+    
+    this_thread::sleep_for(chrono::seconds(2));
+    if(ticket){
+      lot.exitVehicle(ticket);
+    }
+    
+    
+}
+*/
