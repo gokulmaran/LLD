@@ -55,7 +55,8 @@ Strategy — The Strategy Design Pattern is a behavioral pattern that lets you d
             Payment methods, sorting algorithms, compression — extremely common in 2025 interviews
 State pattern-- The State Design Pattern is a behavioral design pattern that lets an object change its behavior when its internal state changes, as if it were switching to a different class at runtime.
 Observer — The Observer Design Pattern is a behavioral pattern that defines a one-to-many dependency between objects so that when one object (the subject) changes its state, all its dependents (observers) are automatically notified and updated.
-Decorator — Adding responsibilities dynamically (pizza toppings, streams)
+chai of responsibility - The Chain of Responsibility Design Pattern is a behavioral pattern that lets you pass requests along a chain of handlers, allowing each handler to decide whether to process the request or pass it to the next handler in the chain.
+ecorator — Adding responsibilities dynamically (pizza toppings, streams)
 Adapter — Integrating incompatible interfaces
 Builder — Complex object construction (HTTP request, document)
 Command — Undo/redo, queueing tasks, remote control 
@@ -272,94 +273,52 @@ int main(){
 ==============================================================================
 #include <iostream>
 using namespace std;
-//Parking lot system
 
-//Vehicle- It has vehicle type and number of car and bike
-//Parking spot- It will responsible for park and unpark vehicle and canfit the vehicle
-//Ticket --need to be generated with entry time
-//Entry gate-ticket need to be genrated while vehicle reinterpret_cast
-//Exit gate--> based on vehicle exits we need to calculate the price and send atof(strategy pattern)
-//Parking lot-->It should be singleton class where we need to add spots and aaprk and unpark vehicle
-//main --Using parkinglot object will park and unpark vehicle and ticket need to be generated
+//chain of responsibility
 
-//enums
-enum class VehicleType{BIKE,CAR,TRUCK};
-enum class SpotType{SMALL,MEDIUM,LARGE}
-
-//Vehicle class
-class Vehicle{
+class Approver{
   public:
-     VehicleType type;
-     string number;
-    
-    Vehicle(string number,VehicleType v):number(number),type(v){}
-    
-    string getNumber(){
-      return number;
-    }
-    
-    VehicleType getType(){
-      return type;
-    }
-};
-class Car: public Vehicle{
-  public:
-     Car(string num): Vehicle(num,VehicleType::CAR) {}
-};
-class Bike: public Vehicle{
-  public:
-     Bike(string num): Vehicle(num,VehicleType::BIKE) {}
-};
-//Parking spot
-class ParkingSpot{
-  public:
-    Vehicle*vehicle;
-    SpotType type;
-    ParkingSpot(SpotType t): type(t),vehicle(nullptr) {}
-    
-    bool isFree(){
-      return vehicle==nullptr;
-    }
-    void park(Vehicle*v){
-      vehicle=v;
-    }
-    void unPark(){
-      vechicle=nullptr;
-    }
-    bool canFit(VehicleType v){
-      if(v==VehicleType::BIKE) return true;
-      if(V==VehicleType::CAR and type!=SpotType::SMALL) return true;
-      if(v==VehicleType::TRUCK and type==SpotType::LARGE) return true;
-      return false;
-    }
-};
-
-//ticket
-class Ticket{
-  public:
-     int ticketId;
-     time_t entryTime;
-     ParkngSpot*spot;
-     Vehicle*vehicle;
+     Approver*next;
      
-     Ticket(int id,Vehicle*v,ParkingSpot*s):ticketId(id),vehicle(v),spot(s){
-        entryTime=time(nullptr); 
+     Approver():next(nullptr){}
+     
+     void setNext(Approver*nextHandler){
+       next=nextHandler;
+     }
+     
+     virtual void approve(double amt)=0;
+};
+
+class TeamLead:public Approver{
+  public:
+     void approve(double amt){
+       if(amt<1000){
+         cout<<"TeamLead provide approval"<<endl;
+       } else if(next){
+          next->approve(amt);
+       }
      }
 };
-
-class EntryGate{
+class Manager:public Approver{
   public:
-     int ticketCounter=0;
-     
-     Ticket* generateTicket(Vehicle*v,ParkingSpot*s){
-       return new Ticket(++ticketCounter,v,s);
+     void approve(double amt){
+       if(amt<10000){
+         cout<<"Manager provide approval"<<endl;
+       } else {
+          cout<<"Request denied amount to large"<<endl;
+       }
      }
 };
-
-
 int main() 
 {
-    cout << "Hello, World!";
+   TeamLead tl;
+   Manager manager;
+   
+   tl.setNext(&manager);
+   
+   tl.approve(100);
+   tl.approve (1500);
+    
     return 0;
 }
 ============================================================
