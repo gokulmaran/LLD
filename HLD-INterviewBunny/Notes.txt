@@ -86,4 +86,12 @@ Concepts
 	-Database Indexing Strategies(B tree Index,Inverted Index,Composite Index)
 
 5) Caching & performance
-    
+   -Cache Patterns(Cache Aside,Read through,Write Through,Write Behind)
+   -Cache Eviction Policies (LRU,LFU,FIFO)
+   -Distributed Caching(Redis(Key value) vs Memcached(user session))
+   -Cache Invalidation- (Write through,Write Invalidate,TTL,EventDriven)
+   -CDN & Edge Caching
+
+6)Communication & API Design
+   -REST API Design(GET,POST,PUT,PATCH,DELETE || 2xx,4xx,5xx codes)
+   -GraphQL API (Its custom response ,returns only Name,no over fetching,Single endpoint Flexible queries)
