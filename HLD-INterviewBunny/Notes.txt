@@ -1,5 +1,5 @@
 HLD [4 Step process] --[Functional&Non Functional, Entities, APIs, Design diagram]
-1.Core Infrastructure Systems {CDN, Load balancer-->Internal Working]}
+1.Core Infrastructure Systems {CDN, Load balancer-->Internal Working}
 2.Real time and eventDriveen Systems
 3.Social,Feed and Search Systems
 4.Media Streaming and Storage Systems
@@ -61,3 +61,29 @@ HLD Quesitons categories
 16: Design Distributed Logging System
 17: Design Payment Gateway
 ==========================================
+Concepts
+
+1) Scalability 
+    -Horizontal Scaling 
+	-Vertical Scaling
+
+2) Availability 
+    -Redundancy 
+	-Fault tolerance(Ciruit pattern,Bulk head Pattern)
+
+3) Consistency & Distributed Transactions
+	-Consistency(Eventual,Strong),
+	-CAP Theorem,
+	-Distributed transactions(2PC,SAGA PAttern)
+
+4) Database & Storage system
+	-RDBMS(ACID), 
+	-Isolation levels(Dirty reads,phantom reads)
+	-Scaling Database(Replicas)
+	-Sharding & Partitioning(horizontal shard(1-10,11-20),Vertical Shard(split table columns),consistent hashing)
+	-NoSQL (Document(Mongo DB),key value,Graph,columnFamily(Cassandra))
+	-Choosing right database(Social media(Documentdb(MongoDB)), Financial (MySQL),Cassandra: Messages, notifications (time-series, high scale))
+	-Database Indexing Strategies(B tree Index,Inverted Index,Composite Index)
+
+5) Caching & performance
+    
