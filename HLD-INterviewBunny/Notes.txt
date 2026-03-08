@@ -155,6 +155,10 @@ Concepts
 	                        Snowflake generates 64-bit IDs: 41 bits timestamp, 10 bits machine ID, 12 bits sequence. Generates ~4 million IDs per second per machine. Time-ordered, sortable. Used by Twitter. Requires coordination for machine ID assignment.)
 
 Interview Questions
+ (Requirements(func (user journey-4 points) and Non functional (Scalability,consistency,low latency))
+  API Design (From requirement ,make api points)
+  High level design (From api points(each point) ,draw hld),Concepts-->Kafka, S3, Redis)
+
     1. Design a URL Shortener
 	2. Design a Messaging System (whatsapp)
 	3. Design a Social Media Feed (Instagram)
@@ -163,3 +167,6 @@ Interview Questions
     6. Design a Distributed Cache (Redis)
     7. Design a Rate Limiter 
     8. Design a File Storage System (Google Drive)
+	9. Search Engine
+    10. Notification System
+===================================================
