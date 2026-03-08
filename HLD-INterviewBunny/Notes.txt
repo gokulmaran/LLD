@@ -95,3 +95,71 @@ Concepts
 6)Communication & API Design
    -REST API Design(GET,POST,PUT,PATCH,DELETE || 2xx,4xx,5xx codes)
    -GraphQL API (Its custom response ,returns only Name,no over fetching,Single endpoint Flexible queries)
+   -gRPC Protocol used for faster APIs,response by using HTTP2.0
+   -API Gateway Pattern (Single Entry Point, Load Blancer,Request aggregation)
+   -Backend for Frontend(BFF) , used for client specific like mobile clients,desktop clients call same API
+   -Real time communication (Web socket(bidirectional),SSE(server to client using HTTP),long polling )
+   -Rate Limiting (Token bucket,SLiding window,fixed window,Leaky bucket)
+
+7) Asynchronous & Event Driven 
+   -Message Queues (its buffer stores messages b/w producers & consumers , Patterns: Producer-Consumer Implement, Pub-sub Implement)
+   -Kafka (Appache Kafka is distributed streaming platform for building real time applications,used for event streaming,
+           Topics (similar to tables in db),  
+		   Partition(Each topic is divided into one or more partitions, which enables Kafka to scale horizontally and process messages in parallel.)
+		   Consumer group (A consumer group is a set of consumers that work together to consume messages from one or more topics),
+		   Offset( An offset is a sequential number that uniquely identifies the position of a message within a partition. Offsets start at 0 and increment for each message.)
+   -Rabbit MQ (Exchanges Route: Exchanges route messages to queues based on routing keys. Direct, topic, fanout, headers.
+               Flexible Routing: RabbitMQ’s flexible routing (exchanges) makes it great for complex routing scenarios.)
+   -Event Driven (Event Sourcing: Store all changes as events. State = replay of events. Enables audit trail, time travel, replay.)
+                  CQRS:Separate read and write models. Optimize independently. Scale independently. Better performance.)
+   -Saga Pattern (The Saga pattern is a distributed transaction management pattern that breaks a long-running transaction into a sequence of smaller, local transactions. 
+                  Each local transaction commits independently, and if any step fails, the saga executes compensating transactions to undo the effects of previously completed steps.)
+   -Idempotency (An idempotent operation is one that produces the same result using idempotency key when executed multiple times with the same input. 
+                In other words, calling it once has the same effect as calling it N times.)
+
+8) Architectural Patterns
+    -Monolithic Architecture (It is an architectural pattern where an entire application is built, deployed, and run as a single unit.)
+	-Microservices Architecture (Microservices architecture decomposes an application into a collection of small, independently deployable services. Each service runs in its own process, 
+	                            communicates via lightweight mechanisms (usually HTTP APIs or message queues), and can be developed, deployed, and scaled independently.)
+	-Service Mesh & SideCar Pattern (A service mesh is a dedicated infrastructure layer for managing service-to-service communication in microservices architectures. It handles traffic management, security, and observability without requiring changes to your application code. )
+	                            The sidecar pattern is a deployment pattern where a companion container runs alongside your main application container, providing auxiliary functionality. The sidecar shares the same network namespace and lifecycle as the main container but handles different concerns.)
+	-Strangler Pattern (The Strangler Fig Pattern is a migration strategy for gradually replacing legacy systems without risky big-bang rewrites. Instead of replacing everything at once, you build new functionality alongside the old system, gradually route traffic to the new system, and eventually decommission the legacy system.)
+	-Domain Driven Design(Domain-Driven Design (DDD) is an approach to software development that:
+                          Centers on the business domain (what the business does)
+                           Uses ubiquitous language (business and developers speak same language)) 
+	-Layered Architecture (Layered Architecture (also called n-tier architecture) organizes software into horizontal layers, where:
+                         Each layer has a specific responsibility ,Layers communicate only with adjacent layers, Dependencies flow in one direction (usually top-down),sHigher layers depend on lower layers, not vice versa)
+	-Hexagonal Architecture (Hexagonal Architecture (also called Ports and Adapters) is an architectural pattern where:
+                             Business logic is at the center (the “hexagon”) ,Ports define interfaces for communication, Adapters implement those interfaces for specific technologies
+                             Dependencies point inward toward business logic)
+	-Serverless Architecture (No Server Management, Auto-Scaling
+	                          Pattern 1: API Gateway + Lambda (REST API)
+                              Pattern 2: Event-Driven Processing)
+
+9) Resiliency Patterns
+     -Designing for failure (Consider an e-commerce site during a database failure. Without graceful degradation, the entire site goes down—users can’t browse products, can’t see recommendations, can’t view reviews, and can’t check out. With graceful degradation, the site continues operating:)
+	 -Load Balancing (Load balancing distributes incoming requests across multiple servers to improve performance (no single server overloaded), increase availability (survives server failures), enable scaling (add servers as needed), and optimize resource usage (use all servers efficiently).)
+	 -Circuit Breaker pattern (A circuit breaker is a design pattern that prevents cascade failures by stopping requests to failing services. It’s named after electrical circuit breakers that protect electrical systems from overload.)
+	 -Retry Patterns & Backoff (Retry patterns handle transient failures by detecting failures (network errors, timeouts, 5xx errors), waiting before retry (exponential backoff: 1s, 2s, 4s, 8s…), adding jitter (randomness to prevent synchronized retries), limiting attempts (don’t retry forever—3-5 attempts), and giving up gracefully (return error after max retries).)
+	 -Bulkhead Pattern- (Bulkhead pattern isolates resources into separate compartments: thread pools (each service gets its own thread pool), connection pools (each service gets its own connection pool), memory (isolated memory allocations), and CPU (isolated CPU resources). It prevents cascade failures by containing resource exhaustion to one compartment.)
+	 -Timeouts & Deadlines-(Timeout is the maximum duration to wait for an operation (e.g., 5 seconds). Deadline is the absolute time when an operation must complete (e.g., 2024-01-01 10:00:05). Deadline equals start time plus timeout.)
+
+10) System Building blocks
+     -Consistent hashing (Consistent hashing is a distributed hashing scheme that minimizes the number of keys that need to be remapped when nodes are added or removed. Instead of using modulo, it uses a hash ring - a circular space where both keys and nodes are mapped.)
+	 -Bloom Filters (Bloom filter is a probabilistic data structure for testing set membership. Uses bit array and multiple hash functions. Space-efficient but allows false positives (never false negatives). Answers: 'possibly in set' or 'definitely not in set'.)
+	 -Distributed Locks (A distributed lock is a coordination mechanism that ensures only one process or node can hold a lock at a time across a distributed system. It provides mutual exclusion across network boundaries.)
+	 -Leader Election (Leader election is the process of selecting a single node as the coordinator (leader) in a distributed system. The leader handles coordination tasks, while other nodes (followers) follow the leader’s decisions.)
+	                   Apache ZooKeeper provides built-in support for leader election using ephemeral sequential nodes:)
+	 -Networking Fundamentals (TCP: Connection-oriented, reliable, ordered delivery, flow control, congestion control. Slower but guaranteed delivery. UDP: Connectionless, unreliable, no ordering, no flow control. Faster but no delivery guarantees. Use TCP for reliability, UDP for speed/latency.)
+	 -UUID & ID Generation (UUID (Universally Unique Identifier) is 128-bit identifier. UUID v4 uses random numbers (122 random bits). UUID v7 uses timestamp + random (time-ordered). UUIDs are globally unique without coordination. Used for distributed ID generation.
+	                        Snowflake generates 64-bit IDs: 41 bits timestamp, 10 bits machine ID, 12 bits sequence. Generates ~4 million IDs per second per machine. Time-ordered, sortable. Used by Twitter. Requires coordination for machine ID assignment.)
+
+Interview Questions
+    1. Design a URL Shortener
+	2. Design a Messaging System (whatsapp)
+	3. Design a Social Media Feed (Instagram)
+    4. Design a Video Streaming Platform (Netflix/Youtube)
+    5. Design a Ride Sharing System (Uber)
+    6. Design a Distributed Cache (Redis)
+    7. Design a Rate Limiter 
+    8. Design a File Storage System (Google Drive)
