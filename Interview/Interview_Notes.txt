@@ -2,12 +2,20 @@ Interview (with Pattern unseen solve all)
 --------------------
 DSA [Unseen-(any  (Solradhu) Patterns apply and solve)saved]
 Pattern apply-->diagram
-1. Arrays/2D Array/Strings
-2. Two pointer/Prefix Sum
-3. Sliding Window
-4. Binary Search & Sorting
-5. DS-> Stacks & Queues, Heaps
-6. Linked List
+1. Arrays/2D Array/Strings [Array-Bruteforce,Algoirthm,Hashing
+                            2D Array-Bruteforce, Maps&Sets 
+                            Strings- Bruteforce, Substr]
+2. Two pointer/Prefix Sum [Two pointer-store, 2pointers,3 pointers,
+                           Prefix sum-Prefix on 1D, Prefix&Suffix,Prefix on 2D]
+3. Sliding Window [Fixed window,Vaiable window]
+4. Binary Search & Sorting [Sorting-Sorting Algos,Merge Sort,QuickSort
+                            Binary Search-BS modified (identified sorted half),BS on answers,BS on 2 d arrays]
+5. DS-> Stacks & Queues, Heaps [Stacks-Basics,Monotonic Stacks 
+                                Queues-Basics,deque
+                                Heaps- K element,Minimum number pattern, Two Heaps
+                                Greedy- Basics,Scheduling problems, Intervals]
+6. Linked List [Reverse a Linked List, Dummy pointer,Recursion]
+
 7. Recursion [linear,for loop,break] & Backtracking [Tree Maze, For loop]
 8. Trees [BT-BFS/DFS,height based, Path Sum, Construct from given node,
           BST-Basics,Traversals]
