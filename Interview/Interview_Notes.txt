@@ -1,14 +1,18 @@
-DSA [Unseen-(Patterns)saved]
+Interview (with Pattern unseen solve all)
+--------------------
+DSA [Unseen-(any  (Solradhu) Patterns apply and solve)saved]
+Pattern apply-->diagram
 1. Arrays/2D Array/Strings
 2. Two pointer/Prefix Sum
 3. Sliding Window
 4. Binary Search & Sorting
 5. DS-> Stacks & Queues, Heaps
 6. Linked List
-7. Recursion & Backtracking
-8. Trees
-9. DP
-10. Graphs
+7. Recursion [linear,for loop,break] & Backtracking [Tree Maze, For loop]
+8. Trees [BT-BFS/DFS,height based, Path Sum, Construct from given node,
+          BST-Basics,Traversals]
+9. DP [1d array, 2d array, Subsequences,Strings, LIS, Stocks, MCM]
+10. Graphs [Intro to Graph, BFS,DFS,Topo Sort, Shortest path,MST/Disjoint set,Other Algos]
 ====================================
 LLD Questions Categories [Algomaster-4 step process(Entities)][Unseen-Entities-responsibilities][Features,entities,Class diagram,Implementation]
 1. Games (Tic Tac,Toe,Chess)
@@ -34,4 +38,49 @@ Tech Questions [Defn of each (Defn)]
 Managerial Round [all ques(STAR) pattern]
 1. Behavioral Quesitons
 2.Salary Negotiation
+Tell Me About Yourself
+
+Tell me about Yourself
+------------------------
+Hi, I'm Gokulraaj Manimaran, a Software Engineer with 4.5 years of experience building 
+high-performance, scalable backend systems.
+
+In my current role, I design and own scalable, low-latency APIs for real-time systems. 
+I focus on clean architecture, performance optimization, and production stability. 
+I work extensively with SQL databases, Linux environments, and Azure cloud services.
+ Beyond development, I actively participate in code reviews,
+ handle on-call responsibilities, and drive resolution of production incidents.
+
+I'm now seeking an SDE 2 role where I can tackle complex distributed systems challenges and 
+deliver measurable impact at scale.
 =============================
+Project 1: High-Performance Real-Time Data Processing System
+
+Challenge:
+The system needed to handle thousands of concurrent requests efficiently while maintaining data consistency and reliability during peak traffic hours.
+
+My Contribution:
+I optimized a critical module by implementing an intelligent memory-caching mechanism. This eliminated redundant computations, reduced CPU utilization by approximately 30%, and significantly increased requests-per-second (RPS) and overall throughput during peak loads.
+
+Impact:
+The optimization improved system capacity to handle 2x traffic without additional infrastructure costs, while maintaining sub-100ms response times.
+
+Project 2: End-to-End Backend Module Ownership
+
+Scope:
+I owned a complete backend module from requirement analysis through production deployment and ongoing maintenance.
+
+My Responsibilities:
+
+Designed and implemented RESTful APIs for core business workflows
+Architected the database schema with proper indexing and normalization
+Handled edge cases, failure scenarios, and implemented circuit breakers
+Wrote comprehensive unit and integration tests achieving 85%+ code coverage
+Led production debugging and incident resolution with root cause analysis
+
+Key Achievements:
+
+Delivered the module on time with zero P0 incidents in the first 3 months
+Reduced API latency by 40% through query optimization and strategic caching
+Established monitoring and alerting that caught 95% of issues before user impact
+=============================================
