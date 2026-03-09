@@ -16,9 +16,9 @@ Pattern apply-->diagram
                                 Greedy- Basics,Scheduling problems, Intervals]
 6. Linked List [Reverse a Linked List, Dummy pointer,Recursion]
 
-7. Recursion [linear,for loop,tree maze break(dfs at each step), 
+7. Recursion [linear,for loop,tree maze break(dfs on one call explore possible operations at each step), 
               return break(one call return with operations at each step),
-              store break (one call condition with return at each step)] 
+              store break (one call return with condition at each step)] 
     & Backtracking [Tree Maze, For loop]
 8. Trees [BT-BFS/DFS,height based, Path Sum, Construct from given node,
           BST-Basics,Traversals]
