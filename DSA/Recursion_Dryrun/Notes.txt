@@ -4,4 +4,4 @@ Recursion dry run
 2) logic-->
 linear (single rec call), 
 tree rec(each index (>1)rec call works from last)
-for loop (explore all possibilities)
+for loop (explore all possibilities, from 1st case )
