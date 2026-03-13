@@ -1,6 +1,6 @@
 Interview (with Pattern unseen solve all)
 --------------------
-DSA [Unseen-(any  (Solradhu) Patterns apply and solve)saved]
+DSA [Unseen-(any  (Solradhu working) Patterns apply and solve)saved]
 Pattern apply-->diagram
 1. Arrays/2D Array/Strings [Array-Bruteforce,Algoirthm,Hashing
                             2D Array-Bruteforce, Maps&Sets 
@@ -16,7 +16,8 @@ Pattern apply-->diagram
                                 Greedy- Basics,Scheduling problems, Intervals]
 6. Linked List [Reverse a Linked List, Dummy pointer,Recursion]
 
-7. Recursion [linear,for loop,tree maze break(dfs on one call explore possible operations at each step), 
+7. Recursion [linear,for loop,
+              tree maze break(dfs on one call explore possible operations at each step), 
               return break(one call return with operations at each step),
               store break (one call return with condition at each step)] 
     & Backtracking [Tree Maze, For loop]
