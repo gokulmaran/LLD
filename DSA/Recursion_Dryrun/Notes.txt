@@ -1,7 +1,228 @@
 Recursion dry run 
 
-1) dry run-->Decision tree of each call return
+1) dry run-->Decision tree of each call return (Claude)
 2) logic-->
 linear (single rec call), 
 tree rec(each index (>1)rec call works from last)
-for loop (explore all possibilities, from 1st case )
+for loop (explore all possibilities, from 1st case for i=0 to 3)
+
+Tree Recursion -->Preorder vs Inorder vs Postorder — one line difference
+Traversal
+Code order
+Output for this tree
+Preorder
+push → left → right
+[1, 2, 4, 5, 3]
+Inorder
+left → push → right
+[4, 2, 5, 1, 3]
+Postorder
+left → right → push
+[4, 5, 2, 3, 1]
+
+Trie
+search("bad") // calls searchHelper("bad", 0, root)
+└── index=0, ch='b', ch != '.'
+    root->containsChar('b')? YES
+    └── recurse: searchHelper("bad", 1, b_node)
+        index=1, ch='a', ch != '.'
+        b_node->containsChar('a')? YES
+        └── recurse: searchHelper("bad", 2, b_a_node)
+            index=2, ch='d', ch != '.'
+            b_a_node->containsChar('d')? YES
+            └── recurse: searchHelper("bad", 3, b_a_d_node)
+                index=3 == word.size()=3 → Base case hit!
+                b_a_d_node->isEnd()? flag=true → return true ✓
+                // bubble up: true → true → true → true
+search("bad") = true ✓
+====================================================================================
+Nqueen
+N-Queens n=4 | board=4x4 | isValid checks: up col, left-diag, right-diag
+dfs(board=["....","....","....","...."], row=0)
+└── for i=0 to 3:
+├── i=0: isValid(row=0,col=0)? up=none,diag=none → YES
+│ board[0][0]='Q' → board=["Q...","....","....","...."]
+│ └── dfs(row=1)
+│ └── for i=0 to 3:
+│ ├── i=0: isValid(r1,c0)? up: board[0][0]=Q → FAIL ✗ → skip
+│ ├── i=1: isValid(r1,c1)? left-diag: board[0][0]=Q → FAIL ✗ → skip
+│ ├── i=2: isValid(r1,c2)? up=none,L-diag=none,R-diag=none → YES ✓
+│ │ board[1][2]='Q' → board=["Q...","..Q.","....","...."]
+│ │ └── dfs(row=2)
+│ │ └── for i=0 to 3:
+│ │ ├── i=0: isValid(r2,c0)? up: board[0][0]=Q → FAIL ✗
+│ │ ├── i=1: isValid(r2,c1)? R-diag: board[0][3]? no. L-diag: board[1][0]? no. up: no → wait R-diag from [2][1]: [1][2]=Q → FAIL ✗
+│ │ ├── i=2: isValid(r2,c2)? up: board[1][2]=Q → FAIL ✗
+│ │ └── i=3: isValid(r2,c3)? L-diag: board[1][2]=Q → FAIL ✗
+│ │ // ALL cols fail in row=2 → backtrack
+│ │ board[1][2]='.' → board=["Q...","....","....","...."]
+│ └── i=3: isValid(r1,c3)? up=none, L-diag: board[0][2]=. ok, R-diag: oob → YES ✓
+│ board[1][3]='Q' → board=["Q...",".....Q","....","...."] = ["Q...", "...Q","....","...."]
+│ └── dfs(row=2)
+│ └── for i=0 to 3:
+│ ├── i=0: up: board[0][0]=Q → FAIL ✗
+│ ├── i=1: up=none, L-diag: board[1][0]=. board[0][-1]=oob, R-diag: board[1][2]=. board[0][3]=Q wait... R-diag(r2,c1): [1][2]=. [0][3]=Q → FAIL ✗
+│ ├── i=2: R-diag: board[1][3]=Q → FAIL ✗
+│ └── i=3: up: board[1][3]=Q → FAIL ✗
+│ // ALL cols fail → backtrack
+│ board[1][3]='.' → board=["Q...","....","....","...."]
+│ board[0][0]='.' → backtrack row0 col0 done
+├── i=1: isValid(row=0,col=1)? up=none,diag=none → YES ✓
+│ board[0][1]='Q' → board=[".Q..","....","....","...."]
+│ └── dfs(row=1)
+│ └── for i=0 to 3:
+│ ├── i=0: isValid(r1,c0)? R-diag: board[0][1]=Q → FAIL ✗
+│ ├── i=1: up: board[0][1]=Q → FAIL ✗
+│ ├── i=2: L-diag: board[0][1]=Q → FAIL ✗
+│ └── i=3: up=none, L-diag: board[0][2]=. ok, R-diag: oob → YES ✓
+│ board[1][3]='Q' → board=[".Q..","...Q","....","...."]
+│ └── dfs(row=2)
+│ └── for i=0 to 3:
+│ ├── i=0: up=none, L-diag=oob, R-diag: board[1][1]=. board[0][2]=. → YES ✓
+│ │ board[2][0]='Q' → board=[".Q..","...Q","Q...","...."]
+│ │ └── dfs(row=3)
+│ │ └── for i=0 to 3:
+│ │ ├── i=0: up: board[2][0]=Q → FAIL ✗
+│ │ ├── i=1: up: board[0][1]=Q → FAIL ✗
+│ │ ├── i=2: up=none, L-diag: board[2][1]=. board[1][0]=. board[0][-1]=oob. R-diag: board[2][3]=. board[1][4]=oob → YES ✓
+│ │ │ board[3][2]='Q' → board=[".Q..","...Q","Q...",".Q"] wait → [".Q..","...Q","Q...","..Q."]
+│ │ │ └── dfs(row=4) → row==4==n
+★ SOLUTION 1 FOUND: ans.push_back(board)
+board = [".Q..","...Q","Q...","..Q."]
+│ │ │ board[3][2]='.' → backtrack
+│ │ └── i=3: up: board[1][3]=Q → FAIL ✗
+│ │ board[2][0]='.' → backtrack
+│ ├── i=1: up: board[0][1]=Q → FAIL ✗
+│ ├── i=2: L-diag: board[1][1]=. board[0][0]=. R-diag: board[1][3]=Q → FAIL ✗
+│ └── i=3: up: board[1][3]=Q → FAIL ✗
+│ board[1][3]='.' → backtrack
+│ board[0][1]='.' → backtrack row0 col1 done
+├── i=2: isValid(row=0,col=2)? → YES ✓
+│ board[0][2]='Q' → board=["..Q.","....","....","...."]
+│ └── dfs(row=1) → for i=0 to 3:
+│ ├── i=0: up=none, L-diag=oob, R-diag: board[0][3]=. → YES ✓ board[1][0]='Q' → ["..Q.","Q...","....","...."]
+│ │ └── dfs(row=2) → for i=0 to 3:
+│ │ ├── i=0: up: board[1][0]=Q → FAIL ✗
+│ │ ├── i=1: R-diag: board[1][2]=. board[0][3]=. ok. L-diag: board[1][0]=Q → FAIL ✗
+│ │ ├── i=2: up: board[0][2]=Q → FAIL ✗
+│ │ └── i=3: up=none, L-diag: board[1][2]=. board[0][1]=. R-diag: oob → YES ✓ board[2][3]='Q' → ["..Q.","Q...","...Q","...."]
+│ │ └── dfs(row=3) → for i=0 to 3:
+│ │ ├── i=0: up: board[1][0]=Q → FAIL ✗
+│ │ ├── i=1: up=none,L-diag: board[2][0]=. board[1][-1]=oob, R-diag: board[2][2]=. board[1][3]=. board[0][4]=oob → YES ✓
+│ │ │ board[3][1]='Q' → board=["..Q.","Q...","...Q",".Q.."]
+│ │ │ └── dfs(row=4) → row==n
+★ SOLUTION 2 FOUND: ans.push_back(board)
+board = ["..Q.","Q...","...Q",".Q.."]
+│ │ │ board[3][1]='.' → backtrack
+│ │ ├── i=2: up: board[0][2]=Q → FAIL ✗
+│ │ └── i=3: up: board[2][3]=Q → FAIL ✗
+│ │ board[2][3]='.' → backtrack
+│ board[1][0]='.' → backtrack
+│ ├── i=1: up: board[0][1]=. L-diag: board[0][0]=. R-diag: board[0][2]=Q → FAIL ✗
+│ ├── i=2: up: board[0][2]=Q → FAIL ✗
+│ └── i=3: L-diag: board[0][2]=Q → FAIL ✗
+│ board[0][2]='.' → backtrack row0 col2 done
+└── i=3: isValid(row=0,col=3)? → YES ✓
+board[0][3]='Q' → board=["...Q","....","....","...."]
+└── dfs(row=1) → for i=0 to 3: (symmetric to col=0 branch, both solutions already found)
+├── i=0: R-diag: board[0][1]=. board[0][2]=. L-diag: oob → YES ✓ → board=["...Q","Q...","....","...."] → row2 all fail → backtrack
+├── i=1: R-diag: board[0][2]=. board[0][3]=Q wait check → L-diag: board[0][0]=. R-diag: board[0][2]=Q → FAIL ✗
+├── i=2: L-diag: board[0][1]=. R-diag: board[0][3]=Q → wait L from(1,2): [0][1]=. ok. R from(1,2): [0][3]=Q → FAIL ✗
+└── i=3: up: board[0][3]=Q → FAIL ✗
+board[0][3]='.' → backtrack row0 col3 done
+Final ans (2 solutions for n=4)
+Solution 1: [".Q..","...Q","Q...","..Q."]
+Solution 2: ["..Q.","Q...","...Q",".Q.."]
+Solution found (row==n)
+isValid = YES, recurse deeper
+isValid = NO, skip col
+===================================================
+Sudoku Solver
+Backtrack Explained — Board with 3 Empty Cells
+Wrong choice at [0][0] forces a dead end at [0][1] → backtrack → retry
+Initial Board (3 empty cells marked with *):
+Row 0: * * 3 | 4 5 6 | 7 8 9 ← [0][0] and [0][1] are empty
+Row 1: 2 1 * | 7 8 9 | 4 5 6 ← [1][2] is empty
+Row 2: 4 5 6 | 1 2 3 | 7 8 9 (and rows 3-8 fully filled)
+Key insight: col 2 already has 3,6 in rows 0,2. Row 1 has 1,2.
+So [1][2] must be something not in col2={3,6,...} and not in row1={1,2,4,5,6,7,8,9} → only valid = no wait, check carefully below
+PHASE 1 — solve() starts, finds [0][0]='.'
+for c='1' to '9' at [0][0]:
+c='1': isValid(0,0,'1')? col0: no '1' ✓ row0: no '1' ✓ box[0][0]: {.,.,3,2,1,.,4,5,6} → has '1' → FAIL ✗
+c='2': isValid(0,0,'2')? col0: no '2' ✓ row0: no '2' ✓ box[0][0]: {.,.,3,2,1,.,4,5,6} → has '2' → FAIL ✗
+Hmm wait — let's use a cleaner board where backtrack is forced clearly.
+Use this board instead:
+Backtrack Board:
+Row 0: . . 3 | 4 5 6 | 7 8 9 ← [0][0] [0][1] empty. Answer must be 1,2
+Row 1: . 2 1 | 5 6 4 | 8 9 7 ← [1][0] empty. col0 needs something
+(Rows 2-8 complete and valid)
+ACTUAL BACKTRACK SCENARIO — Step by Step
+Correct answer: [0][0]=1, [0][1]=2, [1][0]=3
+But code tries [0][0]=2 first (if valid) → leads to dead end → must backtrack
+STEP 1 — First empty cell [0][0]. Try c='1','2'... pick first valid
+solve() → i=0,j=0: board[0][0]='.' found!
+└── for c='1' to '9':
+c='1': isValid(0,0,'1')? col0:no'1' ✓ row0:no'1' ✓ box[0][0]:{.,.,3,.,2,1,..} → has'1' ✗ FAIL
+c='2': isValid(0,0,'2')? col0:no'2' ✓ row0:no'2' ✓ box[0][0]: no'2' ✓ → VALID ✓ place it!
+board[0][0] = '2'
+Board state now:
+Row 0: [ 2 . 3 | 4 5 6 | 7 8 9 ] Row 1: [ . 2 1 | 5 6 4 | 8 9 7 ]
+STEP 2 — Recurse with '2' placed. Next empty: [0][1]
+solve(board) called again → scans → finds [0][1]='.'
+└── for c='1' to '9' at [0][1]:
+c='1': isValid(0,1,'1')? row0: board[0][0]='2' ok, board[0][2]='3'.. no'1' ✓ col1: board[1][1]='2' no'1' ✓ box ok → VALID ✓ place!
+board[0][1] = '1'
+Board state now:
+Row 0: [ 2 1 3 | 4 5 6 | 7 8 9 ] Row 1: [ . 2 1 | 5 6 4 | 8 9 7 ]
+STEP 3 — Recurse with '1' placed. Next empty: [1][0]
+solve(board) called again → scans → finds [1][0]='.'
+└── for c='1' to '9' at [1][0]:
+c='1': isValid(1,0,'1')? col0: board[0][0]='2' ok... no wait board[0][0]='2', need col0. row1: board[1][2]='1' → has '1' → FAIL ✗
+c='2': row1: board[1][1]='2' → has '2' → FAIL ✗
+c='3': isValid(1,0,'3')? col0: board[0][0]='2' no'3' ✓ row1: no'3' ✓ box[0][0]: {2,1,3,.,2,1,...} → has '3' (board[0][2]='3') → FAIL ✗
+c='4': row1: board[1][5]='4'? no board[1][3]='5'... row1={.,2,1,5,6,4,8,9,7} → has'4' → FAIL ✗
+c='5': row1 has '5' ✗ | c='6': row1 has '6' ✗ | c='7': row1 has '7'? row1={.,2,1,5,6,4,8,9,7} yes ✗
+c='8': row1 has '8' ✗ | c='9': row1 has '9' ✗
+DEAD END at [1][0] — No digit 1-9 is valid!
+for(char c) loop finishes without placing anything
+hit: return false ← this is the backtrack signal
+BACKTRACK — return false bubbles up to STEP 2 caller
+Back in STEP 2 (where we placed board[0][1]='1'):
+if(solve(board)) returned FALSE → enter else path in code:
+board[0][1] = '.' ← UNDO the placement (this is the backtrack step!)
+The '1' we placed at [0][1] is ERASED. Board goes back to [ 2 . 3 | 4 5 6 | 7 8 9 ]
+continue for loop → try next c='2' at [0][1]:
+c='2': isValid(0,1,'2')? row0: board[0][0]='2' → has '2' → FAIL ✗
+c='3' to '9': all fail (row0 has 3,4,5,6,7,8,9 already)
+DEAD END at [0][1] too — return false bubbles up to STEP 1
+Back in STEP 1 where we placed board[0][0]='2'
+board[0][0] = '.' ← UNDO again! '2' is erased.
+Board goes back to [ . . 3 | 4 5 6 | 7 8 9 ] ← original state restored
+continue for loop → try c='3','4'... skip (in row/col) → eventually:
+CORRECT PATH — Now try the right digit at [0][0]
+c='1': isValid(0,0,'1')? col0 ✓ row0 ✓ box[0][0] ✓ → VALID → board[0][0]='1'
+recurse → [0][1]='.' → try c='2': isValid ✓ → board[0][1]='2'
+recurse → [1][0]='.' → try c='3': isValid ✓ → board[1][0]='3'
+recurse → no more '.' → return true → bubbles all the way up!
+SOLVED: Row 0=[1,2,3,4,5,6,7,8,9] Row 1=[3,2,1,5,6,4,8,9,7]
+return true flows back through every call → solveSudoku() done
+Full flow — the exact backtrack moment
+solve() // CALL 1
+[0][0]: try c='2' → valid → board[0][0]='2'
+solve() // CALL 2
+[0][1]: try c='1' → valid → board[0][1]='1'
+solve() // CALL 3
+[1][0]: c='1'✗ c='2'✗ c='3'✗ ... c='9'✗
+return false ← dead end, no digit works // CALL 3 returns false
+if(solve())=false → DON'T return true
+board[0][1]='.' ← UNDO '1' (backtrack line in code)
+c='2','3'...'9' at [0][1]: all fail (row has 2,3,4,5,6,7,8,9)
+return false ← [0][1] exhausted too // CALL 2 returns false
+if(solve())=false → DON'T return true
+board[0][0]='.' ← UNDO '2' (backtrack line in code)
+c='3','4'... skip. c='1' → valid → board[0][0]='1'
+solve() → [0][1]: c='2'✓ → board[0][1]='2'
+solve() → [1][0]: c='3'✓ → board[1][0]='3'
+solve() → no '.' → return true
+return true → return true → return true ← bubbles all the way up!
+==========================================================

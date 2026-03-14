@@ -1,0 +1,34 @@
+Arrays Dry run
+1) At each index calculate operations
+
+1.  Arrays              ← loops, indexing, sorting
+2.  Hashing             ← maps and sets
+3.  Two Pointers        ← left/right pointer movement
+4.  Prefix Sum          ← running totals
+5.  Sliding Window      ← shrink/grow a window
+6.  2D Arrays           ← nested loops on grids
+7.  Strings             ← same as arrays
+8.  Linked List         ← pointer rewiring
+
+9.  Stacks & Queues     ← push/pop mechanics
+10. Binary Search       ← divide search space iteratively
+11. Heaps               ← priority queue operations
+12. Bit Manipulation    ← bitwise operators
+13. Greedy              ← pick local best at each step
+==============================================================
+Recursion dry run 
+
+1) dry run-->Decision tree of each call return (Claude)
+2) logic-->
+linear (single rec call), 
+tree rec(each index (>1)rec call works from last)
+for loop (explore all possibilities, from 1st case for i=0 to 3)
+
+14. Recursion           ← the foundation of Part 2
+15. Trees               ← every traversal is recursive
+16. BST                 ← recursive search, insert, delete
+17. Graphs              ← DFS is recursion on neighbors
+18. Backtracking        ← recursion + undo step
+19. Trie                ← recursive insert/search on prefix tree
+20. Dynamic Programming ← recursion + memoization (top-down)
+===================================================================

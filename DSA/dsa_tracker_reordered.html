@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Problem Tracker</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0efe9;
+    --text:#1a1a1a;--text2:#555551;--text3:#888780;
+    --border:#e5e4df;--border2:#d0cfc9;
+    --green-bg:#EAF3DE;--green-text:#27500A;--green-border:#97C459;
+    --amber:#BA7517;--red:#A32D2D;--easy:#27500A;
+    --lc-bg:#FFF3E0;--lc-text:#FFA116;--lc-border:#FFA11640;
+    --gfg-bg:#E8F5E9;--gfg-text:#2F8D46;--gfg-border:#2F8D4640;
+    --accent:#534AB7;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#1a1917;--bg2:#232220;--bg3:#2a2927;
+      --text:#e8e6df;--text2:#aaa89f;--text3:#6b6960;
+      --border:#333230;--border2:#3d3c39;
+      --green-bg:#1a2e10;--green-text:#9FE1CB;--green-border:#3B6D1180;
+      --amber:#EF9F27;--red:#F09595;--easy:#9FE1CB;
+      --lc-bg:#2a1f00;--lc-text:#FFA116;--lc-border:#FFA11640;
+      --gfg-bg:#0d1f10;--gfg-text:#5DCAA5;--gfg-border:#2F8D4640;
+      --accent:#7F77DD;
+    }
+  }
+  html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+  .layout{display:grid;grid-template-columns:280px 1fr;height:100vh;overflow:hidden}
+  /* SIDEBAR */
+  .sb{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:8px 0}
+  .sb::-webkit-scrollbar{width:4px}.sb::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+  .sb-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);margin-bottom:4px}
+  .sb-header h2{font-size:15px;font-weight:600;color:var(--text)}
+  .sb-header p{font-size:11px;color:var(--text3);margin-top:2px}
+  .sec-block{margin-bottom:2px}
+  .sec-row{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 4px}
+  .sec-name{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3)}
+  .sec-stat{font-size:11px;color:var(--text3)}
+  .topic-row{display:flex;align-items:center;padding:5px 14px 5px 20px;cursor:pointer;border-left:3px solid transparent;transition:background .1s}
+  .topic-row:hover{background:var(--bg)}
+  .topic-row.active{background:var(--bg);border-left-color:var(--accent)}
+  .topic-row.active .topic-name{color:var(--text);font-weight:500}
+  .topic-hash{font-size:11px;color:var(--text3);margin-right:7px;width:10px;flex-shrink:0}
+  .topic-name{flex:1;font-size:13px;color:var(--text2)}
+  .topic-prog{font-size:11px;padding:1px 7px;border-radius:20px;margin-right:6px;font-weight:500;white-space:nowrap}
+  .topic-prog.full{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border)}
+  .topic-prog.part{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border)}
+  .topic-prog.none{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+  .topic-total{font-size:11px;color:var(--text3);min-width:18px;text-align:right}
+  /* MAIN */
+  .main{background:var(--bg);overflow-y:auto;display:flex;flex-direction:column}
+  .main::-webkit-scrollbar{width:4px}.main::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+  .m-top{padding:16px 22px 12px;flex-shrink:0}
+  .m-title{font-size:20px;font-weight:600;color:var(--text);margin-bottom:3px}
+  .m-sub{font-size:13px;color:var(--text3)}
+  .filter-row{display:flex;gap:8px;padding:8px 22px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+  .fb{font-size:12px;padding:4px 14px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .12s}
+  .fb:hover{background:var(--bg2)}
+  .fb.act{background:var(--green-bg);color:var(--green-text);border-color:var(--green-border);font-weight:500}
+  /* TABLE */
+  table{width:100%;border-collapse:collapse}
+  th{font-size:11px;font-weight:500;color:var(--text3);text-align:left;padding:9px 22px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.06em;background:var(--bg);position:sticky;top:0;z-index:1}
+  .pr{transition:background .1s;cursor:pointer}
+  .pr:hover{background:var(--bg2)}
+  .pr.slv .pname{text-decoration:line-through;color:var(--text3)}
+  td{padding:10px 22px;vertical-align:middle;border-bottom:1px solid var(--border)}
+  /* Checkbox */
+  .cb{width:20px;height:20px;border-radius:4px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s;background:var(--bg);flex-shrink:0;user-select:none}
+  .cb:hover{border-color:var(--green-text)}
+  .cb.dn{background:var(--green-text);border-color:var(--green-text)}
+  .cb svg{opacity:0;transform:scale(.3);transition:all .18s}
+  .cb.dn svg{opacity:1;transform:scale(1)}
+  /* Problem */
+  .prob-num{font-size:13px;color:var(--text3);margin-right:4px}
+  .pname{font-size:13px;color:var(--text)}
+  .link-pill{font-size:11px;padding:1px 7px;border-radius:5px;text-decoration:none;margin-left:8px;border:1px solid;white-space:nowrap}
+  .link-pill:hover{opacity:.75}
+  .link-lc{color:var(--lc-text);background:var(--lc-bg);border-color:var(--lc-border)}
+  .link-gfg{color:var(--gfg-text);background:var(--gfg-bg);border-color:var(--gfg-border)}
+  .sbadge{font-size:10px;padding:1px 7px;border-radius:5px;background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border);margin-left:6px}
+  /* Difficulty */
+  .de{font-size:12px;color:var(--easy)}
+  .dm{font-size:12px;color:var(--amber)}
+  .dh{font-size:12px;color:var(--red)}
+  .pat{font-size:12px;color:var(--text2)}
+  /* Action */
+  .drb{font-size:11px;padding:3px 9px;border-radius:5px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer}
+  .drb:hover{background:var(--bg2)}
+  /* Empty */
+  .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:8px;color:var(--text3);padding:60px}
+  /* Toast */
+  #toast{position:fixed;bottom:20px;right:20px;background:#1a1a1a;color:#fff;font-size:12px;padding:8px 14px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+  #toast.show{opacity:1}
+  /* Overall progress bar at top of sidebar */
+  .overall-bar{padding:10px 16px;border-bottom:1px solid var(--border)}
+  .overall-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:5px}
+  .bar-track{height:4px;background:var(--bg3);border-radius:2px}
+  .bar-fill{height:4px;border-radius:2px;background:var(--accent);transition:width .4s}
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="sb" id="sb">
+    <div class="sb-header">
+      <h2>DSA Tracker</h2>
+      <p id="overall-text">Loading...</p>
+    </div>
+    <div class="overall-bar">
+      <div class="overall-label"><span>Overall Progress</span><span id="overall-pct">0%</span></div>
+      <div class="bar-track"><div class="bar-fill" id="overall-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="main" id="main">
+    <div class="empty">
+      <div style="font-size:32px">📚</div>
+      <span style="font-size:16px;font-weight:500;color:var(--text2)">Select a topic</span>
+      <span style="font-size:13px">Choose from the left panel to view problems</span>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+function lc(n,t,d,pat,slug,done){return{n,t,d,pat,url:`https://leetcode.com/problems/${slug}/`,done:!!done,isGfg:false};}
+function gfg(t,d,pat,slug,done){return{n:'GFG',t,d,pat,url:`https://www.geeksforgeeks.org/problems/${slug}`,done:!!done,isGfg:true};}
+
+const D=[
+{s:'Part 1 — No Recursion (Iterative)',items:[
+ {id:'a1',n:'1. Array Basics',p:[
+  gfg('Largest Element in Array','e','Array','largest-element-in-array4009/0'),
+  gfg('Second Largest','e','Array','second-largest3735/1'),
+  gfg('Check if Array is Sorted','e','Array','check-if-an-array-is-sorted0701/1'),
+  gfg('Cyclically Rotate Array by One','e','Array','cyclically-rotate-an-array-by-one2614/1'),
+  gfg('Max Consecutive Ones','e','Array','max-consecutive-one/1'),
+  gfg('Move All Zeroes to End','e','Array','move-all-zeroes-to-end-of-array0751/1'),
+  gfg('Rotate Array by N Elements','e','Array','rotate-array-by-n-elements-1587115621/1'),
+  gfg('Leaders in an Array','e','Array','leaders-in-an-array-1587115620/1'),
+  gfg('Stock Buy and Sell','m','Greedy','stock-buy-and-sell-1587115621/1'),
+  lc('31','Next Permutation','m','Array','next-permutation'),
+ ]},
+ {id:'a2',n:'1. Array Algorithms',p:[
+  gfg("Kadane's Algorithm",'m','DP/Array','kadanes-algorithm-1587115620/1'),
+  gfg('Majority Element','e','Boyer-Moore','majority-element-1587115620/1'),
+  gfg('Majority Vote','m','Boyer-Moore','majority-vote/1'),
+ ]},
+ {id:'h1',n:'2. Hashing',p:[
+  gfg('Missing Number in Array','e','HashSet','missing-number-in-array1416/1'),
+  gfg('Find Duplicates in an Array','m','HashSet','find-duplicates-in-an-array/1'),
+  gfg('Intersection of Two Sorted Arrays','e','Two Pointer','intersection-of-two-sorted-array-1587115620/1'),
+  lc('645','Set Mismatch','e','HashSet','set-mismatch'),
+  gfg('Isomorphic Strings','e','HashMap','isomorphic-strings-1587115620/1'),
+  gfg('Anagram','e','HashMap','anagram-1587115620/1'),
+ ]},
+ {id:'tp1',n:'3. Two Pointers — Store',p:[
+  lc('26','Remove Duplicates from Sorted Array','e','Two Pointer','remove-duplicates-from-sorted-array'),
+  lc('27','Remove Element','e','Two Pointer','remove-element'),
+ ]},
+ {id:'tp2',n:'3. Two Pointers',p:[
+  lc('1','Two Sum','e','HashMap','two-sum'),
+  lc('11','Container With Most Water','m','Two Pointer','container-with-most-water'),
+  lc('42','Trapping Rain Water','h','Two Pointer','trapping-rain-water'),
+  lc('633','Sum of Square Numbers','m','Two Pointer','sum-of-square-numbers'),
+  gfg('Key Pair','e','Two Pointer','key-pair5616/1'),
+  lc('167','Two Sum II','m','Two Pointer','two-sum-ii-input-array-is-sorted'),
+  lc('680','Valid Palindrome II','e','Two Pointer','valid-palindrome-ii'),
+  lc('532','K-diff Pairs in an Array','m','Two Pointer','k-diff-pairs-in-an-array'),
+  gfg('K Closest Elements','m','Two Pointer','k-closest-elements3619/1'),
+ ]},
+ {id:'tp3',n:'3. Three Pointers',p:[
+  gfg('Find Triplets with Zero Sum','m','Three Pointer','find-triplets-with-zero-sum/1'),
+  gfg('Triplet Sum in Array','m','Three Pointer','triplet-sum-in-array-1587115621/1'),
+  gfg('Find All Four Sum Numbers','m','Four Pointer','find-all-four-sum-numbers1732/1'),
+  gfg('3-Sum Closest','m','Two Pointer','3-sum-closest/1'),
+ ]},
+ {id:'ps1',n:'4. Prefix on 1D Array',p:[
+  lc('1480','Running Sum of 1d Array','e','Prefix Sum','running-sum-of-1d-array'),
+  gfg('Maximum Prefix Sum for a Given Range','m','Prefix Sum','maximum-prefix-sum-for-a-given-range0227/1'),
+  lc('303','Range Sum Query Immutable','e','Prefix Sum','range-sum-query-immutable'),
+  lc('560','Subarray Sum Equals K','m','Prefix Sum','subarray-sum-equals-k'),
+  gfg('Longest Sub-Array with Sum K','m','Prefix Sum','longest-sub-array-with-sum-k0809/1'),
+  lc('238','Product of Array Except Self','m','Prefix Sum','product-of-array-except-self'),
+ ]},
+ {id:'ps2',n:'4. Prefix and Suffix',p:[
+  lc('1685','Sum of Absolute Differences in Sorted Array','m','Prefix+Suffix','sum-of-absolute-differences-in-a-sorted-array'),
+  lc('2256','Minimum Average Difference','m','Prefix Sum','minimum-average-difference'),
+  lc('2574','Left and Right Sum Differences','e','Prefix Sum','left-and-right-sum-differences'),
+  gfg('Maximum Product Subarray','m','DP/Prefix','maximum-product-subarray3604/1'),
+ ]},
+ {id:'ps3',n:'4. Prefix on 2D Array',p:[
+  lc('304','Range Sum Query 2D Immutable','m','2D Prefix Sum','range-sum-query-2d-immutable'),
+ ]},
+ {id:'sw1',n:'5. Sliding Window — Fixed',p:[
+  gfg('Count Distinct Elements in Every Window','m','Sliding Window','count-distinct-elements-in-every-window/1'),
+  gfg('Maximum Average Subarray','e','Sliding Window','maximum-average-subarray5859/1'),
+  lc('2461','Maximum Sum of Distinct Subarrays with Length K','m','Sliding Window','maximum-sum-of-distinct-subarrays-with-length-k'),
+  lc('1456','Maximum Number of Vowels in Substring','m','Sliding Window','maximum-number-of-vowels-in-a-substring-of-given-length'),
+  lc('567','Permutation in String','m','Sliding Window','permutation-in-string'),
+ ]},
+ {id:'sw2',n:'5. Sliding Window — Variable',p:[
+  lc('3','Longest Substring Without Repeating Characters','m','Sliding Window','longest-substring-without-repeating-characters'),
+  gfg('Smallest Subarray with Sum Greater than X','m','Sliding Window','smallest-subarray-with-sum-greater-than-x5651/1'),
+  lc('1004','Max Consecutive Ones III','m','Sliding Window','max-consecutive-ones-iii'),
+  lc('713','Subarray Product Less Than K','m','Sliding Window','subarray-product-less-than-k'),
+  lc('904','Fruit Into Baskets','m','Sliding Window','fruit-into-baskets'),
+  lc('992','Subarrays with K Different Integers','h','Sliding Window','subarrays-with-k-different-integers'),
+  lc('424','Longest Repeating Character Replacement','m','Sliding Window','longest-repeating-character-replacement'),
+  lc('1248','Count Number of Nice Subarrays','m','Sliding Window','count-number-of-nice-subarrays'),
+  lc('76','Minimum Window Substring','h','Sliding Window','minimum-window-substring'),
+ ]},
+ {id:'2d1',n:'6. 2D Array Basics',p:[
+  gfg('Rotate by 90 Degree','e','Matrix','rotate-by-90-degree-1587115621/1'),
+  gfg('Diagonal Sum','e','Matrix','diagonal-sum0158/1'),
+  gfg('Lucky Numbers','e','Matrix','lucky-numbers2911/1'),
+  lc('2373','Modify the Matrix','e','Matrix','modify-the-matrix'),
+  lc('1672','Richest Customer Wealth','e','Matrix','richest-customer-wealth'),
+  lc('766','Toeplitz Matrix','e','Matrix','toeplitz-matrix'),
+  gfg('Transpose of Matrix','e','Matrix','transpose-of-matrix-1587115621/1'),
+  lc('118',"Pascal's Triangle",'e','DP/Matrix','pascals-triangle'),
+ ]},
+ {id:'2d2',n:'6. 2D Advanced',p:[
+  gfg('Count Sorted Rows','m','Matrix','count-sorted-rows2702/1'),
+  gfg('Print Matrix in Diagonal Pattern','m','Matrix','print-matrix-in-diagonal-pattern/1'),
+  gfg('Print Matrix in Snake Pattern','e','Matrix','print-matrix-in-snake-pattern-1587115621/1'),
+  gfg('Set Matrix Zeroes','m','Matrix','set-matrix-zeroes/0'),
+  gfg('Spiral Matrix','m','Matrix','spiral-matrix--141631/1'),
+  gfg('Sums of ith Row and ith Column','m','Matrix','sums-of-i-th-row-and-i-th-column3054/1'),
+ ]},
+ {id:'str1',n:'7. String Basics',p:[
+  gfg('Reverse Words in a Given String','e','String','reverse-words-in-a-given-string5459/1'),
+  lc('14','Longest Common Prefix','e','String','longest-common-prefix'),
+  gfg('Implement strstr','e','String','implement-strstr/1'),
+  lc('917','Reverse Only Letters','e','String','reverse-only-letters'),
+  lc('557','Reverse Words in a String III','e','String','reverse-words-in-a-string-iii'),
+  gfg('Check if Strings are Rotations','e','String','check-if-strings-are-rotations-of-each-other-or-not-1587115620/1'),
+  gfg('Anagram','e','HashMap','anagram-1587115620/1'),
+ ]},
+ {id:'str2',n:'7. Strings — Parenthesis',p:[
+  gfg('Maximum Nesting Depth of Parentheses','e','Stack','maximum-nesting-depth-of-the-parentheses/1'),
+  gfg('Remove Invalid Parentheses','h','BFS/Backtrack','remove-invalid-parentheses/1'),
+  gfg('Outermost Parentheses','e','Stack','outermost-parentheses/1'),
+ ]},
+ {id:'str3',n:'7. Strings — Substrings',p:[
+  gfg('Largest Odd Number in String','e','String','largest-odd-number-in-string/1'),
+  lc('1297','Maximum Number of Occurrences of a Substring','m','Sliding Window','maximum-number-of-occurrences-of-a-substring'),
+ ]},
+ {id:'ll1',n:'8. Linked List',p:[
+  lc('206','Reverse Linked List','e','Linked List','reverse-linked-list'),
+  lc('21','Merge Two Sorted Lists','e','Linked List','merge-two-sorted-lists'),
+  lc('19','Remove Nth Node From End of List','m','Two Pointer','remove-nth-node-from-end-of-list'),
+  lc('141','Linked List Cycle','e','Fast & Slow','linked-list-cycle'),
+  lc('142','Linked List Cycle II','m','Fast & Slow','linked-list-cycle-ii'),
+  lc('234','Palindrome Linked List','e','Two Pointer','palindrome-linked-list'),
+  lc('92','Reverse Linked List II','m','Linked List','reverse-linked-list-ii'),
+  lc('25','Reverse Nodes in k-Group','h','Linked List','reverse-nodes-in-k-group'),
+  lc('23','Merge k Sorted Lists','h','Heap','merge-k-sorted-lists'),
+  lc('138','Copy List with Random Pointer','m','HashMap','copy-list-with-random-pointer'),
+ ]},
+ {id:'st1',n:'9. Stacks',p:[
+  lc('20','Valid Parentheses','e','Stack','valid-parentheses'),
+  lc('225','Implement Stack using Queues','e','Stack Design','implement-stack-using-queues'),
+  lc('155','Min Stack','m','Stack','min-stack'),
+  lc('150','Evaluate Reverse Polish Notation','m','Stack','evaluate-reverse-polish-notation'),
+  lc('224','Basic Calculator','h','Stack','basic-calculator'),
+  lc('227','Basic Calculator II','m','Stack','basic-calculator-ii'),
+  lc('496','Next Greater Element I','e','Monotonic Stack','next-greater-element-i'),
+  lc('503','Next Greater Element II','m','Monotonic Stack','next-greater-element-ii'),
+  lc('739','Daily Temperatures','m','Monotonic Stack','daily-temperatures'),
+  lc('735','Asteroid Collision','m','Stack','asteroid-collision'),
+  lc('84','Largest Rectangle in Histogram','h','Monotonic Stack','largest-rectangle-in-histogram'),
+  lc('85','Maximal Rectangle','h','Stack/DP','maximal-rectangle'),
+ ]},
+ {id:'q1',n:'9. Queues & Deques',p:[
+  gfg('First Non-Repeating Element in Stream','m','Queue/HashMap','first-non-repeating-character-in-a-stream1216/1'),
+  lc('232','Implement Queue using Stacks','e','Queue Design','implement-queue-using-stacks'),
+  lc('933','Number of Recent Calls','e','Queue','number-of-recent-calls'),
+  lc('1700','Number of Students Unable to Eat Lunch','e','Queue/Stack','number-of-students-unable-to-eat-lunch'),
+  lc('239','Sliding Window Maximum','h','Deque','sliding-window-maximum'),
+ ]},
+ {id:'hp1',n:'11. Heap Basics',p:[
+  gfg('Convert Min Heap to Max Heap','e','Heap','convert-min-heap-to-max-heap-1666385109/1'),
+  gfg('Does Array Represent Heap','e','Heap','does-array-represent-heap4345/1'),
+  gfg('Min Heap Implementation','m','Heap','min-heap-implementation/1'),
+  gfg('Sort String by Increasing Frequency','m','Heap/HashMap','sort-string-according-to-increasing-frequency/1'),
+ ]},
+ {id:'hp2',n:'11. Heaps — K Elements',p:[
+  gfg('Kth Largest Element','m','Heap','kth-largest-element5034/1'),
+  gfg('Kth Smallest Element','m','Heap','kth-smallest-element5635/1'),
+  gfg('Merge K Sorted Arrays','h','Heap','merge-k-sorted-arrays/1'),
+  gfg('Top K Frequent Elements in Array','m','Heap/HashMap','top-k-frequent-elements-in-array/1'),
+  lc('692','Top K Frequent Words','m','Heap/HashMap','top-k-frequent-words'),
+  gfg('Maximize Sum After K Negations','e','Heap/Greedy','maximize-sum-after-k-negations1149/1'),
+  gfg('Find K Smallest Sum Pairs','m','Heap','find-k-smallest-sum-pairs/1'),
+ ]},
+ {id:'hp3',n:'11. Heaps — Min Pattern',p:[
+  gfg('Minimum Cost of Ropes','m','Heap','minimum-cost-of-ropes-1587115620/1'),
+  lc('1046','Last Stone Weight','e','Heap','last-stone-weight'),
+ ]},
+ {id:'hp4',n:'11. Heaps — Two Heaps',p:[
+  gfg('Find Median in a Stream','h','Two Heaps','find-median-in-a-stream-1587115620/1'),
+ ]},
+ {id:'gr1',n:'13. Greedy Basics',p:[
+  lc('575','Distribute Candies','e','Greedy','distribute-candies'),
+  gfg('Maximum Triplet Product','e','Greedy','maximum-triplet-product--170647/1'),
+  lc('319','Bulb Switcher','m','Math','bulb-switcher'),
+  gfg('Assign Mice to Holes','e','Greedy','assign-mice-holes3053/1'),
+  gfg('Assign Cookies','e','Greedy','assign-cookies/1'),
+  gfg('Minimum Number of Coins','e','Greedy','-minimum-number-of-coins4426/1'),
+  gfg('Lemonade Change','e','Greedy','lemonade-change/1'),
+  gfg('Jump Game','m','Greedy','jump-game/1'),
+  gfg('Minimum Number of Jumps','m','Greedy/DP','minimum-number-of-jumps-1587115620/1'),
+ ]},
+ {id:'gr2',n:'13. Greedy — Scheduling',p:[
+  gfg('Activity Selection','m','Greedy','activity-selection-1587115620/1'),
+  gfg('Fractional Knapsack','m','Greedy','fractional-knapsack-1587115620/1'),
+  gfg('N Meetings in One Room','m','Greedy','n-meetings-in-one-room-1587115620/1'),
+  gfg('Minimum Platforms','m','Greedy','minimum-platforms-1587115620/1'),
+ ]},
+ {id:'gr3',n:'13. Greedy — Intervals',p:[
+  gfg('Insert Interval','m','Intervals','insert-interval-1666733333/1'),
+  gfg('Overlapping Intervals','m','Intervals','overlapping-intervals--170633/1'),
+  gfg('Non-overlapping Intervals','m','Intervals','non-overlapping-intervals/0'),
+ ]},
+]},
+{s:'Part 2 — Recursion Required',items:[
+ {id:'t1',n:'15. Trees — DFS/BFS Traversals',p:[
+  lc('144','Binary Tree Preorder Traversal','e','DFS','binary-tree-preorder-traversal',true),
+  lc('145','Binary Tree Postorder Traversal','e','DFS','binary-tree-postorder-traversal',true),
+  lc('94','Binary Tree Inorder Traversal','e','DFS','binary-tree-inorder-traversal',true),
+  lc('102','Binary Tree Level Order Traversal','m','BFS','binary-tree-level-order-traversal',true),
+  lc('103','Binary Tree Zigzag Level Order Traversal','m','BFS','binary-tree-zigzag-level-order-traversal',true),
+  lc('987','Vertical Order Traversal of a Binary Tree','h','BFS','vertical-order-traversal-of-a-binary-tree',true),
+  gfg('Top View of Binary Tree','m','BFS','top-view-of-binary-tree/1',true),
+  gfg('Bottom View of Binary Tree','m','BFS','bottom-view-of-binary-tree/1',true),
+  lc('199','Binary Tree Right Side View','m','BFS','binary-tree-right-side-view',true),
+  gfg('Left View of Binary Tree','m','BFS','left-view-of-binary-tree/1',true),
+  lc('1161','Maximum Level Sum of a Binary Tree','m','BFS','maximum-level-sum-of-a-binary-tree',true),
+  lc('226','Invert Binary Tree','e','DFS','invert-binary-tree',true),
+  gfg('Boundary Traversal of Binary Tree','m','DFS','boundary-traversal-of-binary-tree/1'),
+ ]},
+ {id:'t2',n:'15. Trees — Height Based',p:[
+  lc('104','Maximum Depth of Binary Tree','e','DFS','maximum-depth-of-binary-tree',true),
+  lc('110','Balanced Binary Tree','e','DFS','balanced-binary-tree',true),
+  lc('543','Diameter of Binary Tree','e','DFS','diameter-of-binary-tree',true),
+  lc('124','Binary Tree Maximum Path Sum','h','DFS','binary-tree-maximum-path-sum',true),
+  lc('100','Same Tree','e','DFS','same-tree',true),
+  lc('101','Symmetric Tree','e','DFS','symmetric-tree',true),
+ ]},
+ {id:'t3',n:'15. Trees — Path Sum',p:[
+  lc('257','Binary Tree Paths','e','DFS','binary-tree-paths',true),
+  lc('437','Path Sum III','m','DFS/Prefix Sum','path-sum-iii',true),
+  lc('662','Maximum Width of Binary Tree','m','BFS','maximum-width-of-binary-tree',true),
+  gfg('Count Nodes in Binary Tree','e','DFS','count-number-of-nodes-in-a-binary-tree/0',true),
+  lc('236','LCA of Binary Tree','m','DFS','lowest-common-ancestor-of-a-binary-tree',true),
+  gfg('Children Sum Parent','m','DFS','children-sum-parent/1',true),
+ ]},
+ {id:'t4',n:'15. Trees — Parent Node',p:[
+  lc('863','All Nodes Distance K in Binary Tree','m','BFS/Parent Map','all-nodes-distance-k-in-binary-tree',true),
+  lc('2385','Amount of Time for BT to Be Infected','m','BFS','amount-of-time-for-binary-tree-to-be-infected',true),
+ ]},
+ {id:'t5',n:'15. Trees — Construct',p:[
+  lc('105','Construct BT from Preorder and Inorder','m','Divide & Conquer','construct-binary-tree-from-preorder-and-inorder-traversal',true),
+  lc('106','Construct BT from Inorder and Postorder','m','Divide & Conquer','construct-binary-tree-from-inorder-and-postorder-traversal',true),
+  lc('297','Serialize and Deserialize Binary Tree','h','BFS/DFS','serialize-and-deserialize-binary-tree',true),
+  lc('114','Flatten Binary Tree to Linked List','m','DFS','flatten-binary-tree-to-linked-list',true),
+  gfg('Inorder Traversal (Morris)','m','Morris Traversal','inorder-traversal/1'),
+ ]},
+ {id:'bst1',n:'16. BST Basics',p:[
+  lc('700','Search in a Binary Search Tree','e','BST','search-in-a-binary-search-tree',true),
+  lc('701','Insert into a Binary Search Tree','m','BST','insert-into-a-binary-search-tree',true),
+  lc('98','Validate Binary Search Tree','m','BST/DFS','validate-binary-search-tree',true),
+  lc('450','Delete Node in a BST','m','BST','delete-node-in-a-bst',true),
+  lc('108','Convert Sorted Array to BST','e','Divide & Conquer','convert-sorted-array-to-binary-search-tree',true),
+ ]},
+ {id:'bst2',n:'16. BST Traversals',p:[
+  lc('938','Range Sum of BST','e','DFS','range-sum-of-bst',true),
+  lc('173','Binary Search Tree Iterator','m','Stack/Inorder','binary-search-tree-iterator',true),
+  lc('653','Two Sum IV — Input is a BST','e','BST/HashSet','two-sum-iv-input-is-a-bst',true),
+  gfg('Preorder to Postorder','m','BST','preorder-to-postorder4423/1',true),
+  lc('235','LCA of a BST','m','BST','lowest-common-ancestor-of-a-binary-search-tree',true),
+  lc('538','Convert BST to Greater Tree','m','Reverse Inorder','convert-bst-to-greater-tree',true),
+  lc('99','Recover Binary Search Tree','m','Inorder','recover-binary-search-tree',true),
+  lc('230','Kth Smallest Element in a BST','m','Inorder','kth-smallest-element-in-a-bst',true),
+  gfg('Merge Two BSTs','m','Inorder + Merge','merge-two-bst-s/1',true),
+ ]},
+ {id:'g0',n:'17. Graph Representation',p:[
+  gfg('Print Adjacency List','e','Graph','print-adjacency-list-1587115620/1',true),
+ ]},
+ {id:'g1',n:'17. Graphs — BFS',p:[
+  gfg('BFS Traversal of Graph','e','BFS','bfs-traversal-of-graph/1',true),
+  lc('785','Is Graph Bipartite?','m','BFS/Coloring','is-graph-bipartite',true),
+  lc('323','Number of Connected Components','m','BFS/Union Find','number-of-connected-components-in-an-undirected-graph',true),
+  gfg('Detect Cycle in Undirected Graph','m','BFS','detect-cycle-in-an-undirected-graph/1',true),
+  lc('994','Rotting Oranges','m','BFS','rotting-oranges',true),
+  lc('542','01 Matrix','m','BFS/Multi-source','01-matrix',true),
+ ]},
+ {id:'g2',n:'17. Graphs — DFS',p:[
+  gfg('Depth First Traversal','e','DFS','depth-first-traversal-for-a-graph/1',true),
+  lc('547','Number of Provinces','m','DFS/Union Find','number-of-provinces',true),
+  lc('200','Number of Islands','m','DFS/BFS','number-of-islands',true),
+  lc('733','Flood Fill','e','DFS','flood-fill',true),
+  lc('130','Surrounded Regions','m','DFS','surrounded-regions',true),
+  lc('1020','Number of Enclaves','m','DFS/BFS','number-of-enclaves',true),
+  lc('694','Number of Distinct Islands','m','DFS/Hashing','number-of-distinct-islands',true),
+  lc('417','Pacific Atlantic Water Flow','m','DFS/Multi-source','pacific-atlantic-water-flow',true),
+ ]},
+ {id:'g3',n:'17. Graphs — Topological Sort',p:[
+  gfg('Topological Sort','m','Topo Sort/BFS','topological-sort/1',true),
+  gfg('Detect Cycle in Directed Graph','m','DFS/Topo Sort','detect-cycle-in-a-directed-graph/1',true),
+  lc('207','Course Schedule','m','Topo Sort','course-schedule',true),
+  lc('210','Course Schedule II','m','Topo Sort','course-schedule-ii',true),
+  lc('802','Find Eventual Safe States','m','Topo Sort','find-eventual-safe-states',true),
+  gfg('Alien Dictionary','h','Topo Sort','alien-dictionary/1',true),
+ ]},
+ {id:'g4',n:'17. Graphs — Shortest Path',p:[
+  gfg('Dijkstra Algorithm','m','Dijkstra','implementing-dijkstra-set-1-adjacency-matrix/1',true),
+  lc('1091','Shortest Path in Binary Matrix','m','BFS','shortest-path-in-binary-matrix',true),
+  lc('1631','Path With Minimum Effort','m','Dijkstra','path-with-minimum-effort',true),
+  lc('787','Cheapest Flights Within K Stops','m','Bellman-Ford','cheapest-flights-within-k-stops',true),
+  lc('1976','Number of Ways to Arrive at Destination','m','Dijkstra','number-of-ways-to-arrive-at-destination'),
+  lc('127','Word Ladder','h','BFS','word-ladder',true),
+  lc('126','Word Ladder II','h','BFS+Backtracking','word-ladder-ii',true),
+  gfg('Bellman-Ford Algorithm','m','Bellman-Ford','distance-from-the-source-bellman-ford-algorithm/1',true),
+  gfg('Floyd-Warshall Algorithm','m','Floyd-Warshall','implementing-floyd-warshall2042/1',true),
+  lc('1334','Find City With Smallest Neighbors at Threshold','m','Floyd-Warshall','find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance',true),
+ ]},
+ {id:'g5',n:'17. Graphs — MST & Union Find',p:[
+  gfg("Minimum Spanning Tree (Prim's)",'m',"Prim's/MST",'minimum-spanning-tree/1',true),
+  gfg('Disjoint Set Union Find','m','Union Find','disjoint-set-union-find/0',true),
+  lc('684','Redundant Connection','m','Union Find','redundant-connection'),
+  lc('990','Satisfiability of Equality Equations','m','Union Find','satisfiability-of-equality-equations'),
+  lc('1319','Number of Operations to Make Network Connected','m','Union Find','number-of-operations-to-make-network-connected'),
+  lc('947','Most Stones Removed with Same Row or Column','m','Union Find','most-stones-removed-with-same-row-or-column'),
+  lc('721','Accounts Merge','m','Union Find/DFS','accounts-merge'),
+ ]},
+ {id:'g6',n:'17. Graphs — Other',p:[
+  gfg("Strongly Connected Components (Kosaraju's)",'h',"Kosaraju's",'strongly-connected-components-kosarajus-algo/1'),
+ ]},
+ {id:'b1',n:'18. Backtracking — Tree Maze',p:[
+  lc('3211','Generate Binary Strings Without Adjacent Zeros','m','Backtracking','generate-binary-strings-without-adjacent-zeros'),
+  lc('22','Generate Parentheses','m','Backtracking','generate-parentheses'),
+  lc('78','Subsets','m','Backtracking','subsets',true),
+  lc('416','Partition Equal Subset Sum','m','Backtracking/DP','partition-equal-subset-sum'),
+  lc('79','Word Search','m','Backtracking/DFS','word-search'),
+  lc('490','The Maze','m','BFS/DFS','the-maze'),
+ ]},
+ {id:'b2',n:'18. Backtracking — For Loop',p:[
+  lc('39','Combination Sum','m','Backtracking','combination-sum',true),
+  lc('40','Combination Sum II','m','Backtracking','combination-sum-ii'),
+  lc('216','Combination Sum III','m','Backtracking','combination-sum-iii'),
+  lc('90','Subsets II','m','Backtracking','subsets-ii',true),
+  lc('17','Letter Combinations of a Phone Number','m','Backtracking','letter-combinations-of-a-phone-number',true),
+  lc('131','Palindrome Partitioning','m','Backtracking','palindrome-partitioning'),
+  lc('46','Permutations','m','Backtracking','permutations',true),
+  lc('51','N-Queens','h','Backtracking','n-queens'),
+  lc('37','Sudoku Solver','h','Backtracking','sudoku-solver'),
+ ]},
+ {id:'dp1',n:'20. DP on Fibonacci',p:[
+  lc('509','Fibonacci Number','e','DP','fibonacci-number',true),
+  lc('70','Climbing Stairs','e','DP','climbing-stairs',true),
+  lc('746','Min Cost Climbing Stairs','e','DP','min-cost-climbing-stairs',true),
+  lc('198','House Robber','m','DP','house-robber',true),
+  lc('213','House Robber II','m','DP','house-robber-ii',true),
+  lc('91','Decode Ways','m','DP','decode-ways',true),
+  lc('740','Delete and Earn','m','DP','delete-and-earn'),
+ ]},
+ {id:'dp2',n:'20. DP on 2D Array',p:[
+  lc('62','Unique Paths','m','2D DP','unique-paths',true),
+  lc('63','Unique Paths II','m','2D DP','unique-paths-ii',true),
+  lc('64','Minimum Path Sum','m','2D DP','minimum-path-sum',true),
+  lc('931','Minimum Falling Path Sum','m','2D DP','minimum-falling-path-sum',true),
+  lc('221','Maximal Square','m','2D DP','maximal-square',true),
+  lc('174','Dungeon Game','h','2D DP','dungeon-game',true),
+ ]},
+ {id:'dp3',n:'20. DP on Subsequences',p:[
+  lc('416','Partition Equal Subset Sum','m','Knapsack','partition-equal-subset-sum',true),
+  gfg('Subset Sum Problem','m','Knapsack','subset-sum-problem2014/1',true),
+  gfg('Perfect Sum Problem','m','Knapsack','perfect-sum-problem5633/1',true),
+  lc('494','Target Sum','m','Knapsack','target-sum',true),
+  gfg('Partitions with Given Difference','m','Knapsack','partitions-with-given-difference/1',true),
+  gfg('0-1 Knapsack Problem','m','Knapsack','0-1-knapsack-problem0945/1',true),
+  lc('322','Coin Change','m','Unbounded Knapsack','coin-change',true),
+  lc('518','Coin Change 2','m','Unbounded Knapsack','coin-change-ii',true),
+  gfg('Knapsack with Duplicate Items','m','Unbounded Knapsack','knapsack-with-duplicate-items4201/1',true),
+  gfg('Rod Cutting','m','Unbounded Knapsack','rod-cutting0840/1',true),
+ ]},
+ {id:'dp4',n:'20. DP on Strings',p:[
+  lc('1143','Longest Common Subsequence','m','2D DP','longest-common-subsequence',true),
+  lc('718','Maximum Length of Repeated Subarray','m','2D DP','maximum-length-of-repeated-subarray',true),
+  lc('516','Longest Palindromic Subsequence','m','2D DP','longest-palindromic-subsequence',true),
+  lc('583','Delete Operation for Two Strings','m','2D DP/LCS','delete-operation-for-two-strings',true),
+  lc('1092','Shortest Common Supersequence','h','2D DP/LCS','shortest-common-supersequence',true),
+  lc('115','Distinct Subsequences','h','2D DP','distinct-subsequences'),
+  lc('72','Edit Distance','m','2D DP','edit-distance',true),
+  lc('97','Interleaving String','m','2D DP','interleaving-string'),
+  lc('44','Wildcard Matching','h','2D DP','wildcard-matching',true),
+  lc('10','Regular Expression Matching','h','2D DP','regular-expression-matching'),
+ ]},
+ {id:'dp5',n:'20. DP on LIS',p:[
+  lc('300','Longest Increasing Subsequence','m','LIS/DP','longest-increasing-subsequence',true),
+  gfg('Maximum Sum Increasing Subsequence','m','LIS/DP','maximum-sum-increasing-subsequence4749/1',true),
+  lc('1027','Longest Arithmetic Subsequence','m','DP/HashMap','longest-arithmetic-subsequence'),
+  lc('368','Largest Divisible Subset','m','LIS/DP','largest-divisible-subset'),
+  gfg('Longest Bitonic Subsequence','m','LIS/DP','longest-bitonic-subsequence0824/1',true),
+  lc('139','Word Break','m','DP/Trie','word-break',true),
+  lc('354','Russian Doll Envelopes','h','LIS/Binary Search','russian-doll-envelopes',true),
+ ]},
+ {id:'dp6',n:'20. DP on Stocks',p:[
+  lc('121','Best Time to Buy and Sell Stock','e','Greedy','best-time-to-buy-and-sell-stock',true),
+  lc('122','Best Time to Buy and Sell Stock II','m','Greedy','best-time-to-buy-and-sell-stock-ii',true),
+  lc('123','Best Time to Buy and Sell Stock III','h','DP','best-time-to-buy-and-sell-stock-iii'),
+  lc('188','Best Time to Buy and Sell Stock IV','h','DP','best-time-to-buy-and-sell-stock-iv'),
+  lc('309','Buy/Sell with Cooldown','m','DP','best-time-to-buy-and-sell-stock-with-cooldown'),
+  lc('714','Buy/Sell with Transaction Fee','m','DP/Greedy','best-time-to-buy-and-sell-stock-with-transaction-fee'),
+ ]},
+ {id:'dp7',n:'20. DP — MCM (Matrix Chain)',p:[
+  gfg('Matrix Chain Multiplication','h','MCM/DP','matrix-chain-multiplication0303/1',true),
+  lc('312','Burst Balloons','h','MCM/DP','burst-balloons'),
+  lc('1043','Partition Array for Maximum Sum','m','DP','partition-array-for-maximum-sum'),
+ ]},
+]},
+];
+
+// Load saved state from localStorage
+const SAVE_KEY = 'dsa_tracker_v1';
+let DS = {};
+try {
+  const saved = localStorage.getItem(SAVE_KEY);
+  if (saved) DS = JSON.parse(saved);
+} catch(e) {}
+// Initialize any missing keys from data defaults
+D.forEach(s=>s.items.forEach(t=>t.p.forEach(p=>{
+  const k = t.id+'§'+p.t;
+  if (!(k in DS)) DS[k] = p.done;
+})));
+
+function save() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(DS)); } catch(e){}
+}
+
+let aT=null, aF='all';
+function gD(t){return t.p.filter(p=>DS[t.id+'§'+p.t]).length;}
+function gP(t){return t.p.length>0?Math.round(gD(t)/t.p.length*100):0;}
+
+function showToast(m){
+  const e=document.getElementById('toast');
+  e.textContent=m; e.classList.add('show');
+  setTimeout(()=>e.classList.remove('show'),1800);
+}
+
+function updateOverall(){
+  const tot=D.flatMap(s=>s.items).reduce((a,i)=>a+i.p.length,0);
+  const dn=D.flatMap(s=>s.items).reduce((a,i)=>a+gD(i),0);
+  const pct=tot>0?Math.round(dn/tot*100):0;
+  document.getElementById('overall-text').textContent=`${dn} of ${tot} problems solved`;
+  document.getElementById('overall-pct').textContent=pct+'%';
+  document.getElementById('overall-bar').style.width=pct+'%';
+}
+
+function tog(tid, key, e){
+  e.stopPropagation();
+  DS[key]=!DS[key];
+  save();
+  showToast(DS[key]?'✓ Marked as solved':'Marked unsolved');
+  renderSB(); renderMain(); updateOverall();
+}
+
+function selT(id){ aT=id; aF='all'; renderSB(); renderMain(); }
+
+function renderSB(){
+  const sb = document.getElementById('sb');
+  const header = sb.querySelector('.sb-header');
+  const overallBar = sb.querySelector('.overall-bar');
+  sb.innerHTML = '';
+  sb.appendChild(header);
+  sb.appendChild(overallBar);
+
+  D.forEach(sec=>{
+    const tot=sec.items.reduce((a,i)=>a+i.p.length,0);
+    const dn=sec.items.reduce((a,i)=>a+gD(i),0);
+    const block=document.createElement('div');
+    block.className='sec-block';
+    block.innerHTML=`<div class="sec-row"><span class="sec-name">${sec.s}</span><span class="sec-stat">${dn}/${tot}</span></div>`;
+    sec.items.forEach(i=>{
+      const d=gD(i),total=i.p.length;
+      const cls=d===total&&total>0?'full':d>0?'part':'none';
+      const row=document.createElement('div');
+      row.className='topic-row'+(aT===i.id?' active':'');
+      row.innerHTML=`<span class="topic-hash">#</span><span class="topic-name">${i.n}</span><span class="topic-prog ${cls}">${d>0||aT===i.id?`${d}/${total}`:''}</span><span class="topic-total">${total}</span>`;
+      row.onclick=()=>selT(i.id);
+      block.appendChild(row);
+    });
+    sb.appendChild(block);
+  });
+}
+
+function renderMain(){
+  const main=document.getElementById('main');
+  if(!aT){
+    main.innerHTML=`<div class="empty"><div style="font-size:36px">📚</div><span style="font-size:16px;font-weight:500;color:var(--text2)">Select a topic</span><span style="font-size:13px">Choose from the left panel</span></div>`;
+    return;
+  }
+  const topic=D.flatMap(s=>s.items).find(i=>i.id===aT);
+  const dc=gD(topic);
+  let probs=topic.p;
+  if(aF==='done') probs=probs.filter(p=>DS[topic.id+'§'+p.t]);
+  if(aF==='todo') probs=probs.filter(p=>!DS[topic.id+'§'+p.t]);
+
+  const rows=probs.map(p=>{
+    const k=topic.id+'§'+p.t;
+    const isDone=DS[k];
+    return `<tr class="pr${isDone?' slv':''}" onclick="window.open('${p.url}','_blank')">
+      <td style="width:44px" onclick="event.stopPropagation()">
+        <div class="cb${isDone?' dn':''}" onclick="tog('${topic.id}','${k.replace(/'/g,"\\'")}',event)">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+            <path d="M1.5 5.5l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </td>
+      <td>
+        <span class="prob-num">${p.n}.</span>
+        <span class="pname">${p.t}</span>
+        <a class="link-pill ${p.isGfg?'link-gfg':'link-lc'}" href="${p.url}" target="_blank" onclick="event.stopPropagation()">${p.isGfg?'GFG ↗':'LC ↗'}</a>
+        ${isDone?'<span class="sbadge">Solved</span>':''}
+      </td>
+      <td style="width:90px"><span class="${p.d==='e'?'de':p.d==='m'?'dm':'dh'}">${p.d==='e'?'Easy':p.d==='m'?'Medium':'Hard'}</span></td>
+      <td style="width:150px"><span class="pat">${p.pat}</span></td>
+    </tr>`;
+  }).join('');
+
+  main.innerHTML=`
+    <div class="m-top">
+      <div class="m-title">${topic.n}</div>
+      <div class="m-sub">${topic.p.length} problems · ${dc} solved</div>
+    </div>
+    <div class="filter-row">
+      <button class="fb${aF==='all'?' act':''}" onclick="aF='all';renderMain()">All (${topic.p.length})</button>
+      <button class="fb${aF==='done'?' act':''}" onclick="aF='done';renderMain()">Solved (${dc})</button>
+      <button class="fb${aF==='todo'?' act':''}" onclick="aF='todo';renderMain()">To Do (${topic.p.length-dc})</button>
+    </div>
+    <table>
+      <thead><tr>
+        <th style="width:44px">Done</th>
+        <th>Problem</th>
+        <th style="width:90px">Difficulty</th>
+        <th style="width:150px">Pattern</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+renderSB();
+renderMain();
+updateOverall();
+</script>
+</body>
+</html>
