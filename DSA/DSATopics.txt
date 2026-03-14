@@ -1,3 +1,8 @@
+DSA -(unseen)
+1) understand
+2) each point sollradhu (logic)[both iterative+recursion] 
+3) equal code
+===============================================
 Arrays Dry run
 1) At each index calculate operations
 
