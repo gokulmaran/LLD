@@ -37,3 +37,16 @@ for loop (explore all possibilities, from 1st case for i=0 to 3)
 19. Trie                ← recursive insert/search on prefix tree
 20. Dynamic Programming ← recursion + memoization (top-down)
 ===================================================================
+DSA Topics (Unseen)
+1. Arrays,2D Arrays,Strings (Bruteforce)
+2. Two pointers,Prefix Sum,Sliding Window
+3. Sorting,Binary Search
+4. Bit masking,Number Theory
+5. Stack & Queue,Heap,Greedy
+6. Linked List
+7. Recursion,Backtracking
+8. Trees
+9. Trie
+10. Graphs
+11. Dynamic Programming
+===========================
