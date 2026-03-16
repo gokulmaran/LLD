@@ -1,0 +1,201 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{display:flex;font-size:14px;min-height:600px;background:var(--color-background-primary)}
+
+/* ── SIDEBAR ── */
+.sidebar{width:260px;min-width:260px;border-right:0.5px solid var(--color-border-tertiary);padding:16px 0;overflow-y:auto;max-height:620px}
+.sidebar-title{font-size:11px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:0.1em;text-transform:uppercase;padding:0 16px 12px}
+.mod-block{padding:0 0 2px}
+.mod-meta{padding:10px 16px 4px}
+.mod-num{font-size:11px;color:var(--color-text-tertiary);margin-bottom:2px}
+.mod-name{font-size:14px;font-weight:500;color:var(--color-text-primary);line-height:1.4}
+.tab-row{border-top:0.5px solid var(--color-border-tertiary);margin-top:4px}
+.tab-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:9px 16px;background:none;border:none;border-bottom:0.5px solid var(--color-border-tertiary);font-size:14px;color:var(--color-text-secondary);cursor:pointer;text-align:left;font-family:inherit}
+.tab-btn:hover{background:var(--color-background-secondary)}
+.tab-btn.active{background:#2563eb;color:#fff;font-weight:500}
+.tab-btn .arrow{font-size:12px;opacity:0.7}
+.mod-sep{height:1px;background:var(--color-border-tertiary);margin:6px 16px}
+
+/* ── MAIN ── */
+.main{flex:1;padding:28px 36px;overflow-y:auto;max-height:620px}
+.main-mod-label{font-size:12px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.09em;margin-bottom:6px}
+.main-title{font-size:24px;font-weight:500;color:var(--color-text-primary);margin-bottom:14px}
+.prog-bar{height:3px;background:var(--color-border-tertiary);border-radius:2px;margin-bottom:6px}
+.prog-fill{height:3px;background:#2563eb;border-radius:2px;width:2%}
+.prog-lbl{font-size:13px;color:var(--color-text-secondary);margin-bottom:18px}
+.stats-row{display:flex;gap:32px;margin-bottom:22px}
+.stat-item{text-align:center}
+.stat-circle{width:56px;height:56px;border-radius:50%;border:2.5px solid #2563eb;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:#2563eb;margin:0 auto 6px}
+.stat-lbl{font-size:12px;color:var(--color-text-tertiary)}
+.divider{border:none;border-top:0.5px solid var(--color-border-tertiary);margin-bottom:0}
+
+/* ── CLASS ROWS ── */
+.class-row{display:flex;align-items:center;gap:14px;padding:15px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.cls-num{font-size:11px;color:var(--color-text-tertiary);letter-spacing:0.08em;text-transform:uppercase;min-width:58px;flex-shrink:0}
+.cls-info{flex:1;min-width:0}
+.cls-name{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px;line-height:1.4}
+.cls-dur{font-size:12px;color:var(--color-text-tertiary)}
+.cls-locked-badge{display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:12px;color:#92400e;border:1px solid #d97706;border-radius:5px;padding:3px 9px;background:#fffbeb}
+.cls-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.act-ghost{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:5px 11px;background:var(--color-background-primary);white-space:nowrap}
+.act-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:#2563eb;border:0.5px solid #93c5fd;border-radius:6px;padding:5px 12px;background:#eff6ff;text-decoration:none;white-space:nowrap}
+.act-link:hover{background:#dbeafe}
+.cls-chevron{color:var(--color-text-tertiary);font-size:16px;flex-shrink:0}
+
+/* ── MOCK CARDS ── */
+.mock-section-gap{height:12px}
+.mock-card{display:flex;align-items:center;gap:16px;padding:16px 20px;border:0.5px solid var(--color-border-tertiary);border-radius:10px;margin-bottom:10px;background:var(--color-background-primary)}
+.mock-round{font-size:11px;color:var(--color-text-tertiary);letter-spacing:0.08em;text-transform:uppercase;min-width:58px;flex-shrink:0}
+.mock-info{flex:1;min-width:0}
+.mock-name{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px}
+.mock-meta{display:flex;align-items:center;gap:10px}
+.mock-dur{font-size:12px;color:var(--color-text-tertiary)}
+.mock-tag{font-size:11px;font-weight:500;padding:2px 9px;border-radius:4px}
+.tag-easy{color:#166534;background:#dcfce7}
+.tag-medium{color:#1e40af;background:#dbeafe}
+.tag-hard{color:#991b1b;background:#fee2e2}
+.mock-btns{display:flex;gap:8px;flex-shrink:0}
+.btn-sched{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:500;color:#2563eb;border:1px solid #93c5fd;border-radius:7px;padding:8px 14px;background:#eff6ff;text-decoration:none;white-space:nowrap}
+.btn-sched:hover{background:#dbeafe}
+.btn-start{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:500;color:#fff;background:#2563eb;border:none;border-radius:7px;padding:8px 16px;text-decoration:none;white-space:nowrap}
+.btn-start:hover{background:#1d4ed8}
+</style>
+
+<div class="wrap">
+  <div class="sidebar">
+    <div class="sidebar-title">Premium Classes</div>
+
+    <div class="mod-block">
+      <div class="mod-meta"><div class="mod-num">Module - 1</div><div class="mod-name">DSA — Data Structures & Algorithms</div></div>
+      <div class="tab-row">
+        <button class="tab-btn active" id="btn-dsa-classes" onclick="sw('dsa','classes')">Classes <span class="arrow">›</span></button>
+        <button class="tab-btn" id="btn-dsa-mock" onclick="sw('dsa','mock')">Mock Interview <span class="arrow">›</span></button>
+      </div>
+    </div>
+    <div class="mod-sep"></div>
+
+    <div class="mod-block">
+      <div class="mod-meta"><div class="mod-num">Module - 2</div><div class="mod-name">LLD — Low Level Design</div></div>
+      <div class="tab-row">
+        <button class="tab-btn" id="btn-lld-classes" onclick="sw('lld','classes')">Classes <span class="arrow">›</span></button>
+        <button class="tab-btn" id="btn-lld-mock" onclick="sw('lld','mock')">Mock Interview <span class="arrow">›</span></button>
+      </div>
+    </div>
+    <div class="mod-sep"></div>
+
+    <div class="mod-block">
+      <div class="mod-meta"><div class="mod-num">Module - 3</div><div class="mod-name">HLD — High Level Design</div></div>
+      <div class="tab-row">
+        <button class="tab-btn" id="btn-hld-classes" onclick="sw('hld','classes')">Classes <span class="arrow">›</span></button>
+        <button class="tab-btn" id="btn-hld-mock" onclick="sw('hld','mock')">Mock Interview <span class="arrow">›</span></button>
+      </div>
+    </div>
+    <div class="mod-sep"></div>
+
+    <div class="mod-block">
+      <div class="mod-meta"><div class="mod-num">Module - 4</div><div class="mod-name">Tech Subjects</div></div>
+      <div class="tab-row">
+        <button class="tab-btn" id="btn-tech-classes" onclick="sw('tech','classes')">Classes <span class="arrow">›</span></button>
+        <button class="tab-btn" id="btn-tech-mock" onclick="sw('tech','mock')">Mock Interview <span class="arrow">›</span></button>
+      </div>
+    </div>
+    <div class="mod-sep"></div>
+
+    <div class="mod-block">
+      <div class="mod-meta"><div class="mod-num">Module - 5</div><div class="mod-name">Managerial Round Questions</div></div>
+      <div class="tab-row">
+        <button class="tab-btn" id="btn-mgr-classes" onclick="sw('mgr','classes')">Classes <span class="arrow">›</span></button>
+        <button class="tab-btn" id="btn-mgr-mock" onclick="sw('mgr','mock')">Mock Interview <span class="arrow">›</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main" id="main"></div>
+</div>
+
+<script>
+const D={
+  dsa:{num:"Module - 1",title:"DSA — Data Structures & Algorithms",total:40,link:"https://www.scaler.com/topics/data-structures/",
+    classes:["Arrays & Strings: Basics","Arrays & Strings: Two Pointers","Arrays & Strings: Sliding Window","Hashing: HashMap & HashSet","Linked List: Singly & Doubly","Linked List: Fast & Slow Pointer","Stack & Queue: Fundamentals","Stack: Monotonic Stack","Recursion & Backtracking: Basics","Recursion: Divide & Conquer","Binary Search: Classic","Binary Search: Search Space","Sorting: Merge Sort & Quick Sort","Trees: BFS & DFS","Trees: Binary Search Tree","Trees: Segment Tree & Fenwick","Heaps: Min / Max Heap","Heaps: Priority Queue Problems","Graphs: BFS & DFS","Graphs: Topological Sort","Graphs: Shortest Path — Dijkstra","Graphs: Union-Find DSU","Dynamic Programming: 1D","Dynamic Programming: 2D Grid","Dynamic Programming: Knapsack","Dynamic Programming: LCS & LIS","Greedy Algorithms","Trie: Insert, Search, Prefix","Bit Manipulation","Contest: Arrays & Hashing","Contest: Linked List & Stack","Contest: Trees & Graphs","Contest: DP & Greedy","Mock Interview: Easy","Mock Interview: Medium","Mock Interview: Hard","System Coding: Sliding Window","System Coding: Graph Traversal","Revision: Core Patterns","Final Contest"],
+    mock:[{n:"DSA Mock — Easy Round",d:"45 min",t:"Easy"},{n:"DSA Mock — Arrays & Hashing",d:"60 min",t:"Medium"},{n:"DSA Mock — Trees & Graphs",d:"60 min",t:"Medium"},{n:"DSA Mock — DP & Backtracking",d:"60 min",t:"Hard"},{n:"DSA Mock — FAANG Full Round",d:"90 min",t:"Hard"}]},
+  lld:{num:"Module - 2",title:"LLD — Low Level Design",total:38,link:"https://www.scaler.com/topics/software-engineering/",
+    classes:["OOP-1: Intro to LLD and OOP","OOP-2: Access Modifiers & Constructors","OOP-3: Inheritance & Polymorphism","OOP-4: Abstraction & Interfaces","Design Principles: SOLID","Design Patterns: Singleton & Factory","Design Patterns: Builder & Prototype","Design Patterns: Adapter & Facade","Design Patterns: Decorator & Flyweight","Design Patterns: Observer & Strategy","Design Patterns: Command & Template","Design Patterns: Behavioural Patterns","Contest: Design Principles & Patterns","Machine Coding: Parking Lot","Machine Coding: Library Management","Machine Coding: Cab Booking System","Machine Coding: Chess","Machine Coding: Splitwise","Machine Coding: Notification Service","Machine Coding: Rate Limiter","Machine Coding: LRU Cache","Machine Coding: Task Scheduler","Machine Coding: Elevator System","Machine Coding: Online Voting","Concurrency: Threads & Locks","Concurrency: Producer-Consumer","Database Design: ER Diagrams","Database Design: Normalization","Database Design: Indexing","API Design: REST Principles","API Design: Auth & Authorization","Contest: Machine Coding Round","Mock Interview: LLD Round 1","Mock Interview: LLD Round 2","Mock Interview: Machine Coding","Revision: Key Patterns","System Design Bridge: LLD to HLD","Final Contest"],
+    mock:[{n:"LLD Mock — OOP & SOLID",d:"45 min",t:"Easy"},{n:"LLD Mock — Design Patterns",d:"60 min",t:"Medium"},{n:"LLD Mock — Machine Coding Easy",d:"60 min",t:"Medium"},{n:"LLD Mock — Machine Coding Hard",d:"90 min",t:"Hard"},{n:"LLD Mock — Full Round Simulation",d:"90 min",t:"Hard"}]},
+  hld:{num:"Module - 3",title:"HLD — High Level Design",total:30,link:"https://www.scaler.com/topics/system-design/",
+    classes:["HLD Intro: Scaling & Distributed Systems","Networking: HTTP, DNS, TCP/IP","Load Balancing: Strategies & Algorithms","Caching: Redis, Memcached, CDN","Databases: SQL vs NoSQL","Databases: Sharding & Replication","Databases: CAP Theorem","Message Queues: Kafka & RabbitMQ","Microservices Architecture","API Gateway & Service Mesh","Rate Limiting & Throttling","Authentication: OAuth, JWT, SSO","Storage: Object & Block Storage","CDN & Edge Computing","Search: ElasticSearch","Design: URL Shortener","Design: Pastebin","Design: Instagram","Design: YouTube","Design: WhatsApp","Design: Twitter News Feed","Design: Uber Ride Sharing","Design: Amazon E-commerce","Design: Google Drive","Design: Notification System","Design: Payment System","Observability: Logging & Monitoring","Mock Interview: HLD Round 1","Mock Interview: HLD Round 2","Final Contest"],
+    mock:[{n:"HLD Mock — Basic System Design",d:"45 min",t:"Easy"},{n:"HLD Mock — Scalability Focus",d:"60 min",t:"Medium"},{n:"HLD Mock — Database Design",d:"60 min",t:"Medium"},{n:"HLD Mock — FAANG Style",d:"90 min",t:"Hard"},{n:"HLD Mock — End-to-End Design",d:"90 min",t:"Hard"}]},
+  tech:{num:"Module - 4",title:"Tech Subjects",total:35,link:"https://www.scaler.com/topics/",
+    classes:["OS: Processes & Threads","OS: Scheduling Algorithms","OS: Memory Management & Paging","OS: Deadlocks & Synchronization","OS: File Systems","DBMS: Relational Model & SQL","DBMS: Transactions & ACID","DBMS: Indexing & Query Optimization","DBMS: Normalization Forms","DBMS: NoSQL Fundamentals","CN: OSI & TCP/IP Model","CN: HTTP / HTTPS & REST","CN: DNS, CDN & Load Balancer","CN: Sockets & TCP vs UDP","CN: Security — SSL/TLS","OOP Concepts: Deep Dive","Functional Programming Concepts","Concurrency & Parallelism","Memory: Heap vs Stack","Virtual Memory & Paging","Git & Version Control Internals","Linux Commands & Shell Scripting","Docker & Containerization","Kubernetes Fundamentals","CI/CD Pipeline Concepts","Cloud: AWS / GCP Core Services","Security: Auth & Encryption","Security: OWASP Vulnerabilities","Testing: Unit, Integration, E2E","REST vs GraphQL vs gRPC","Message Queues: Deep Dive","Monitoring & Observability","Compiler Design Basics","Network Security Fundamentals","Final Tech Contest"],
+    mock:[{n:"Tech Mock — OS & Memory",d:"45 min",t:"Medium"},{n:"Tech Mock — DBMS & SQL",d:"60 min",t:"Medium"},{n:"Tech Mock — Computer Networks",d:"60 min",t:"Medium"},{n:"Tech Mock — Mixed Tech Subjects",d:"60 min",t:"Hard"},{n:"Tech Mock — Full Round Simulation",d:"90 min",t:"Hard"}]},
+  mgr:{num:"Module - 5",title:"Managerial Round Questions",total:25,link:"https://www.scaler.com/",
+    classes:["Introduction to Managerial Rounds","Tell Me About Yourself — Framework","Behavioural Questions: STAR Method","Strengths & Weaknesses — How to Answer","Why This Company / Role?","Leadership: Conflict Resolution","Leadership: Team Management Stories","Ownership & Accountability Questions","Handling Failure & Mistakes","Handling Ambiguity & Pressure","Prioritisation & Time Management","Stakeholder Management","Cross-functional Collaboration","Goal Setting & OKRs","Performance Review Discussions","Salary & Offer Negotiation","Career Growth Conversations","Diversity & Inclusion Questions","Situational Judgement Questions","Ethics & Integrity Scenarios","Culture Fit Assessment","Questions to Ask the Interviewer","Body Language & Communication Tips","Resume Walkthrough Techniques","Final Mock Managerial Round"],
+    mock:[{n:"HR & Intro Round",d:"30 min",t:"Easy"},{n:"STAR Behavioural Round",d:"45 min",t:"Medium"},{n:"Leadership & Conflict Round",d:"45 min",t:"Medium"},{n:"Culture Fit Round",d:"45 min",t:"Medium"},{n:"Full Managerial Simulation",d:"60 min",t:"Hard"}]}
+};
+
+let cm='dsa',ct='classes';
+
+function sw(mod,tab){
+  cm=mod;ct=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn-'+mod+'-'+tab).classList.add('active');
+  render();
+}
+
+function tagClass(t){return t==='Easy'?'tag-easy':t==='Hard'?'tag-hard':'tag-medium';}
+
+function render(){
+  const m=D[cm];
+  const isCls=ct==='classes';
+  let rows='';
+
+  if(isCls){
+    rows=m.classes.map((n,i)=>{
+      const lk=i>=6;
+      return `<div class="class-row">
+        <span class="cls-num">Class ${i+1}</span>
+        <div class="cls-info">
+          <div class="cls-name">${lk?'🔒 ':''}${n}</div>
+          <div class="cls-dur">⏱ 2.5 hr</div>
+          ${i===5?'<div class="cls-locked-badge">🔒 Content Locked</div>':''}
+        </div>
+        <div class="cls-actions">
+          <span class="act-ghost">🔒 Assignment</span>
+          <span class="act-ghost">🔒 Homework</span>
+          <a class="act-link" href="${m.link}" target="_blank">↗ Open</a>
+        </div>
+        <span class="cls-chevron">›</span>
+      </div>`;
+    }).join('');
+  } else {
+    rows='<div class="mock-section-gap"></div>'+m.mock.map((r,i)=>`
+      <div class="mock-card">
+        <span class="mock-round">Round ${i+1}</span>
+        <div class="mock-info">
+          <div class="mock-name">${r.n}</div>
+          <div class="mock-meta">
+            <span class="mock-dur">⏱ ${r.d}</span>
+            <span class="mock-tag ${tagClass(r.t)}">${r.t}</span>
+          </div>
+        </div>
+        <div class="mock-btns">
+          <a class="btn-sched" href="${m.link}" target="_blank">📅 Schedule</a>
+          <a class="btn-start" href="${m.link}" target="_blank">▶ Start Now</a>
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('main').innerHTML=`
+    <div class="main-mod-label">${m.num}</div>
+    <div class="main-title">${m.title}</div>
+    <div class="prog-bar"><div class="prog-fill"></div></div>
+    <div class="prog-lbl">0/${isCls?m.total:m.mock.length} ${isCls?'Classes':'Mock Interviews'}</div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-circle">0%</div><div class="stat-lbl">PSP</div></div>
+      <div class="stat-item"><div class="stat-circle">0%</div><div class="stat-lbl">Attendance</div></div>
+    </div>
+    <hr class="divider"/>${rows}`;
+}
+
+sw('dsa','classes');
+</script>
