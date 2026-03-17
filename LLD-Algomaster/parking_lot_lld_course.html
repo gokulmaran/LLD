@@ -1,0 +1,721 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+:root {
+  --sidebar-w: 260px;
+  --accent: #1D9E75;
+  --accent-light: #E1F5EE;
+}
+.app { display: flex; min-height: 600px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; background: var(--color-background-primary); }
+.sidebar { width: var(--sidebar-w); flex-shrink: 0; border-right: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); display: flex; flex-direction: column; }
+.sidebar-header { padding: 16px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.sidebar-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); line-height: 1.4; }
+.sidebar-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 4px; }
+.sidebar-section { padding: 10px 0; }
+.section-label { font-size: 10px; font-weight: 500; color: var(--color-text-tertiary); padding: 4px 16px 6px; letter-spacing: 0.05em; text-transform: uppercase; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 16px; font-size: 13px; color: var(--color-text-secondary); cursor: pointer; border-left: 2px solid transparent; transition: all 0.15s; }
+.nav-item:hover { background: var(--color-background-primary); color: var(--color-text-primary); }
+.nav-item.active { background: var(--color-background-primary); color: #0F6E56; border-left: 2px solid var(--accent); font-weight: 500; }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-border-secondary); flex-shrink: 0; }
+.nav-item.active .nav-dot { background: var(--accent); }
+.content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+.content-header { padding: 20px 28px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.content-title { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 12px; }
+.tabs { display: flex; gap: 0; }
+.tab { padding: 8px 18px; font-size: 13px; color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.tab:hover { color: var(--color-text-primary); }
+.tab.active { color: #0F6E56; border-bottom: 2px solid var(--accent); font-weight: 500; }
+.content-body { padding: 24px 28px; flex: 1; }
+.section { display: none; }
+.section.active { display: block; }
+.prose { font-size: 14px; line-height: 1.75; color: var(--color-text-primary); }
+.prose h3 { font-size: 16px; font-weight: 500; margin: 20px 0 8px; color: var(--color-text-primary); }
+.prose h3:first-child { margin-top: 0; }
+.prose p { margin-bottom: 12px; color: var(--color-text-secondary); }
+.prose ul { padding-left: 20px; margin-bottom: 12px; }
+.prose li { color: var(--color-text-secondary); margin-bottom: 5px; font-size: 14px; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.badge-teal { background: #E1F5EE; color: #0F6E56; }
+.badge-blue { background: #E6F1FB; color: #185FA5; }
+.req-card { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 14px 16px; margin-bottom: 12px; }
+.req-card-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.req-card-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.req-card-body ul { padding-left: 16px; margin-top: 6px; }
+.req-card-body li { margin-bottom: 4px; }
+.code-wrap { background: #1a1d23; border-radius: var(--border-radius-md); overflow: hidden; margin-bottom: 16px; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; background: #12151a; border-bottom: 1px solid #2a2d35; }
+.code-lang { font-size: 11px; color: #9ca3af; font-family: var(--font-mono); }
+.copy-btn { font-size: 11px; color: #9ca3af; background: none; border: 0.5px solid #3a3d45; border-radius: 4px; padding: 3px 10px; cursor: pointer; }
+.copy-btn:hover { color: #fff; border-color: #5a5d65; }
+.code-scroll { overflow-x: auto; }
+pre { padding: 16px; font-size: 12px; line-height: 1.65; font-family: var(--font-mono); color: #e2e8f0; white-space: pre; }
+.kw { color: #7dd3fc; }
+.ty { color: #86efac; }
+.cm { color: #6b7280; font-style: italic; }
+.st { color: #fca5a5; }
+.nm { color: #fbbf24; }
+.fn { color: #c4b5fd; }
+.class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.class-card { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; }
+.class-card-head { padding: 8px 12px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.class-card-head.abstract { background: #E6F1FB; color: #185FA5; }
+.class-card-head.concrete { background: #E1F5EE; color: #0F6E56; }
+.class-card-head.enum { background: #FAEEDA; color: #854F0B; }
+.class-card-head.pattern { background: #EEEDFE; color: #3C3489; }
+.class-card-body { padding: 8px 12px; }
+.class-member { font-size: 11px; color: var(--color-text-secondary); padding: 2px 0; font-family: var(--font-mono); border-bottom: 0.5px solid var(--color-border-tertiary); }
+.class-member:last-child { border-bottom: none; }
+.class-member .vis { color: #1D9E75; margin-right: 4px; }
+.class-member .vis.priv { color: #E24B4A; }
+</style>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Grokking Low Level Design</div>
+      <div class="sidebar-sub">OOD Principles</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="section-label">7. Designing a Parking Lot</div>
+      <div class="nav-item active" onclick="showPage('getting-ready')"><div class="nav-dot"></div>Getting Ready: Parking Lot</div>
+      <div class="nav-item" onclick="showPage('requirements')"><div class="nav-dot"></div>Requirements for the Design</div>
+      <div class="nav-item" onclick="showPage('use-case')"><div class="nav-dot"></div>Use Case Diagram</div>
+      <div class="nav-item" onclick="showPage('class-diagram')"><div class="nav-dot"></div>Class Diagram</div>
+      <div class="nav-item" onclick="showPage('code')"><div class="nav-dot"></div>Code for the Parking Lot</div>
+      <div class="nav-item" onclick="showPage('summary')"><div class="nav-dot"></div>Summary</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="content-header">
+      <div class="content-title" id="page-title">Getting Ready: Parking Lot</div>
+      <div class="tabs" id="tab-bar" style="display:none;">
+        <div class="tab active" onclick="showTab('cpp')">C++</div>
+        <div class="tab" onclick="showTab('explanation')">Explanation</div>
+      </div>
+    </div>
+
+    <div class="content-body">
+
+      <!-- GETTING READY -->
+      <div class="section active" id="page-getting-ready">
+        <div class="prose">
+          <h3>Problem definition</h3>
+          <p>A parking lot is a designated area for parking vehicles and is a feature found in almost all populated areas. Parking lots are a necessity in cities and suburban areas for both residential and commercial purposes. The parking lot can have multiple floors with each floor having a different number of slots and different types of slots.</p>
+          <h3>What to expect</h3>
+          <p>A typical parking lot system has several components, each with specific constraints and requirements. The interviewer expects you to discuss:</p>
+          <ul>
+            <li>Payment flexibility — multiple exit points, multiple payment methods (cash, credit, coupon)</li>
+            <li>Parking spot types — motorcycle, compact car, large vehicle, accessible</li>
+            <li>Multi-floor support — tracking paid customers per floor</li>
+            <li>Capacity display — showing available/occupied counts per spot type</li>
+            <li>Ticket system — entry time, duration calculation, fee structure</li>
+          </ul>
+          <h3>Scope</h3>
+          <p>We will design a system supporting multiple floors, multiple entrances and exits, automatic ticket generation, and a flexible payment interface.</p>
+        </div>
+      </div>
+
+      <!-- REQUIREMENTS -->
+      <div class="section" id="page-requirements">
+        <div class="req-card">
+          <div class="req-card-title"><span class="badge badge-teal">R1</span> Vehicle types</div>
+          <div class="req-card-body">The parking lot must accommodate motorcycles, cars, vans/trucks. Each vehicle type maps to compatible spot types.</div>
+        </div>
+        <div class="req-card">
+          <div class="req-card-title"><span class="badge badge-teal">R2</span> Spot types</div>
+          <div class="req-card-body">Four spot categories:
+            <ul>
+              <li>Motorcycle spots — only motorcycles</li>
+              <li>Compact spots — cars only</li>
+              <li>Large spots — vans, trucks, and cars</li>
+              <li>Accessible spots — reserved for disability vehicles</li>
+            </ul>
+          </div>
+        </div>
+        <div class="req-card">
+          <div class="req-card-title"><span class="badge badge-teal">R3</span> Multi-floor support</div>
+          <div class="req-card-body">The lot can have multiple floors. Each floor tracks its own available spots independently.</div>
+        </div>
+        <div class="req-card">
+          <div class="req-card-title"><span class="badge badge-teal">R4</span> Entry &amp; exit panels</div>
+          <div class="req-card-body">Multiple entrance panels issue tickets on arrival. Multiple exit panels process payment and release the spot.</div>
+        </div>
+        <div class="req-card">
+          <div class="req-card-title"><span class="badge badge-teal">R5</span> Payment flexibility</div>
+          <div class="req-card-body">Customers can pay via cash, credit card, or coupon at any exit panel. Coupons provide a percentage discount.</div>
+        </div>
+        <div class="req-card">
+          <div class="req-card-title"><span class="badge badge-teal">R6</span> Fee calculation</div>
+          <div class="req-card-body">Fees are time-based with a minimum 1-hour charge. Rates differ by vehicle type (motorcycle &lt; car &lt; van/truck).</div>
+        </div>
+        <div class="req-card">
+          <div class="req-card-title"><span class="badge badge-teal">R7</span> Singleton lot</div>
+          <div class="req-card-body">Only one parking lot instance exists in the system (Singleton pattern). It manages all floors, panels, and active tickets.</div>
+        </div>
+        <div class="req-card">
+          <div class="req-card-title"><span class="badge badge-teal">R8</span> Capacity display</div>
+          <div class="req-card-body">The system can report available spots per type per floor at any time.</div>
+        </div>
+      </div>
+
+      <!-- USE CASE -->
+      <div class="section" id="page-use-case">
+        <div class="prose">
+          <h3>Actors</h3>
+          <ul>
+            <li><strong>Customer</strong> — drives in, receives ticket, parks, pays, exits</li>
+            <li><strong>Parking Agent</strong> — can manually issue or validate tickets</li>
+            <li><strong>System</strong> — auto-assigns spots, calculates fees, tracks occupancy</li>
+          </ul>
+          <h3>Use cases</h3>
+        </div>
+        <div class="req-card">
+          <div class="req-card-title"><span class="badge badge-blue">UC1</span> Park vehicle</div>
+          <div class="req-card-body">Customer arrives → system finds best available spot → issues ticket with entry time and spot info.</div>
+        </div>
+        <div class="req-card">
+          <div class="req-card-title"><span class="badge badge-blue">UC2</span> Pay and exit</div>
+          <div class="req-card-body">Customer presents ticket at exit → system calculates fee → customer pays via chosen method → spot is freed.</div>
+        </div>
+        <div class="req-card">
+          <div class="req-card-title"><span class="badge badge-blue">UC3</span> Check availability</div>
+          <div class="req-card-body">Display panel shows live count of available spots per type and per floor.</div>
+        </div>
+        <div class="req-card">
+          <div class="req-card-title"><span class="badge badge-blue">UC4</span> Apply coupon</div>
+          <div class="req-card-body">Customer presents a coupon at exit — system applies discount before charging.</div>
+        </div>
+      </div>
+
+      <!-- CLASS DIAGRAM -->
+      <div class="section" id="page-class-diagram">
+        <div class="prose"><p style="margin-bottom:14px;">Key classes and their relationships in the parking lot system.</p></div>
+        <div class="class-grid">
+          <div class="class-card">
+            <div class="class-card-head abstract">◇ Vehicle (abstract)</div>
+            <div class="class-card-body">
+              <div class="class-member"><span class="vis priv">-</span>licensePlate: string</div>
+              <div class="class-member"><span class="vis priv">-</span>type: VehicleType</div>
+              <div class="class-member"><span class="vis">+</span>getType()</div>
+            </div>
+          </div>
+          <div class="class-card">
+            <div class="class-card-head concrete">○ Car / Motorcycle / Van</div>
+            <div class="class-card-body">
+              <div class="class-member"><span class="vis">+</span>extends Vehicle</div>
+              <div class="class-member"><span class="vis">+</span>constructor(plate)</div>
+            </div>
+          </div>
+          <div class="class-card">
+            <div class="class-card-head concrete">○ ParkingSpot</div>
+            <div class="class-card-body">
+              <div class="class-member"><span class="vis priv">-</span>spotId: string</div>
+              <div class="class-member"><span class="vis priv">-</span>type: SpotType</div>
+              <div class="class-member"><span class="vis priv">-</span>status: SpotStatus</div>
+              <div class="class-member"><span class="vis">+</span>canFit(VehicleType)</div>
+              <div class="class-member"><span class="vis">+</span>park(vehicle)</div>
+              <div class="class-member"><span class="vis">+</span>vacate()</div>
+            </div>
+          </div>
+          <div class="class-card">
+            <div class="class-card-head concrete">○ ParkingFloor</div>
+            <div class="class-card-body">
+              <div class="class-member"><span class="vis priv">-</span>floorNum: int</div>
+              <div class="class-member"><span class="vis priv">-</span>spots: vector</div>
+              <div class="class-member"><span class="vis">+</span>findSpot(VehicleType)</div>
+              <div class="class-member"><span class="vis">+</span>countAvailable()</div>
+            </div>
+          </div>
+          <div class="class-card">
+            <div class="class-card-head concrete">○ ParkingTicket</div>
+            <div class="class-card-body">
+              <div class="class-member"><span class="vis priv">-</span>ticketId: string</div>
+              <div class="class-member"><span class="vis priv">-</span>entryTime: time</div>
+              <div class="class-member"><span class="vis priv">-</span>paid: bool</div>
+              <div class="class-member"><span class="vis">+</span>getDuration()</div>
+              <div class="class-member"><span class="vis">+</span>markPaid()</div>
+            </div>
+          </div>
+          <div class="class-card">
+            <div class="class-card-head abstract">◇ PaymentStrategy</div>
+            <div class="class-card-body">
+              <div class="class-member"><span class="vis">+</span>processPayment(amt)</div>
+            </div>
+          </div>
+          <div class="class-card">
+            <div class="class-card-head concrete">○ Cash / Card / Coupon</div>
+            <div class="class-card-body">
+              <div class="class-member"><span class="vis">+</span>implements PaymentStrategy</div>
+              <div class="class-member"><span class="vis">+</span>processPayment(amt)</div>
+            </div>
+          </div>
+          <div class="class-card">
+            <div class="class-card-head pattern">◆ ParkingLot (Singleton)</div>
+            <div class="class-card-body">
+              <div class="class-member"><span class="vis priv">-</span>instance (static)</div>
+              <div class="class-member"><span class="vis priv">-</span>floors: vector</div>
+              <div class="class-member"><span class="vis priv">-</span>activeTickets: map</div>
+              <div class="class-member"><span class="vis">+</span>getInstance()</div>
+              <div class="class-member"><span class="vis">+</span>parkVehicle(v)</div>
+              <div class="class-member"><span class="vis">+</span>exitVehicle(id)</div>
+            </div>
+          </div>
+          <div class="class-card">
+            <div class="class-card-head enum">E Enums</div>
+            <div class="class-card-body">
+              <div class="class-member">VehicleType</div>
+              <div class="class-member">SpotType</div>
+              <div class="class-member">SpotStatus</div>
+              <div class="class-member">PaymentMethod</div>
+            </div>
+          </div>
+        </div>
+        <div class="prose">
+          <h3>Design patterns used</h3>
+          <ul>
+            <li><strong>Singleton</strong> — ParkingLot ensures a single system instance</li>
+            <li><strong>Strategy</strong> — PaymentStrategy allows swapping payment methods at runtime</li>
+            <li><strong>Inheritance</strong> — Vehicle base class with concrete subclasses</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- CODE -->
+      <div class="section" id="page-code">
+        <div id="tab-cpp" class="tab-section">
+
+          <div class="code-wrap">
+            <div class="code-header"><span class="code-lang">enums.h — vehicle &amp; spot types</span><button class="copy-btn" onclick="copyCode(0)">copy</button></div>
+            <div class="code-scroll"><pre id="code0"><span class="cm">// ── Enums ──────────────────────────────────────</span>
+<span class="kw">#pragma once</span>
+<span class="kw">enum class</span> <span class="ty">VehicleType</span> { MOTORCYCLE, CAR, VAN, TRUCK };
+<span class="kw">enum class</span> <span class="ty">SpotType</span>   { MOTORCYCLE, COMPACT, LARGE, ACCESSIBLE };
+<span class="kw">enum class</span> <span class="ty">SpotStatus</span> { AVAILABLE, OCCUPIED };
+<span class="kw">enum class</span> <span class="ty">PaymentMethod</span> { CASH, CREDIT_CARD, COUPON };</pre></div>
+          </div>
+
+          <div class="code-wrap">
+            <div class="code-header"><span class="code-lang">vehicle.h — abstract base + subclasses</span><button class="copy-btn" onclick="copyCode(1)">copy</button></div>
+            <div class="code-scroll"><pre id="code1"><span class="kw">#pragma once</span>
+<span class="kw">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="kw">#include</span> <span class="st">"enums.h"</span>
+
+<span class="kw">class</span> <span class="ty">Vehicle</span> {
+<span class="kw">protected</span>:
+    std::string licensePlate;
+    <span class="ty">VehicleType</span> type;
+<span class="kw">public</span>:
+    <span class="fn">Vehicle</span>(<span class="kw">const</span> std::string&amp; plate, <span class="ty">VehicleType</span> t)
+        : licensePlate(plate), type(t) {}
+    <span class="kw">virtual</span> ~<span class="fn">Vehicle</span>() = <span class="kw">default</span>;
+    std::string <span class="fn">getPlate</span>() <span class="kw">const</span> { <span class="kw">return</span> licensePlate; }
+    <span class="ty">VehicleType</span> <span class="fn">getType</span>()  <span class="kw">const</span> { <span class="kw">return</span> type; }
+};
+
+<span class="kw">class</span> <span class="ty">Motorcycle</span> : <span class="kw">public</span> <span class="ty">Vehicle</span> {
+<span class="kw">public</span>: <span class="fn">Motorcycle</span>(<span class="kw">const</span> std::string&amp; p) : <span class="fn">Vehicle</span>(p, <span class="ty">VehicleType</span>::MOTORCYCLE) {} };
+
+<span class="kw">class</span> <span class="ty">Car</span> : <span class="kw">public</span> <span class="ty">Vehicle</span> {
+<span class="kw">public</span>: <span class="fn">Car</span>(<span class="kw">const</span> std::string&amp; p) : <span class="fn">Vehicle</span>(p, <span class="ty">VehicleType</span>::CAR) {} };
+
+<span class="kw">class</span> <span class="ty">Van</span> : <span class="kw">public</span> <span class="ty">Vehicle</span> {
+<span class="kw">public</span>: <span class="fn">Van</span>(<span class="kw">const</span> std::string&amp; p) : <span class="fn">Vehicle</span>(p, <span class="ty">VehicleType</span>::VAN) {} };
+
+<span class="kw">class</span> <span class="ty">Truck</span> : <span class="kw">public</span> <span class="ty">Vehicle</span> {
+<span class="kw">public</span>: <span class="fn">Truck</span>(<span class="kw">const</span> std::string&amp; p) : <span class="fn">Vehicle</span>(p, <span class="ty">VehicleType</span>::TRUCK) {} };</pre></div>
+          </div>
+
+          <div class="code-wrap">
+            <div class="code-header"><span class="code-lang">parking_spot.h — spot logic</span><button class="copy-btn" onclick="copyCode(2)">copy</button></div>
+            <div class="code-scroll"><pre id="code2"><span class="kw">#pragma once</span>
+<span class="kw">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;memory&gt;</span>
+<span class="kw">#include</span> <span class="st">"vehicle.h"</span>
+
+<span class="kw">class</span> <span class="ty">ParkingSpot</span> {
+<span class="kw">private</span>:
+    std::string spotId;
+    <span class="ty">SpotType</span>   spotType;
+    <span class="ty">SpotStatus</span> status;
+    <span class="kw">int</span> floor;
+    std::shared_ptr&lt;<span class="ty">Vehicle</span>&gt; parkedVehicle;
+<span class="kw">public</span>:
+    <span class="fn">ParkingSpot</span>(<span class="kw">const</span> std::string&amp; id, <span class="ty">SpotType</span> t, <span class="kw">int</span> f)
+        : spotId(id), spotType(t), floor(f), status(<span class="ty">SpotStatus</span>::AVAILABLE) {}
+
+    <span class="kw">bool</span> <span class="fn">isAvailable</span>() <span class="kw">const</span> { <span class="kw">return</span> status == <span class="ty">SpotStatus</span>::AVAILABLE; }
+
+    <span class="kw">bool</span> <span class="fn">canFit</span>(<span class="ty">VehicleType</span> vt) <span class="kw">const</span> {
+        <span class="kw">switch</span> (spotType) {
+            <span class="kw">case</span> <span class="ty">SpotType</span>::MOTORCYCLE:  <span class="kw">return</span> vt == <span class="ty">VehicleType</span>::MOTORCYCLE;
+            <span class="kw">case</span> <span class="ty">SpotType</span>::COMPACT:     <span class="kw">return</span> vt == <span class="ty">VehicleType</span>::CAR;
+            <span class="kw">case</span> <span class="ty">SpotType</span>::LARGE:       <span class="kw">return</span> vt != <span class="ty">VehicleType</span>::MOTORCYCLE;
+            <span class="kw">case</span> <span class="ty">SpotType</span>::ACCESSIBLE:  <span class="kw">return</span> vt == <span class="ty">VehicleType</span>::CAR;
+            <span class="kw">default</span>: <span class="kw">return false</span>;
+        }
+    }
+
+    <span class="kw">void</span> <span class="fn">park</span>(std::shared_ptr&lt;<span class="ty">Vehicle</span>&gt; v) {
+        <span class="kw">if</span> (!<span class="fn">isAvailable</span>()) <span class="kw">throw</span> std::runtime_error(<span class="st">"Spot occupied"</span>);
+        parkedVehicle = v; status = <span class="ty">SpotStatus</span>::OCCUPIED;
+    }
+    <span class="kw">void</span> <span class="fn">vacate</span>() { parkedVehicle = <span class="kw">nullptr</span>; status = <span class="ty">SpotStatus</span>::AVAILABLE; }
+
+    std::string <span class="fn">getId</span>()    <span class="kw">const</span> { <span class="kw">return</span> spotId; }
+    <span class="ty">SpotType</span>    <span class="fn">getType</span>()  <span class="kw">const</span> { <span class="kw">return</span> spotType; }
+    <span class="kw">int</span>         <span class="fn">getFloor</span>() <span class="kw">const</span> { <span class="kw">return</span> floor; }
+};</pre></div>
+          </div>
+
+          <div class="code-wrap">
+            <div class="code-header"><span class="code-lang">ticket.h — parking ticket</span><button class="copy-btn" onclick="copyCode(3)">copy</button></div>
+            <div class="code-scroll"><pre id="code3"><span class="kw">#pragma once</span>
+<span class="kw">#include</span> <span class="st">&lt;chrono&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;memory&gt;</span>
+<span class="kw">#include</span> <span class="st">"parking_spot.h"</span>
+
+<span class="kw">class</span> <span class="ty">ParkingTicket</span> {
+<span class="kw">private</span>:
+    <span class="kw">static int</span> counter;
+    std::string ticketId;
+    std::shared_ptr&lt;<span class="ty">Vehicle</span>&gt;      vehicle;
+    std::shared_ptr&lt;<span class="ty">ParkingSpot</span>&gt;  spot;
+    std::chrono::system_clock::time_point entryTime;
+    std::chrono::system_clock::time_point exitTime;
+    <span class="kw">bool</span> paid = <span class="kw">false</span>;
+    <span class="kw">bool</span> exited = <span class="kw">false</span>;
+<span class="kw">public</span>:
+    <span class="fn">ParkingTicket</span>(std::shared_ptr&lt;<span class="ty">Vehicle</span>&gt; v, std::shared_ptr&lt;<span class="ty">ParkingSpot</span>&gt; s)
+        : vehicle(v), spot(s), entryTime(std::chrono::system_clock::now()) {
+        ticketId = <span class="st">"TKT-"</span> + std::to_string(++counter);
+    }
+
+    <span class="kw">void</span> <span class="fn">markExit</span>() { exitTime = std::chrono::system_clock::now(); exited = <span class="kw">true</span>; }
+    <span class="kw">void</span> <span class="fn">markPaid</span>() { paid = <span class="kw">true</span>; }
+
+    <span class="kw">long long</span> <span class="fn">getDurationMinutes</span>() <span class="kw">const</span> {
+        <span class="kw">auto</span> end = exited ? exitTime : std::chrono::system_clock::now();
+        <span class="kw">return</span> std::chrono::duration_cast&lt;std::chrono::minutes&gt;(end - entryTime).count();
+    }
+
+    std::string                   <span class="fn">getId</span>()      <span class="kw">const</span> { <span class="kw">return</span> ticketId; }
+    std::shared_ptr&lt;<span class="ty">Vehicle</span>&gt;     <span class="fn">getVehicle</span>() <span class="kw">const</span> { <span class="kw">return</span> vehicle; }
+    std::shared_ptr&lt;<span class="ty">ParkingSpot</span>&gt; <span class="fn">getSpot</span>()    <span class="kw">const</span> { <span class="kw">return</span> spot; }
+    <span class="kw">bool</span>                          <span class="fn">isPaid</span>()     <span class="kw">const</span> { <span class="kw">return</span> paid; }
+};
+<span class="kw">int</span> <span class="ty">ParkingTicket</span>::counter = <span class="nm">1000</span>;</pre></div>
+          </div>
+
+          <div class="code-wrap">
+            <div class="code-header"><span class="code-lang">payment.h — strategy pattern</span><button class="copy-btn" onclick="copyCode(4)">copy</button></div>
+            <div class="code-scroll"><pre id="code4"><span class="kw">#pragma once</span>
+<span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;map&gt;</span>
+<span class="kw">#include</span> <span class="st">"ticket.h"</span>
+
+<span class="kw">class</span> <span class="ty">PaymentStrategy</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> <span class="kw">bool</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount) = <span class="nm">0</span>;
+    <span class="kw">virtual</span> ~<span class="fn">PaymentStrategy</span>() = <span class="kw">default</span>;
+};
+
+<span class="kw">class</span> <span class="ty">CashPayment</span> : <span class="kw">public</span> <span class="ty">PaymentStrategy</span> {
+<span class="kw">public</span>:
+    <span class="kw">bool</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount) <span class="kw">override</span> {
+        std::cout &lt;&lt; <span class="st">"  [Cash] Received: Rs."</span> &lt;&lt; amount &lt;&lt; <span class="st">"\n"</span>;
+        <span class="kw">return true</span>;
+    }
+};
+
+<span class="kw">class</span> <span class="ty">CreditCardPayment</span> : <span class="kw">public</span> <span class="ty">PaymentStrategy</span> {
+<span class="kw">public</span>:
+    <span class="kw">bool</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount) <span class="kw">override</span> {
+        std::cout &lt;&lt; <span class="st">"  [Card] Charged: Rs."</span> &lt;&lt; amount &lt;&lt; <span class="st">"\n"</span>;
+        <span class="kw">return true</span>;
+    }
+};
+
+<span class="kw">class</span> <span class="ty">CouponPayment</span> : <span class="kw">public</span> <span class="ty">PaymentStrategy</span> {
+    <span class="kw">double</span> discountPct;
+<span class="kw">public</span>:
+    <span class="fn">CouponPayment</span>(<span class="kw">double</span> pct) : discountPct(pct) {}
+    <span class="kw">bool</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount) <span class="kw">override</span> {
+        <span class="kw">double</span> final = amount * (<span class="nm">1.0</span> - discountPct / <span class="nm">100.0</span>);
+        std::cout &lt;&lt; <span class="st">"  [Coupon] "</span> &lt;&lt; discountPct &lt;&lt; <span class="st">"% off. Paid: Rs."</span> &lt;&lt; final &lt;&lt; <span class="st">"\n"</span>;
+        <span class="kw">return true</span>;
+    }
+};
+
+<span class="kw">class</span> <span class="ty">PaymentProcessor</span> {
+    std::map&lt;<span class="ty">VehicleType</span>, <span class="kw">double</span>&gt; ratePerHour = {
+        { <span class="ty">VehicleType</span>::MOTORCYCLE, <span class="nm">20.0</span> },
+        { <span class="ty">VehicleType</span>::CAR,        <span class="nm">40.0</span> },
+        { <span class="ty">VehicleType</span>::VAN,        <span class="nm">80.0</span> },
+        { <span class="ty">VehicleType</span>::TRUCK,      <span class="nm">80.0</span> }
+    };
+<span class="kw">public</span>:
+    <span class="kw">double</span> <span class="fn">calculateFee</span>(<span class="kw">const</span> <span class="ty">ParkingTicket</span>&amp; ticket) {
+        <span class="kw">double</span> hours = std::max(<span class="nm">1.0</span>, ticket.<span class="fn">getDurationMinutes</span>() / <span class="nm">60.0</span>);
+        <span class="kw">return</span> hours * ratePerHour.at(ticket.<span class="fn">getVehicle</span>()-&gt;<span class="fn">getType</span>());
+    }
+    <span class="kw">bool</span> <span class="fn">pay</span>(<span class="ty">ParkingTicket</span>&amp; ticket, <span class="ty">PaymentStrategy</span>* strategy) {
+        <span class="kw">double</span> fee = <span class="fn">calculateFee</span>(ticket);
+        std::cout &lt;&lt; <span class="st">"  Fee: Rs."</span> &lt;&lt; fee &lt;&lt; <span class="st">"\n"</span>;
+        <span class="kw">bool</span> ok = strategy-&gt;<span class="fn">processPayment</span>(fee);
+        <span class="kw">if</span> (ok) ticket.<span class="fn">markPaid</span>();
+        <span class="kw">return</span> ok;
+    }
+};</pre></div>
+          </div>
+
+          <div class="code-wrap">
+            <div class="code-header"><span class="code-lang">parking_floor.h — floor management</span><button class="copy-btn" onclick="copyCode(5)">copy</button></div>
+            <div class="code-scroll"><pre id="code5"><span class="kw">#pragma once</span>
+<span class="kw">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;memory&gt;</span>
+<span class="kw">#include</span> <span class="st">"parking_spot.h"</span>
+
+<span class="kw">class</span> <span class="ty">ParkingFloor</span> {
+<span class="kw">private</span>:
+    <span class="kw">int</span> floorNumber;
+    std::vector&lt;std::shared_ptr&lt;<span class="ty">ParkingSpot</span>&gt;&gt; spots;
+<span class="kw">public</span>:
+    <span class="fn">ParkingFloor</span>(<span class="kw">int</span> n) : floorNumber(n) {}
+
+    <span class="kw">void</span> <span class="fn">addSpot</span>(std::shared_ptr&lt;<span class="ty">ParkingSpot</span>&gt; spot) {
+        spots.<span class="fn">push_back</span>(spot);
+    }
+
+    std::shared_ptr&lt;<span class="ty">ParkingSpot</span>&gt; <span class="fn">findAvailableSpot</span>(<span class="ty">VehicleType</span> vt) {
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; s : spots)
+            <span class="kw">if</span> (s-&gt;<span class="fn">isAvailable</span>() &amp;&amp; s-&gt;<span class="fn">canFit</span>(vt)) <span class="kw">return</span> s;
+        <span class="kw">return nullptr</span>;
+    }
+
+    <span class="kw">long</span> <span class="fn">countAvailable</span>(<span class="ty">SpotType</span> t) <span class="kw">const</span> {
+        <span class="kw">long</span> cnt = <span class="nm">0</span>;
+        <span class="kw">for</span> (<span class="kw">const auto</span>&amp; s : spots)
+            <span class="kw">if</span> (s-&gt;<span class="fn">getType</span>() == t &amp;&amp; s-&gt;<span class="fn">isAvailable</span>()) ++cnt;
+        <span class="kw">return</span> cnt;
+    }
+
+    <span class="kw">int</span> <span class="fn">getFloorNumber</span>() <span class="kw">const</span> { <span class="kw">return</span> floorNumber; }
+    <span class="kw">const</span> std::vector&lt;std::shared_ptr&lt;<span class="ty">ParkingSpot</span>&gt;&gt;&amp; <span class="fn">getSpots</span>() <span class="kw">const</span> { <span class="kw">return</span> spots; }
+};</pre></div>
+          </div>
+
+          <div class="code-wrap">
+            <div class="code-header"><span class="code-lang">parking_lot.h — singleton orchestrator</span><button class="copy-btn" onclick="copyCode(6)">copy</button></div>
+            <div class="code-scroll"><pre id="code6"><span class="kw">#pragma once</span>
+<span class="kw">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;unordered_map&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;memory&gt;</span>
+<span class="kw">#include</span> <span class="st">"parking_floor.h"</span>
+<span class="kw">#include</span> <span class="st">"payment.h"</span>
+
+<span class="kw">class</span> <span class="ty">ParkingLot</span> {
+<span class="kw">private</span>:
+    <span class="kw">static</span> <span class="ty">ParkingLot</span>* instance;
+    std::string name;
+    std::vector&lt;std::shared_ptr&lt;<span class="ty">ParkingFloor</span>&gt;&gt; floors;
+    std::unordered_map&lt;std::string, std::shared_ptr&lt;<span class="ty">ParkingTicket</span>&gt;&gt; activeTickets;
+    <span class="ty">PaymentProcessor</span> paymentProcessor;
+
+    <span class="fn">ParkingLot</span>(<span class="kw">const</span> std::string&amp; n) : name(n) {}
+<span class="kw">public</span>:
+    <span class="kw">static</span> <span class="ty">ParkingLot</span>* <span class="fn">getInstance</span>(<span class="kw">const</span> std::string&amp; n = <span class="st">"Default"</span>) {
+        <span class="kw">if</span> (!instance) instance = <span class="kw">new</span> <span class="ty">ParkingLot</span>(n);
+        <span class="kw">return</span> instance;
+    }
+
+    <span class="kw">void</span> <span class="fn">addFloor</span>(std::shared_ptr&lt;<span class="ty">ParkingFloor</span>&gt; f) { floors.<span class="fn">push_back</span>(f); }
+
+    std::shared_ptr&lt;<span class="ty">ParkingTicket</span>&gt; <span class="fn">parkVehicle</span>(std::shared_ptr&lt;<span class="ty">Vehicle</span>&gt; v) {
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; floor : floors) {
+            <span class="kw">auto</span> spot = floor-&gt;<span class="fn">findAvailableSpot</span>(v-&gt;<span class="fn">getType</span>());
+            <span class="kw">if</span> (spot) {
+                spot-&gt;<span class="fn">park</span>(v);
+                <span class="kw">auto</span> ticket = std::make_shared&lt;<span class="ty">ParkingTicket</span>&gt;(v, spot);
+                activeTickets[ticket-&gt;<span class="fn">getId</span>()] = ticket;
+                std::cout &lt;&lt; <span class="st">"[IN] Issued "</span> &lt;&lt; ticket-&gt;<span class="fn">getId</span>()
+                          &lt;&lt; <span class="st">" | Spot: "</span> &lt;&lt; spot-&gt;<span class="fn">getId</span>() &lt;&lt; <span class="st">"\n"</span>;
+                <span class="kw">return</span> ticket;
+            }
+        }
+        std::cout &lt;&lt; <span class="st">"[!] No spot for "</span> &lt;&lt; v-&gt;<span class="fn">getPlate</span>() &lt;&lt; <span class="st">"\n"</span>;
+        <span class="kw">return nullptr</span>;
+    }
+
+    <span class="kw">bool</span> <span class="fn">exitVehicle</span>(<span class="kw">const</span> std::string&amp; ticketId, <span class="ty">PaymentStrategy</span>* strategy) {
+        <span class="kw">auto</span> it = activeTickets.<span class="fn">find</span>(ticketId);
+        <span class="kw">if</span> (it == activeTickets.<span class="fn">end</span>()) {
+            std::cout &lt;&lt; <span class="st">"[!] Ticket not found\n"</span>; <span class="kw">return false</span>;
+        }
+        <span class="kw">auto</span>&amp; ticket = it-&gt;second;
+        ticket-&gt;<span class="fn">markExit</span>();
+        std::cout &lt;&lt; <span class="st">"[OUT] "</span> &lt;&lt; ticketId &lt;&lt; <span class="st">"\n"</span>;
+        <span class="kw">bool</span> ok = paymentProcessor.<span class="fn">pay</span>(*ticket, strategy);
+        <span class="kw">if</span> (ok) {
+            ticket-&gt;<span class="fn">getSpot</span>()-&gt;<span class="fn">vacate</span>();
+            activeTickets.<span class="fn">erase</span>(it);
+        }
+        <span class="kw">return</span> ok;
+    }
+
+    <span class="kw">void</span> <span class="fn">displayStatus</span>() {
+        std::cout &lt;&lt; <span class="st">"\n=== "</span> &lt;&lt; name &lt;&lt; <span class="st">" === Active: "</span>
+                  &lt;&lt; activeTickets.<span class="fn">size</span>() &lt;&lt; <span class="st">" tickets\n"</span>;
+    }
+};
+<span class="ty">ParkingLot</span>* <span class="ty">ParkingLot</span>::instance = <span class="kw">nullptr</span>;</pre></div>
+          </div>
+
+          <div class="code-wrap">
+            <div class="code-header"><span class="code-lang">main.cpp — demo</span><button class="copy-btn" onclick="copyCode(7)">copy</button></div>
+            <div class="code-scroll"><pre id="code7"><span class="kw">#include</span> <span class="st">"parking_lot.h"</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">auto</span>* lot = <span class="ty">ParkingLot</span>::<span class="fn">getInstance</span>(<span class="st">"City Centre Parking"</span>);
+
+    <span class="cm">// ── Build Floor 0 ──</span>
+    <span class="kw">auto</span> f0 = std::make_shared&lt;<span class="ty">ParkingFloor</span>&gt;(<span class="nm">0</span>);
+    f0-&gt;<span class="fn">addSpot</span>(std::make_shared&lt;<span class="ty">ParkingSpot</span>&gt;(<span class="st">"F0-M1"</span>, <span class="ty">SpotType</span>::MOTORCYCLE, <span class="nm">0</span>));
+    f0-&gt;<span class="fn">addSpot</span>(std::make_shared&lt;<span class="ty">ParkingSpot</span>&gt;(<span class="st">"F0-C1"</span>, <span class="ty">SpotType</span>::COMPACT,    <span class="nm">0</span>));
+    f0-&gt;<span class="fn">addSpot</span>(std::make_shared&lt;<span class="ty">ParkingSpot</span>&gt;(<span class="st">"F0-L1"</span>, <span class="ty">SpotType</span>::LARGE,      <span class="nm">0</span>));
+    f0-&gt;<span class="fn">addSpot</span>(std::make_shared&lt;<span class="ty">ParkingSpot</span>&gt;(<span class="st">"F0-A1"</span>, <span class="ty">SpotType</span>::ACCESSIBLE, <span class="nm">0</span>));
+    lot-&gt;<span class="fn">addFloor</span>(f0);
+
+    <span class="cm">// ── Build Floor 1 ──</span>
+    <span class="kw">auto</span> f1 = std::make_shared&lt;<span class="ty">ParkingFloor</span>&gt;(<span class="nm">1</span>);
+    f1-&gt;<span class="fn">addSpot</span>(std::make_shared&lt;<span class="ty">ParkingSpot</span>&gt;(<span class="st">"F1-C1"</span>, <span class="ty">SpotType</span>::COMPACT, <span class="nm">1</span>));
+    f1-&gt;<span class="fn">addSpot</span>(std::make_shared&lt;<span class="ty">ParkingSpot</span>&gt;(<span class="st">"F1-L1"</span>, <span class="ty">SpotType</span>::LARGE,   <span class="nm">1</span>));
+    lot-&gt;<span class="fn">addFloor</span>(f1);
+
+    <span class="cm">// ── Vehicles arrive ──</span>
+    <span class="kw">auto</span> bike  = std::make_shared&lt;<span class="ty">Motorcycle</span>&gt;(<span class="st">"TN01AB1234"</span>);
+    <span class="kw">auto</span> car1  = std::make_shared&lt;<span class="ty">Car</span>&gt;(<span class="st">"TN02CD5678"</span>);
+    <span class="kw">auto</span> truck = std::make_shared&lt;<span class="ty">Truck</span>&gt;(<span class="st">"TN03GH9012"</span>);
+
+    <span class="kw">auto</span> t1 = lot-&gt;<span class="fn">parkVehicle</span>(bike);
+    <span class="kw">auto</span> t2 = lot-&gt;<span class="fn">parkVehicle</span>(car1);
+    <span class="kw">auto</span> t3 = lot-&gt;<span class="fn">parkVehicle</span>(truck);
+
+    lot-&gt;<span class="fn">displayStatus</span>();
+
+    <span class="cm">// ── Vehicles exit ──</span>
+    <span class="ty">CashPayment</span>       cash;
+    <span class="ty">CreditCardPayment</span> card;
+    <span class="ty">CouponPayment</span>     coupon(<span class="nm">20</span>);
+
+    <span class="kw">if</span> (t1) lot-&gt;<span class="fn">exitVehicle</span>(t1-&gt;<span class="fn">getId</span>(), &amp;cash);
+    <span class="kw">if</span> (t2) lot-&gt;<span class="fn">exitVehicle</span>(t2-&gt;<span class="fn">getId</span>(), &amp;card);
+    <span class="kw">if</span> (t3) lot-&gt;<span class="fn">exitVehicle</span>(t3-&gt;<span class="fn">getId</span>(), &amp;coupon);
+
+    lot-&gt;<span class="fn">displayStatus</span>();
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre></div>
+          </div>
+        </div>
+
+        <div id="tab-explanation" class="tab-section" style="display:none;">
+          <div class="prose">
+            <h3>File structure</h3>
+            <p>The code is split into 7 header/source files, each mapping to one responsibility:</p>
+            <ul>
+              <li><code>enums.h</code> — all enum types (VehicleType, SpotType, etc.)</li>
+              <li><code>vehicle.h</code> — abstract Vehicle + Motorcycle, Car, Van, Truck subclasses</li>
+              <li><code>parking_spot.h</code> — spot state, canFit() logic, park/vacate</li>
+              <li><code>ticket.h</code> — ticket with entry time and duration calculation</li>
+              <li><code>payment.h</code> — Strategy pattern: Cash, CreditCard, Coupon + PaymentProcessor</li>
+              <li><code>parking_floor.h</code> — per-floor spot management</li>
+              <li><code>parking_lot.h</code> — Singleton orchestrator, main entry/exit flow</li>
+              <li><code>main.cpp</code> — demo driver</li>
+            </ul>
+            <h3>To compile and run</h3>
+            <p>All headers are in the same directory. Compile with:</p>
+            <div class="code-wrap" style="margin-top:8px;">
+              <div class="code-scroll"><pre style="padding:12px;">g++ -std=c++17 main.cpp -o parking_lot && ./parking_lot</pre></div>
+            </div>
+            <h3>Key design decisions</h3>
+            <ul>
+              <li><strong>Singleton</strong> — ParkingLot uses a static pointer; only one instance exists</li>
+              <li><strong>Strategy</strong> — PaymentStrategy is a pure virtual base; swap implementations at runtime</li>
+              <li><strong>shared_ptr</strong> — vehicle and spot ownership is shared across ticket and floor</li>
+              <li><strong>No raw pointers</strong> — all heap objects managed via smart pointers except the Singleton</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUMMARY -->
+      <div class="section" id="page-summary">
+        <div class="prose">
+          <h3>What we designed</h3>
+          <p>A fully object-oriented Parking Lot system with multi-floor support, four spot types, flexible payment, and clean separation of concerns.</p>
+          <h3>Patterns applied</h3>
+          <ul>
+            <li><strong>Singleton</strong> — one global ParkingLot instance manages state</li>
+            <li><strong>Strategy</strong> — PaymentStrategy decouples payment logic from the exit flow</li>
+            <li><strong>Inheritance + Polymorphism</strong> — Vehicle hierarchy with virtual dispatch</li>
+          </ul>
+          <h3>Extension points</h3>
+          <ul>
+            <li>Add a DisplayBoard class that polls floor availability in real time</li>
+            <li>Add a ParkingAgent actor who can override spot assignment</li>
+            <li>Persist tickets to a database for multi-session tracking</li>
+            <li>Add reservation / pre-booking use case</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const pages = ['getting-ready','requirements','use-case','class-diagram','code','summary'];
+const titles = {
+  'getting-ready': 'Getting Ready: Parking Lot',
+  'requirements': 'Requirements for the Parking Lot Design',
+  'use-case': 'Use Case Diagram for the Parking Lot',
+  'class-diagram': 'Class Diagram for the Parking Lot',
+  'code': 'Code for the Parking Lot',
+  'summary': 'Summary: Designing a Parking Lot'
+};
+
+function showPage(id) {
+  pages.forEach(p => {
+    document.getElementById('page-' + p).classList.remove('active');
+    document.querySelectorAll('.nav-item').forEach((el, i) => {
+      if (pages[i] === id) el.classList.add('active');
+      else el.classList.remove('active');
+    });
+  });
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('page-title').textContent = titles[id];
+  const tabBar = document.getElementById('tab-bar');
+  tabBar.style.display = id === 'code' ? 'flex' : 'none';
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-section').forEach(s => s.style.display = 'none');
+  document.getElementById('tab-' + tab).style.display = 'block';
+  event.target.classList.add('active');
+}
+
+const codes = [];
+document.querySelectorAll('pre[id^="code"]').forEach(el => codes.push(el));
+
+function copyCode(i) {
+  const text = codes[i] ? codes[i].innerText : '';
+  navigator.clipboard.writeText(text).then(() => {
+    const btns = document.querySelectorAll('.copy-btn');
+    btns[i].textContent = 'copied!';
+    setTimeout(() => btns[i].textContent = 'copy', 1500);
+  });
+}
+</script>
