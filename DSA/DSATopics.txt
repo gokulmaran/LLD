@@ -38,8 +38,8 @@ for loop (explore all possibilities, from 1st case for i=0 to 3)
 20. Dynamic Programming ← recursion + memoization (top-down)
 ===================================================================
 DSA Topics (Unseen)
-1. Arrays,2D Arrays,Strings (Bruteforce)[break,code conversion]
-2. Two pointers,Prefix Sum,Sliding Window
+1. Arrays,2D Arrays,Strings [Bruteforce-->point break,code conversion]
+2. Two pointers,Hashing,Prefix Sum,Sliding Window
 3. Sorting,Binary Search
 4. Bit masking,Number Theory
 5. Stack & Queue,Heap,Greedy
@@ -50,3 +50,62 @@ DSA Topics (Unseen)
 10. Graphs
 11. Dynamic Programming
 ===========================
+DSA Topics 
+1. Arrays, Hashing, Two pointers, Prefix Sum
+2. 2D Arrays
+3. Strings, Sliding Window
+4. Sorting
+5. Binary Search
+6. Bitmasking
+7. Number Theory
+8. Recursion
+9. Backtracking
+10. Linked List
+11. Stacks
+12. Queues
+13. Trees
+14. Heaps
+15. Tries
+16. Greedy
+17. Graphs
+18. DP
+================================
+1. Arrays, Hashing, Two pointers, Prefix Sum
+2. 2D Arrays
+3. Strings, Sliding Window
+4. Sorting
+5. Binary Search
+6. Bitmasking
+7. Number Theory
+10. Linked List
+11. Stacks
+12. Queues
+14. Heaps
+16. Greedy
+
+8. Recursion
+9. Backtracking
+13. Trees
+15. Tries
+17. Graphs
+18. DP
+================================================
+Phase 1: Foundation (Topics 1-7)
+Arrays, Hashing, Two Pointers, Prefix Sum → Core data structures
+2D Arrays → Natural extension
+Strings, Sliding Window → Apply array concepts to strings
+Sorting, Binary Search → Essential algorithms everyone must know
+Bitmasking, Number Theory → Mathematical foundations
+
+Phase 2: Linear Data Structures (Topics 10-12,14,16)
+Linked List → Dynamic memory concepts
+Stacks, Queues, Heaps → Build on linked list concepts
+Greedy → Algorithm design pattern
+
+Phase 3: Advanced Concepts (Topics 8-9,13,15,17-18)
+Recursion, Backtracking → Prerequisite for trees/DP
+Trees → Hierarchical structures
+Tries → Specialized trees
+Graphs → Most complex structures
+DP → Ultimate challenge (needs recursion + greedy + trees)
+======================================================
