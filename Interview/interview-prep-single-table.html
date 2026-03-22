@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interview Prep — Single Master Table</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07080f;
+    --surface: #0f1018;
+    --card: #13141f;
+    --border: #1e2030;
+    --text: #dde0f0;
+    --muted: #5a5f80;
+    --dsa:  #a78bfa;
+    --lld:  #fb7185;
+    --hld:  #34d399;
+    --cs:   #fbbf24;
+    --mgr:  #60a5fa;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    padding: 40px 32px 80px;
+  }
+  header { margin-bottom: 32px; }
+  .badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(24px, 3.5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  h1 em { font-style: normal; color: var(--dsa); }
+  .sub { color: var(--muted); font-size: 14px; font-weight: 300; }
+
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    padding: 12px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    width: fit-content;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+  }
+  .legend-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+
+  .controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+  .search-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px 9px 36px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    width: 260px;
+    outline: none;
+    transition: border-color 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235a5f80' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 11px center;
+  }
+  .search-box:focus { border-color: var(--dsa); }
+  .search-box::placeholder { color: var(--muted); }
+
+  .filter-btn {
+    padding: 8px 13px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    transition: all 0.18s;
+    letter-spacing: 0.4px;
+  }
+  .filter-btn:hover { color: var(--text); }
+  .filter-btn.active { color: #fff; }
+  .filter-btn[data-cat="ALL"].active  { background: #22243a; color: var(--text); border-color: #3a3d55; }
+  .filter-btn[data-cat="DSA"].active  { background: rgba(167,139,250,0.2); border-color: var(--dsa); color: var(--dsa); }
+  .filter-btn[data-cat="LLD"].active  { background: rgba(251,113,133,0.18); border-color: var(--lld); color: var(--lld); }
+  .filter-btn[data-cat="HLD"].active  { background: rgba(52,211,153,0.15); border-color: var(--hld); color: var(--hld); }
+  .filter-btn[data-cat="CS"].active   { background: rgba(251,191,36,0.15); border-color: var(--cs); color: var(--cs); }
+  .filter-btn[data-cat="MGR"].active  { background: rgba(96,165,250,0.15); border-color: var(--mgr); color: var(--mgr); }
+
+  .row-count {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 960px;
+  }
+  thead tr {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    padding: 13px 14px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.035);
+    transition: background 0.12s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.025); }
+  tbody tr.hidden { display: none; }
+
+  td {
+    padding: 12px 14px;
+    vertical-align: top;
+    color: #b0b4cc;
+    line-height: 1.55;
+  }
+
+  .cat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+  }
+  .cat-pill::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .cat-DSA { background: rgba(167,139,250,0.13); color: var(--dsa); border: 1px solid rgba(167,139,250,0.22); }
+  .cat-DSA::before { background: var(--dsa); }
+  .cat-LLD { background: rgba(251,113,133,0.12); color: var(--lld); border: 1px solid rgba(251,113,133,0.2); }
+  .cat-LLD::before { background: var(--lld); }
+  .cat-HLD { background: rgba(52,211,153,0.1); color: var(--hld); border: 1px solid rgba(52,211,153,0.18); }
+  .cat-HLD::before { background: var(--hld); }
+  .cat-CS  { background: rgba(251,191,36,0.1); color: var(--cs); border: 1px solid rgba(251,191,36,0.18); }
+  .cat-CS::before  { background: var(--cs); }
+  .cat-MGR { background: rgba(96,165,250,0.11); color: var(--mgr); border: 1px solid rgba(96,165,250,0.18); }
+  .cat-MGR::before { background: var(--mgr); }
+
+  td.topic {
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 3px; }
+  .tag {
+    padding: 2px 6px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #7a80a0;
+  }
+
+  .diff {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .diff-dot { width:6px; height:6px; border-radius:50%; }
+  .diff-E { color: #34d399; } .diff-E .diff-dot { background: #34d399; }
+  .diff-M { color: #fbbf24; } .diff-M .diff-dot { background: #fbbf24; }
+  .diff-H { color: #fb7185; } .diff-H .diff-dot { background: #fb7185; }
+  .diff-NA { color: var(--muted); }
+
+  mark { background: rgba(167,139,250,0.28); color: inherit; border-radius: 2px; padding: 0 1px; }
+
+  @media (max-width: 640px) {
+    body { padding: 20px 14px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Complete Reference</div>
+  <h1>Interview Prep <em>Master Table</em></h1>
+  <p class="sub">All 62 topics across DSA · LLD · HLD · CS Fundamentals · Managerial</p>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--dsa)"></div>DSA</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--lld)"></div>LLD</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--hld)"></div>HLD</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--cs)"></div>CS Fundamentals</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--mgr)"></div>Managerial</div>
+</div>
+
+<div class="controls">
+  <input class="search-box" id="search" type="text" placeholder="Search topics, concepts, questions…">
+  <button class="filter-btn active" data-cat="ALL">All (62)</button>
+  <button class="filter-btn" data-cat="DSA">DSA</button>
+  <button class="filter-btn" data-cat="LLD">LLD</button>
+  <button class="filter-btn" data-cat="HLD">HLD</button>
+  <button class="filter-btn" data-cat="CS">CS Fund.</button>
+  <button class="filter-btn" data-cat="MGR">Managerial</button>
+  <span class="row-count" id="rowCount">62 rows</span>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+<thead>
+  <tr>
+    <th>#</th>
+    <th>Category</th>
+    <th>Topic</th>
+    <th>Key Concepts / Principles</th>
+    <th>Common Questions / Problems</th>
+    <th>Tech / Patterns</th>
+    <th>Complexity / Scale</th>
+    <th>Difficulty</th>
+  </tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<script>
+const data = [
+  ["DSA","Arrays","Two pointers, sliding window, prefix sum, Kadane's","Max subarray, 2-sum, rotate array, merge intervals, trapping rain water","Prefix sum, Kadane's","O(n) / O(1)","E"],
+  ["DSA","Strings","KMP, Rabin-Karp, palindrome, anagram, rolling hash","Longest palindrome, group anagrams, valid parentheses, longest no-repeat substr","KMP, Rolling Hash","O(n)","E"],
+  ["DSA","Linked Lists","Fast/slow pointers, reversal, merge, cycle detection, dummy node","Reverse LL, detect cycle, merge sorted lists, LRU cache, find intersection","Floyd's Cycle","O(n) / O(1)","M"],
+  ["DSA","Stacks & Queues","Monotonic stack, deque, BFS queue, balanced brackets","Next greater element, min-stack, daily temperatures, sliding window max","Monotonic Stack","O(n)","M"],
+  ["DSA","Hash Maps / Sets","Collision handling, open addressing, chaining, load factor","LRU cache, top-K elements, first unique char, two-sum, group anagrams","HashMap, LinkedHashMap","O(1) avg","E"],
+  ["DSA","Trees — BT / BST","DFS/BFS, inorder/preorder/postorder, height, diameter, LCA","Level order traversal, serialize/deserialize, LCA, validate BST, diameter","DFS, BFS","O(n) / O(h)","M"],
+  ["DSA","Heaps","Min/max heap, heapify, priority queue, top-K pattern","K largest elements, median from stream, merge K sorted lists, task scheduler","PriorityQueue","O(log n)","M"],
+  ["DSA","Graphs","BFS/DFS, Dijkstra, Bellman-Ford, Union-Find, topo sort, cycle detection","Course schedule, number of islands, word ladder, shortest path, clone graph","Dijkstra, Union-Find","O(V+E)","H"],
+  ["DSA","Dynamic Programming","Memoization, tabulation, state transition, 0/1 knapsack, interval DP","Coin change, LCS, LIS, edit distance, house robber, word break","DP table, Memo map","O(n²) typical","H"],
+  ["DSA","Recursion / Backtracking","Decision tree, pruning, subset/permutation generation, constraint check","N-Queens, Sudoku solver, word search, all subsets, permutations","Backtrack + prune","O(2ⁿ) / O(n!)","H"],
+  ["DSA","Tries","Insert/search/delete, prefix matching, compressed trie, XOR trie","Autocomplete, word search II, replace words, maximum XOR of two numbers","TrieNode class","O(L) per op","M"],
+  ["DSA","Sorting","Quick, merge, heap, radix, counting sort; stability, in-place","Sort colors, meeting rooms, custom comparator, wiggle sort, sort by freq","QuickSort, MergeSort","O(n log n)","E"],
+  ["DSA","Binary Search","Left/right bound templates, rotated array, search on answer space","Search rotated array, find peak element, kth smallest, minimize max dist","Two-pointer BS","O(log n)","M"],
+  ["DSA","Greedy","Local optimum, interval scheduling, exchange argument proof","Jump game, task scheduler, candy distribution, gas station, activity select","Greedy choice prop.","O(n log n)","M"],
+  ["DSA","Bit Manipulation","XOR tricks, bitmask DP, Brian Kernighan's algo, power-of-2 check","Single number I/II, count set bits, missing number, subsets via bitmask","XOR, Bitmask DP","O(1)","M"],
+
+  ["LLD","OOP Fundamentals","Encapsulation, Abstraction, Inheritance, Polymorphism, method overriding","Design vehicle hierarchy, bank account system, employee management","OOP Pillars","—","E"],
+  ["LLD","SOLID Principles","SRP, OCP, LSP, ISP, DIP — each with violation & fix example","Refactor SRP violation, plug-in design with OCP, dependency injection","Clean Architecture","—","M"],
+  ["LLD","Creational Patterns","Singleton (thread-safe), Factory, Abstract Factory, Builder, Prototype","Logger system, DB connection pool, meal builder, shape factory","Singleton, Factory, Builder","—","M"],
+  ["LLD","Structural Patterns","Adapter, Decorator, Facade, Proxy, Composite, Bridge, Flyweight","Payment gateway adapter, file system composite, caching proxy, I/O decorator","Decorator, Proxy, Adapter","—","M"],
+  ["LLD","Behavioral Patterns","Observer, Strategy, Command, Iterator, State, Template, Chain of Resp.","Notification system, undo/redo, traffic light FSM, sorting strategies","Observer, Strategy, State","—","M"],
+  ["LLD","Parking Lot","Floors, slots (compact/large/EV), ticket, payment strategy, entry/exit gates","Multi-level with EV charging, hourly vs flat pricing, concurrent entries","Factory, Strategy, Observer","—","M"],
+  ["LLD","Elevator System","Dispatcher, direction state, internal/external request queue, door control","Multi-elevator optimization (SCAN/LOOK), emergency handling","State, Command","—","M"],
+  ["LLD","Library Management","Books, members, issue/return, fine calculation, reservations, search","Overdue tracking, book hold/waitlist queue, multi-copy management","Observer, Repository","—","E"],
+  ["LLD","Chess / Board Games","Board, pieces with move rules, turn management, check/win detection","Extensible rules engine for new games, move history/undo, AI opponent","Strategy, Template Method","—","M"],
+  ["LLD","ATM / Vending Machine","States: idle → card → PIN → select → dispense; cash denomination mgmt","Wrong PIN lockout, insufficient cash, cancellation at any state","State Machine","—","M"],
+  ["LLD","Food Delivery (Swiggy)","Restaurant, menu, order lifecycle, rider assignment, live tracking","Dynamic pricing, restaurant matching, concurrent orders, ETA updates","Observer, Strategy, Facade","—","H"],
+  ["LLD","Ticket Booking (BMSH)","Event, venue, seat map, concurrent booking, payment, waitlist logic","Seat locking under concurrency, seat release on timeout, partial payment","Singleton, Proxy, Observer","—","H"],
+
+  ["HLD","URL Shortener","Encode/decode service, KV store, cache, CDN, analytics pipeline","Collision handling, 301 vs 302 redirect, custom slugs, expiry","Redis, Cassandra, Base62","1B URLs / 10K rps","M"],
+  ["HLD","Twitter / Social Feed","Post service, fan-out on write/read, follow graph, search, trends","Push vs pull fan-out, celebrity problem, real-time timeline updates","Kafka, Cassandra, Redis","500M users","H"],
+  ["HLD","Netflix / YouTube","Upload pipeline, transcoding workers, CDN, metadata service, recommendations","Adaptive bitrate (HLS/DASH), CDN placement, storage tiering costs","S3, CDN, HLS, Spark","Petabyte scale","H"],
+  ["HLD","Ride Sharing (Uber)","Driver location service, matching engine, surge pricing, ETA, payments","Real-time geo-matching, supply-demand surge, driver state machine","WebSocket, PostGIS, Kafka","10M rides / day","H"],
+  ["HLD","Chat App (WhatsApp)","Message queue, delivery receipts, group chat fanout, media store, E2E enc.","Message ordering, offline delivery, large group (1000+) fanout","WebSocket, Cassandra, XMPP","100B msgs / day","H"],
+  ["HLD","Google Drive / Dropbox","Chunked upload, delta sync, conflict resolution, versioning, sharing perms","Concurrent edit conflicts, block-level dedup, offline sync","S3, rsync, OT / CRDT","1B files","H"],
+  ["HLD","Search Engine","Crawler, inverted index, ranker (PageRank/BM25), query parser, cache","Indexing freshness, spell correction, ranking signals, snippet gen","MapReduce, Bigtable, Trie","Trillion pages","H"],
+  ["HLD","Rate Limiter","Token bucket, leaky bucket, sliding window log, fixed window counter","Distributed rate limiting, race conditions, burst allowance per user","Redis + Lua, API Gateway","Millions rps","M"],
+  ["HLD","Distributed Cache","Consistent hashing, eviction (LRU/LFU), replication, hot-key handling","Cache stampede, thundering herd, write-through vs write-back","Redis, Memcached","μs latency","M"],
+  ["HLD","Notification Service","User prefs, template engine, multi-channel dispatch (push/SMS/email), retry","Per-user rate limiting, deduplication, priority queues, DLQ","Kafka, FCM, SES, SNS","1B notifs / day","M"],
+  ["HLD","Payment System","Double-entry ledger, idempotency keys, saga pattern, reconciliation","Double spend, eventual consistency, PCI compliance, retry safety","PostgreSQL, Saga, 2PC","Zero loss","H"],
+  ["HLD","Typeahead / Autocomplete","Trie service, top-K per prefix, Bloom filter, personalization layer","Real-time trie updates, personalized vs global ranking, low latency","Trie, Redis, Elasticsearch","<100ms p99","M"],
+  ["HLD","Distributed ID Generator","UUID, Twitter Snowflake, ULID, DB sequences, Zookeeper coordination","Clock skew handling, monotonicity guarantee, uniqueness across DCs","Snowflake, ULID, ZK","Billions IDs / s","M"],
+
+  ["CS","OS — Processes","Process vs thread, PCB, context switch, IPC (pipe/socket/shared-mem)","Fork vs exec, zombie/orphan process, process state machine","PCB, Scheduler","—","M"],
+  ["CS","OS — Scheduling","FCFS, SJF, Round Robin, priority, multilevel feedback queue (MLFQ)","Starvation, aging, preemptive vs non-preemptive, Gantt chart calc","CPU Scheduler, MLFQ","—","M"],
+  ["CS","OS — Memory Management","Paging, segmentation, virtual memory, TLB, page faults, copy-on-write","Thrashing, page replacement (LRU/FIFO/Optimal), internal/external frag","MMU, TLB, Page Table","—","M"],
+  ["CS","OS — Synchronization","Mutex, semaphore, monitor, spinlock, deadlock, Banker's algorithm (safe state)","Producer-consumer, dining philosophers, reader-writer, sleeping barber","Mutex, Semaphore, Monitor","—","H"],
+  ["CS","Networking — Fundamentals","OSI 7 layers, TCP/IP model, IP addressing, subnetting (CIDR), ARP, DNS","TCP vs UDP trade-offs, 3-way handshake, 4-way termination, NAT","TCP/IP Stack","—","M"],
+  ["CS","Networking — HTTP/S","HTTP/1.1 vs HTTP/2 (multiplexing) vs HTTP/3 (QUIC), REST, gRPC, WebSocket","Status codes, CORS headers, HTTPS TLS handshake, cookies vs JWT","TLS 1.3, HTTP/2, gRPC","—","M"],
+  ["CS","DB — SQL & Indexing","Normalization (1NF–3NF/BCNF), ACID, joins, B-tree/hash index, query opt","EXPLAIN plan, covering index, composite index, index selectivity","B-tree Index, Planner","—","M"],
+  ["CS","DB — NoSQL","CAP theorem, BASE, document / key-value / column-family / graph stores","When NoSQL over SQL, eventual consistency, partition tolerance trade-offs","CAP, Cassandra, MongoDB","—","M"],
+  ["CS","DB — Transactions","Isolation levels (RU/RC/RR/Serializable), MVCC, phantom/dirty reads, 2PL","Optimistic vs pessimistic locking, deadlock detection in DB, savepoints","MVCC, 2PL, Serializable","—","H"],
+  ["CS","Concurrency","Race condition, thread safety, locks (reentrant/RW), atomic ops, CAS","Volatile, happens-before, lock-free structures, false sharing, threadpool","CAS, Atomic, Lock-free","—","H"],
+  ["CS","Security Basics","Hashing (bcrypt/Argon2/SHA), TLS/SSL, OAuth 2.0, JWT, XSS, CSRF, SQL injection","TLS handshake steps, JWT vs session cookie, SQL injection prevention","OAuth2, JWT, TLS 1.3","—","M"],
+  ["CS","Distributed Systems","Consistency models (strong/eventual/causal), replication, sharding, Raft/Paxos","Split-brain, leader election, idempotency, at-least-once vs exactly-once","Raft, Paxos, 2PC","—","H"],
+
+  ["MGR","Leadership","Leading through ambiguity, driving alignment, unblocking team, ownership","Tell me about a time you led a team through a difficult or at-risk project","STAR + Leadership principles","—","NA"],
+  ["MGR","Conflict Resolution","Peer/manager disagreement, cross-team friction, technical debate resolution","Describe a conflict with a teammate or stakeholder and how you resolved it","STAR + EQ + Data","—","NA"],
+  ["MGR","Handling Failure","Owning mistakes, RCA mindset, blameless post-mortems, process improvements","Tell me about your biggest professional failure and what you learned","STAR + RCA","—","NA"],
+  ["MGR","Prioritization","Impact/effort matrix, stakeholder negotiation, saying no, trade-off reasoning","How do you handle multiple high-priority tasks with competing deadlines?","RICE, MoSCoW, STAR","—","NA"],
+  ["MGR","Cross-team Collaboration","Dependency management, sync cadence, influencing without authority, RACI","Describe a time you worked across multiple teams to deliver a shared goal","STAR + Stakeholder map","—","NA"],
+  ["MGR","Ambiguity & Decision Making","First-principles thinking, reversible vs irreversible decisions, time-boxing","Tell me about a key decision you made with incomplete or conflicting info","STAR + Decision framework","—","NA"],
+  ["MGR","Innovation & Impact","Identifying gaps proactively, shipping improvements, measuring & quantifying results","What's the most impactful project or improvement you've delivered?","STAR + Metrics","—","NA"],
+  ["MGR","Mentorship & Growth","Coaching without doing for them, stretch assignments, long-term career support","Tell me about a time you mentored a junior engineer or helped someone grow","STAR + Coaching model","—","NA"],
+  ["MGR","Customer / User Focus","Advocating for users with data, pushing back on specs, user research","Describe a time you advocated for the end user against internal pressure","STAR + User empathy","—","NA"],
+  ["MGR","Ownership & Bias for Action","Going beyond defined scope, filling ownership gaps, unblocking proactively","Tell me about a time you went above and beyond your defined role","STAR + Ownership LP","—","NA"],
+  ["MGR","Disagreement with Manager","Respectful data-driven pushback, escalation paths, disagree-and-commit","Have you ever disagreed with your manager? What happened and how?","STAR + Diplomacy","—","NA"],
+  ["MGR","Career Motivation","Self-awareness, pull vs push factors, long-term vision, culture alignment","Why do you want to join us? / Why are you leaving your current company?","STAR + Reflection","—","NA"],
+];
+
+const diffLabel = {E:"Easy",M:"Medium",H:"Hard",NA:"—"};
+const diffClass  = {E:"diff-E",M:"diff-M",H:"diff-H",NA:"diff-NA"};
+
+function render(rows) {
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  rows.forEach((r, i) => {
+    const [cat, topic, concepts, questions, tech, scale, diff] = r;
+    const tr = document.createElement('tr');
+    tr.dataset.cat  = cat;
+    tr.dataset.text = [cat,topic,concepts,questions,tech].join(' ').toLowerCase();
+
+    const techTags = tech.split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join('');
+    tr.innerHTML = `
+      <td style="color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;white-space:nowrap">${String(i+1).padStart(2,'0')}</td>
+      <td><span class="cat-pill cat-${cat}">${cat}</span></td>
+      <td class="topic">${topic}</td>
+      <td style="max-width:230px;font-size:12.5px">${concepts}</td>
+      <td style="max-width:250px;font-size:12.5px">${questions}</td>
+      <td><div class="tags">${techTags}</div></td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap">${scale}</td>
+      <td><span class="diff ${diffClass[diff]}"><span class="diff-dot"></span>${diffLabel[diff]}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('rowCount').textContent = `${rows.length} rows`;
+}
+
+render(data);
+
+let cat = 'ALL', q = '';
+
+function applyFilters() {
+  const rows = document.querySelectorAll('#tbody tr');
+  let n = 0;
+  rows.forEach(tr => {
+    const ok = (cat==='ALL' || tr.dataset.cat===cat) && (!q || tr.dataset.text.includes(q));
+    tr.classList.toggle('hidden', !ok);
+    if (ok) n++;
+  });
+  document.getElementById('rowCount').textContent = `${n} rows`;
+  // highlight
+  rows.forEach(tr => {
+    if (tr.classList.contains('hidden')) return;
+    tr.querySelectorAll('td').forEach(td => {
+      const raw = td.innerHTML.replace(/<mark>/g,'').replace(/<\/mark>/g,'');
+      td.innerHTML = q ? raw.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<mark>$1</mark>') : raw;
+    });
+  });
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    cat = btn.dataset.cat;
+    applyFilters();
+  });
+});
+
+document.getElementById('search').addEventListener('input', e => {
+  q = e.target.value.trim().toLowerCase();
+  applyFilters();
+});
+</script>
+</body>
+</html>

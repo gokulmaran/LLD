@@ -1,6 +1,6 @@
 DSA -(unseen)
 1) understand
-2) working of each point sollradhu (logic)[both iterative+recursion] 
+2) working of each point sollradhu(Diagram) (logic)[both iterative+recursion] 
 3) equal code
 ===============================================
 Arrays Dry run

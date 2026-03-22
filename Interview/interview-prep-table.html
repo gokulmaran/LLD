@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interview Prep — Master Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3d;
+    --accent1: #7c6af7;
+    --accent2: #f76a8a;
+    --accent3: #6af7c8;
+    --accent4: #f7c26a;
+    --accent5: #6ab4f7;
+    --text: #e8e8f0;
+    --muted: #7070a0;
+    --tag-bg: rgba(124,106,247,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* HEADER */
+  header {
+    padding: 52px 48px 36px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, #0e0e1a 0%, #0a0a0f 60%);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(124,106,247,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 30%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(247,106,138,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: var(--tag-bg);
+    border: 1px solid rgba(124,106,247,0.3);
+    color: var(--accent1);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  h1 span { color: var(--accent1); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+    margin-bottom: 28px;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .tab:hover { color: var(--text); border-color: var(--accent1); }
+  .tab.active {
+    color: #fff;
+    border-color: transparent;
+  }
+  .tab[data-tab="dsa"].active    { background: rgba(124,106,247,0.25); border-color: var(--accent1); color: #b5adff; }
+  .tab[data-tab="lld"].active    { background: rgba(247,106,138,0.2);  border-color: var(--accent2); color: #ff9db5; }
+  .tab[data-tab="hld"].active    { background: rgba(106,247,200,0.15); border-color: var(--accent3); color: #7dffd8; }
+  .tab[data-tab="cs"].active     { background: rgba(247,194,106,0.15); border-color: var(--accent4); color: #ffd989; }
+  .tab[data-tab="mgr"].active    { background: rgba(106,180,247,0.15); border-color: var(--accent5); color: #93d1ff; }
+
+  /* MAIN */
+  main {
+    padding: 36px 48px;
+  }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.35s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .section-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .section-count {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  /* TABLE */
+  .table-wrapper {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--card);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead tr {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 14px 18px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+  td {
+    padding: 14px 18px;
+    vertical-align: top;
+    line-height: 1.55;
+    color: #cccce0;
+  }
+
+  td:first-child {
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    margin: 2px 2px 2px 0;
+  }
+
+  /* per-section accent colors */
+  #dsa    .section-dot { background: var(--accent1); }
+  #dsa    .section-title { color: #b5adff; }
+  #dsa    th { color: rgba(181,173,255,0.5); }
+  #dsa    tbody tr:hover { background: rgba(124,106,247,0.05); }
+  #dsa    .tag { background: rgba(124,106,247,0.15); color: #b5adff; border: 1px solid rgba(124,106,247,0.2); }
+
+  #lld    .section-dot { background: var(--accent2); }
+  #lld    .section-title { color: #ff9db5; }
+  #lld    th { color: rgba(255,157,181,0.5); }
+  #lld    tbody tr:hover { background: rgba(247,106,138,0.05); }
+  #lld    .tag { background: rgba(247,106,138,0.12); color: #ff9db5; border: 1px solid rgba(247,106,138,0.2); }
+
+  #hld    .section-dot { background: var(--accent3); }
+  #hld    .section-title { color: #7dffd8; }
+  #hld    th { color: rgba(125,255,216,0.5); }
+  #hld    tbody tr:hover { background: rgba(106,247,200,0.04); }
+  #hld    .tag { background: rgba(106,247,200,0.1); color: #7dffd8; border: 1px solid rgba(106,247,200,0.18); }
+
+  #cs     .section-dot { background: var(--accent4); }
+  #cs     .section-title { color: #ffd989; }
+  #cs     th { color: rgba(255,217,137,0.5); }
+  #cs     tbody tr:hover { background: rgba(247,194,106,0.04); }
+  #cs     .tag { background: rgba(247,194,106,0.1); color: #ffd989; border: 1px solid rgba(247,194,106,0.18); }
+
+  #mgr    .section-dot { background: var(--accent5); }
+  #mgr    .section-title { color: #93d1ff; }
+  #mgr    th { color: rgba(147,209,255,0.5); }
+  #mgr    tbody tr:hover { background: rgba(106,180,247,0.04); }
+  #mgr    .tag { background: rgba(106,180,247,0.1); color: #93d1ff; border: 1px solid rgba(106,180,247,0.18); }
+
+  .difficulty {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+  }
+  .dot { width:7px; height:7px; border-radius:50%; display:inline-block; }
+  .easy   { color: #6af7c8; } .easy   .dot { background: #6af7c8; }
+  .medium { color: #f7c26a; } .medium .dot { background: #f7c26a; }
+  .hard   { color: #f76a8a; } .hard   .dot { background: #f76a8a; }
+
+  ul.tips { padding-left: 16px; }
+  ul.tips li { margin-bottom: 3px; color: var(--muted); font-size: 13px; }
+
+  @media (max-width: 768px) {
+    header, main { padding: 24px 20px; }
+    th, td { padding: 11px 12px; font-size: 13px; }
+    td:first-child { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">Interview Prep</div>
+  <h1>Master <span>Reference</span> Sheet</h1>
+  <p class="subtitle">DSA · LLD · HLD · CS Fundamentals · Managerial — all in one place</p>
+  <div class="tabs">
+    <button class="tab active" data-tab="dsa">🧮 DSA</button>
+    <button class="tab" data-tab="lld">🏗️ LLD</button>
+    <button class="tab" data-tab="hld">☁️ HLD</button>
+    <button class="tab" data-tab="cs">⚙️ CS Fundamentals</button>
+    <button class="tab" data-tab="mgr">🤝 Managerial</button>
+  </div>
+</header>
+
+<main>
+
+<!-- DSA -->
+<section id="dsa" class="section active">
+  <div class="section-header">
+    <span class="section-dot"></span>
+    <span class="section-title">Data Structures & Algorithms</span>
+    <span class="section-count">15 topics</span>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr>
+        <th>Topic</th><th>Key Concepts</th><th>Common Questions</th><th>Complexity</th><th>Difficulty</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Arrays</td><td>Two pointers, sliding window, prefix sum, Kadane's</td><td>Max subarray, 2-sum, rotate array, merge intervals</td><td>O(n) / O(1)</td><td><span class="difficulty easy"><span class="dot"></span>Easy–Med</span></td></tr>
+        <tr><td>Strings</td><td>KMP, Rabin-Karp, Trie, anagram checks</td><td>Longest palindrome, group anagrams, valid parentheses</td><td>O(n)</td><td><span class="difficulty easy"><span class="dot"></span>Easy–Med</span></td></tr>
+        <tr><td>Linked Lists</td><td>Fast/slow pointers, reversal, merge, cycle detection</td><td>Reverse LL, detect cycle, merge sorted, LRU cache</td><td>O(n) / O(1)</td><td><span class="difficulty medium"><span class="dot"></span>Medium</span></td></tr>
+        <tr><td>Stacks & Queues</td><td>Monotonic stack, deque, BFS queue</td><td>Next greater element, min-stack, sliding window max</td><td>O(n)</td><td><span class="difficulty medium"><span class="dot"></span>Medium</span></td></tr>
+        <tr><td>Hash Maps / Sets</td><td>Collision handling, open addressing, chaining</td><td>LRU cache, top-K elements, first unique char</td><td>O(1) avg</td><td><span class="difficulty easy"><span class="dot"></span>Easy</span></td></tr>
+        <tr><td>Trees (BST/BT)</td><td>DFS, BFS, inorder/preorder/postorder, height, diameter</td><td>Lowest common ancestor, level order, serialize/deserialize</td><td>O(n) / O(h)</td><td><span class="difficulty medium"><span class="dot"></span>Medium</span></td></tr>
+        <tr><td>Heaps</td><td>Min/max heap, heapify, priority queue</td><td>K largest elements, median stream, merge K sorted lists</td><td>O(log n)</td><td><span class="difficulty medium"><span class="dot"></span>Medium</span></td></tr>
+        <tr><td>Graphs</td><td>BFS/DFS, Dijkstra, Bellman-Ford, union-find, topological sort</td><td>Course schedule, word ladder, number of islands, shortest path</td><td>O(V+E)</td><td><span class="difficulty hard"><span class="dot"></span>Hard</span></td></tr>
+        <tr><td>Dynamic Programming</td><td>Memoization, tabulation, state transition, knapsack</td><td>Coin change, LCS, LIS, edit distance, house robber</td><td>O(n²) typical</td><td><span class="difficulty hard"><span class="dot"></span>Hard</span></td></tr>
+        <tr><td>Recursion / Backtracking</td><td>Decision tree, pruning, subset/permutation generation</td><td>N-Queens, Sudoku solver, word search, subsets</td><td>O(2ⁿ) / O(n!)</td><td><span class="difficulty hard"><span class="dot"></span>Hard</span></td></tr>
+        <tr><td>Tries</td><td>Insert, search, prefix matching, compressed trie</td><td>Autocomplete, word search II, replace words</td><td>O(L) per op</td><td><span class="difficulty medium"><span class="dot"></span>Medium</span></td></tr>
+        <tr><td>Sorting</td><td>Quick, merge, heap, radix, counting sort; stability</td><td>Sort colors, meeting rooms, custom comparator problems</td><td>O(n log n)</td><td><span class="difficulty easy"><span class="dot"></span>Easy–Med</span></td></tr>
+        <tr><td>Binary Search</td><td>Left/right bound, rotated array, search space reduction</td><td>Search in rotated array, find peak, minimize max distance</td><td>O(log n)</td><td><span class="difficulty medium"><span class="dot"></span>Medium</span></td></tr>
+        <tr><td>Greedy</td><td>Local optimum, interval scheduling, fractional knapsack</td><td>Jump game, task scheduler, candy, gas station</td><td>O(n log n)</td><td><span class="difficulty medium"><span class="dot"></span>Medium</span></td></tr>
+        <tr><td>Bit Manipulation</td><td>XOR tricks, bit masking, Brian Kernighan's, power of 2</td><td>Single number, count bits, missing number, subset via bitmask</td><td>O(1)</td><td><span class="difficulty medium"><span class="dot"></span>Medium</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- LLD -->
+<section id="lld" class="section">
+  <div class="section-header">
+    <span class="section-dot"></span>
+    <span class="section-title">Low Level Design</span>
+    <span class="section-count">12 topics</span>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr>
+        <th>Topic</th><th>Core Principles</th><th>Design Problems</th><th>Patterns Used</th><th>Key Focus</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>OOP Fundamentals</td><td>Encapsulation, Abstraction, Inheritance, Polymorphism</td><td>Design a vehicle, bank account, employee hierarchy</td><td><span class="tag">Abstraction</span></td><td>Class relationships</td></tr>
+        <tr><td>SOLID Principles</td><td>SRP, OCP, LSP, ISP, DIP</td><td>Refactor a violation, design extensible system</td><td><span class="tag">Clean Code</span></td><td>Maintainability</td></tr>
+        <tr><td>Design Patterns — Creational</td><td>Singleton, Factory, Abstract Factory, Builder, Prototype</td><td>Logger, DB connection pool, Pizza builder</td><td><span class="tag">Singleton</span><span class="tag">Factory</span><span class="tag">Builder</span></td><td>Object creation</td></tr>
+        <tr><td>Design Patterns — Structural</td><td>Adapter, Decorator, Facade, Proxy, Composite, Bridge</td><td>Payment gateway adapter, file system composite</td><td><span class="tag">Decorator</span><span class="tag">Proxy</span></td><td>Composition</td></tr>
+        <tr><td>Design Patterns — Behavioral</td><td>Observer, Strategy, Command, Iterator, State, Template</td><td>Notification system, undo/redo, traffic light</td><td><span class="tag">Observer</span><span class="tag">Strategy</span></td><td>Object interaction</td></tr>
+        <tr><td>Parking Lot</td><td>Floors, slots, vehicle types, ticket, payment</td><td>Multi-level parking with EV charging, pricing tiers</td><td><span class="tag">Factory</span><span class="tag">Strategy</span></td><td>Class diagram + flow</td></tr>
+        <tr><td>Elevator System</td><td>Dispatcher, direction, request queue, floors</td><td>Optimize elevator scheduling, multiple elevators</td><td><span class="tag">State</span><span class="tag">Command</span></td><td>State transitions</td></tr>
+        <tr><td>Library Management</td><td>Books, members, issue/return, fine calculation</td><td>Search, reservations, overdue tracking</td><td><span class="tag">Observer</span><span class="tag">Repository</span></td><td>CRUD + notifications</td></tr>
+        <tr><td>Chess / Snake & Ladder</td><td>Board, pieces, rules, turns, win condition</td><td>Extensible to new board games, rules engine</td><td><span class="tag">Strategy</span><span class="tag">Template</span></td><td>Flexible rules</td></tr>
+        <tr><td>ATM / Vending Machine</td><td>States: idle, card inserted, PIN, dispensing</td><td>Multiple denominations, insufficient cash handling</td><td><span class="tag">State</span><span class="tag">Command</span></td><td>State machine</td></tr>
+        <tr><td>Food Delivery (Swiggy/Uber)</td><td>Restaurant, menu, order, rider, tracking</td><td>Dynamic pricing, restaurant matching, delivery ETA</td><td><span class="tag">Observer</span><span class="tag">Strategy</span><span class="tag">Facade</span></td><td>Real-time state</td></tr>
+        <tr><td>BookMyShow / Ticket Booking</td><td>Event, venue, seats, booking, payment, concurrency</td><td>Seat locking, concurrent booking, waitlist</td><td><span class="tag">Singleton</span><span class="tag">Proxy</span></td><td>Concurrency safe</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- HLD -->
+<section id="hld" class="section">
+  <div class="section-header">
+    <span class="section-dot"></span>
+    <span class="section-title">High Level Design</span>
+    <span class="section-count">13 topics</span>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr>
+        <th>Topic / System</th><th>Core Components</th><th>Key Challenges</th><th>Tech Choices</th><th>Scale Target</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>URL Shortener</td><td>Encode/decode service, DB, cache, CDN, redirect</td><td>Collision, 301 vs 302, analytics, custom slugs</td><td><span class="tag">Redis</span><span class="tag">Cassandra</span><span class="tag">Base62</span></td><td>1B URLs, 10K rps</td></tr>
+        <tr><td>Twitter / Feed</td><td>Post service, timeline fan-out, follow graph, search</td><td>Push vs pull fan-out, celebrity problem, real-time</td><td><span class="tag">Kafka</span><span class="tag">Cassandra</span><span class="tag">Redis</span></td><td>500M users</td></tr>
+        <tr><td>Netflix / YouTube</td><td>Upload, transcoding, CDN, metadata, recommendations</td><td>Adaptive bitrate, global CDN placement, storage cost</td><td><span class="tag">S3</span><span class="tag">CDN</span><span class="tag">HLS</span><span class="tag">Spark</span></td><td>Petabyte scale</td></tr>
+        <tr><td>Ride Sharing (Uber)</td><td>Driver location, matching, surge, ETA, payment</td><td>Real-time geo-matching, supply-demand pricing</td><td><span class="tag">WebSocket</span><span class="tag">PostGIS</span><span class="tag">Kafka</span></td><td>10M rides/day</td></tr>
+        <tr><td>WhatsApp / Chat</td><td>Message queue, delivery receipts, groups, media</td><td>Message ordering, offline delivery, E2E encryption</td><td><span class="tag">WebSocket</span><span class="tag">Cassandra</span><span class="tag">XMPP</span></td><td>100B msgs/day</td></tr>
+        <tr><td>Google Drive / Dropbox</td><td>Upload chunks, sync, conflict resolution, sharing</td><td>Delta sync, concurrent edit conflicts, deduplication</td><td><span class="tag">S3</span><span class="tag">rsync</span><span class="tag">OT</span></td><td>1B files</td></tr>
+        <tr><td>Search Engine (Google)</td><td>Crawler, indexer, ranker, query parser, cache</td><td>PageRank, indexing freshness, spell correction</td><td><span class="tag">MapReduce</span><span class="tag">Bigtable</span><span class="tag">Inverted Index</span></td><td>Trillion pages</td></tr>
+        <tr><td>Rate Limiter</td><td>Token bucket / leaky bucket / sliding window log</td><td>Distributed rate limiting, race conditions</td><td><span class="tag">Redis</span><span class="tag">Lua scripts</span><span class="tag">API GW</span></td><td>Millions rps</td></tr>
+        <tr><td>Distributed Cache</td><td>Consistent hashing, eviction (LRU/LFU), replication</td><td>Cache stampede, thundering herd, hot keys</td><td><span class="tag">Redis</span><span class="tag">Memcached</span></td><td>μs latency</td></tr>
+        <tr><td>Notification Service</td><td>User prefs, template engine, dispatch, retry</td><td>Deduplication, ordering, rate limiting per user</td><td><span class="tag">Kafka</span><span class="tag">Firebase FCM</span><span class="tag">SNS</span></td><td>1B notifs/day</td></tr>
+        <tr><td>Payment System</td><td>Ledger, idempotency, saga pattern, reconciliation</td><td>Double spend, consistency, PCI compliance</td><td><span class="tag">PostgreSQL</span><span class="tag">Saga</span><span class="tag">2PC</span></td><td>Zero loss</td></tr>
+        <tr><td>Typeahead / Autocomplete</td><td>Trie service, top-K tracking, Bloom filter</td><td>Real-time updates, personalization, low latency</td><td><span class="tag">Trie</span><span class="tag">Redis</span><span class="tag">Elasticsearch</span></td><td>&lt;100ms p99</td></tr>
+        <tr><td>Distributed ID Generator</td><td>UUID, Twitter Snowflake, DB sequences, Zookeeper</td><td>Clock skew, monotonicity, uniqueness across nodes</td><td><span class="tag">Snowflake</span><span class="tag">ULID</span><span class="tag">Zookeeper</span></td><td>Billions IDs/s</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- CS Fundamentals -->
+<section id="cs" class="section">
+  <div class="section-header">
+    <span class="section-dot"></span>
+    <span class="section-title">CS Fundamentals</span>
+    <span class="section-count">12 topics</span>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr>
+        <th>Subject</th><th>Key Topics</th><th>Common Questions</th><th>Must-Know</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>OS — Processes</td><td>Process vs thread, PCB, context switch, IPC</td><td>Fork vs exec, zombie process, orphan process</td><td>Process lifecycle states</td></tr>
+        <tr><td>OS — Scheduling</td><td>FCFS, SJF, RR, priority, multilevel queue</td><td>Starvation, aging, preemptive vs non-preemptive</td><td>Preemption trade-offs</td></tr>
+        <tr><td>OS — Memory</td><td>Paging, segmentation, virtual memory, TLB, page faults</td><td>Thrashing, page replacement (LRU, FIFO), fragmentation</td><td>Page table structure</td></tr>
+        <tr><td>OS — Synchronization</td><td>Mutex, semaphore, monitor, deadlock, Banker's algorithm</td><td>Producer-consumer, dining philosophers, reader-writer</td><td>4 deadlock conditions</td></tr>
+        <tr><td>Networking — Basics</td><td>OSI 7-layer, TCP/IP model, IP addressing, subnetting</td><td>Diff between TCP & UDP, 3-way handshake, NAT</td><td>TCP vs UDP trade-offs</td></tr>
+        <tr><td>Networking — HTTP/S</td><td>HTTP/1.1 vs HTTP/2 vs HTTP/3, REST, gRPC, WebSocket</td><td>Status codes, CORS, HTTPS handshake, cookies vs JWT</td><td>Connection keep-alive</td></tr>
+        <tr><td>Databases — SQL</td><td>Normalization (1NF–3NF), ACID, joins, indexing, views</td><td>Query optimization, explain plan, B-tree vs hash index</td><td>Index internals</td></tr>
+        <tr><td>Databases — NoSQL</td><td>CAP theorem, BASE, document/key-value/column/graph</td><td>When to use NoSQL, eventual consistency, partition tolerance</td><td>CAP implications</td></tr>
+        <tr><td>Databases — Transactions</td><td>ACID, isolation levels (dirty read, phantom), MVCC</td><td>Optimistic vs pessimistic locking, deadlock in DB</td><td>Isolation levels</td></tr>
+        <tr><td>Concurrency</td><td>Race condition, thread safety, locks, atomic ops, CAS</td><td>Volatile keyword, memory model, happens-before</td><td>Lock-free structures</td></tr>
+        <tr><td>Security Basics</td><td>Hashing (SHA/bcrypt), TLS/SSL, OAuth 2.0, JWT, XSS, CSRF</td><td>How TLS works, JWT vs session, SQL injection prevention</td><td>OAuth 2.0 flow</td></tr>
+        <tr><td>Distributed Systems</td><td>Consistency models, replication, sharding, consensus (Raft/Paxos)</td><td>Split-brain, leader election, idempotency, at-least-once</td><td>Raft leader election</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Managerial -->
+<section id="mgr" class="section">
+  <div class="section-header">
+    <span class="section-dot"></span>
+    <span class="section-title">Managerial / Behavioural Questions</span>
+    <span class="section-count">12 categories</span>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr>
+        <th>Category</th><th>Sample Question</th><th>STAR Framework</th><th>What They're Testing</th><th>Tips</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Leadership</td><td>"Tell me about a time you led a team through a difficult project."</td><td>Situation: project at risk → Task: lead recovery → Action: replanned, unblocked team → Result: shipped on time</td><td>Ownership, decisiveness, influence</td><td>Show impact in numbers</td></tr>
+        <tr><td>Conflict Resolution</td><td>"Describe a conflict with a teammate and how you resolved it."</td><td>Situation: disagreement on approach → Task: align without escalation → Action: 1-on-1 + data-driven discussion → Result: consensus reached</td><td>EQ, communication, maturity</td><td>Stay objective, no blame</td></tr>
+        <tr><td>Handling Failure</td><td>"Tell me about your biggest failure and what you learned."</td><td>Situation: production bug → Task: fix + communicate → Action: owned mistake, RCA, process change → Result: no repeat incidents</td><td>Self-awareness, growth mindset</td><td>Real failure, not humble-brag</td></tr>
+        <tr><td>Prioritization</td><td>"How do you handle multiple high-priority tasks?"</td><td>Situation: competing deadlines → Task: decide order → Action: impact/effort matrix + stakeholder alignment → Result: critical delivered first</td><td>Time mgmt, judgment, communication</td><td>Use frameworks: RICE, MoSCoW</td></tr>
+        <tr><td>Cross-team Collaboration</td><td>"Describe a time you worked across teams to deliver a feature."</td><td>Situation: feature needing 3 teams → Task: coordinate → Action: set up sync cadence, tracked dependencies → Result: launched together</td><td>Collaboration, stakeholder mgmt</td><td>Highlight your proactive role</td></tr>
+        <tr><td>Ambiguity</td><td>"Tell me about a time you had to make a decision with incomplete info."</td><td>Situation: unclear requirement → Task: decide direction → Action: gathered minimum inputs, made reversible decision → Result: validated fast</td><td>Risk tolerance, pragmatism</td><td>Show decision-making process</td></tr>
+        <tr><td>Innovation / Impact</td><td>"What's the most impactful thing you've built or improved?"</td><td>Situation: slow deploy pipeline → Task: improve CI/CD → Action: automated, reduced to 10 min → Result: 40% faster releases</td><td>Initiative, technical judgment</td><td>Quantify the impact always</td></tr>
+        <tr><td>Mentorship / Growth</td><td>"Tell me about a time you mentored someone."</td><td>Situation: junior struggling → Task: support without doing for them → Action: weekly 1-on-1s, pair programming → Result: promoted in 6 months</td><td>Empathy, coaching, investment</td><td>Show long-term thinking</td></tr>
+        <tr><td>Customer / User Focus</td><td>"Describe a time you advocated for the user."</td><td>Situation: feature misaligned with users → Task: push back on spec → Action: user research, data presented → Result: redesigned feature</td><td>Empathy, courage, data-driven</td><td>Tie back to business outcome</td></tr>
+        <tr><td>Ownership</td><td>"Tell me about a time you went beyond your role."</td><td>Situation: gap in ownership → Task: fill it without being asked → Action: picked it up, fixed the issue → Result: saved project timeline</td><td>Initiative, accountability</td><td>Key for senior+ roles</td></tr>
+        <tr><td>Disagreement with Manager</td><td>"Have you ever disagreed with your manager? What happened?"</td><td>Situation: different tech choice → Task: express concern → Action: presented trade-offs, escalated respectfully → Result: compromise reached</td><td>Confidence, respect, diplomacy</td><td>Never badmouth; show process</td></tr>
+        <tr><td>Career / Motivation</td><td>"Why do you want to join us / leave your current company?"</td><td>Situation: current growth ceiling → Task: next challenge → Action: researched company, aligned goals → Result: clear pull reasons</td><td>Self-awareness, culture fit</td><td>Be honest; push, not just pull</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const sections = document.querySelectorAll('.section');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      sections.forEach(s => s.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
