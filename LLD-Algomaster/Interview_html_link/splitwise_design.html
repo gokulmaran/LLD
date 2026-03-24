@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Splitwise — Low-Level Design</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f5f7fa; color: #1a1a2e; line-height: 1.7; }
+  header { background: linear-gradient(135deg, #16213e, #0f3460); color: #fff; padding: 48px 40px 36px; }
+  header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+  header p { color: #a8c0d6; margin-top: 6px; font-size: 0.95rem; }
+  main { max-width: 900px; margin: 40px auto; padding: 0 24px 60px; }
+  h2 { font-size: 1.25rem; font-weight: 700; color: #0f3460; margin: 36px 0 14px; border-left: 4px solid #e94560; padding-left: 12px; }
+  h3 { font-size: 1rem; font-weight: 600; color: #16213e; margin: 20px 0 8px; }
+  p { margin-bottom: 10px; font-size: 0.95rem; }
+  ul, ol { padding-left: 22px; margin-bottom: 12px; font-size: 0.95rem; }
+  li { margin-bottom: 4px; }
+  .card { background: #fff; border-radius: 10px; padding: 24px 28px; margin-bottom: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .tag { display: inline-block; background: #e8f0fe; color: #0f3460; font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 20px; margin-right: 6px; }
+  pre { background: #0d1117; color: #c9d1d9; border-radius: 8px; padding: 20px 22px; overflow-x: auto; font-size: 0.82rem; line-height: 1.6; margin: 14px 0; }
+  code { font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace; }
+  .keyword { color: #ff7b72; }
+  .type { color: #79c0ff; }
+  .comment { color: #8b949e; font-style: italic; }
+  .string { color: #a5d6ff; }
+  .func { color: #d2a8ff; }
+  .entity-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 10px; }
+  .entity-card { background: #f0f4ff; border: 1px solid #c5d3f0; border-radius: 8px; padding: 14px 16px; }
+  .entity-card h4 { font-size: 0.9rem; color: #0f3460; font-weight: 700; margin-bottom: 6px; }
+  .entity-card ul { padding-left: 16px; font-size: 0.82rem; color: #444; }
+  .note { background: #fff8e1; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 0.88rem; margin: 14px 0; }
+  .badge { font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .hierarchy { background: #0d1117; color: #c9d1d9; border-radius: 8px; padding: 18px 22px; font-family: monospace; font-size: 0.85rem; line-height: 1.8; }
+  .hier-indent { margin-left: 20px; color: #a5d6ff; }
+  .hier-arrow { color: #ff7b72; }
+  footer { text-align: center; color: #888; font-size: 0.82rem; padding: 24px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Splitwise — Low-Level Design</h1>
+  <p>System Design Reference · C++ Implementation</p>
+</header>
+<main>
+
+  <!-- Requirements -->
+  <div class="card">
+    <h2>1. Requirements</h2>
+    <h3>Functional <span class="badge badge-blue">Core</span></h3>
+    <ul>
+      <li>Add users</li>
+      <li>Create groups</li>
+      <li>Add expenses (equal / exact / percentage)</li>
+      <li>Split expenses among users</li>
+      <li>Simplify debts (who owes whom)</li>
+      <li>Show balances</li>
+    </ul>
+    <h3>Non-Functional <span class="badge badge-green">Quality</span></h3>
+    <ul>
+      <li>Scalable — handles many users/groups</li>
+      <li>Consistent calculations — no rounding bugs</li>
+      <li>Extensible — easy to add new split types</li>
+    </ul>
+  </div>
+
+  <!-- Entities -->
+  <div class="card">
+    <h2>2. Core Entities &amp; Responsibilities</h2>
+    <div class="entity-grid">
+      <div class="entity-card"><h4>User</h4><ul><li>id, name, email</li><li>tracks balances with other users</li></ul></div>
+      <div class="entity-card"><h4>Expense</h4><ul><li>id, amount, paidBy</li><li>list of splits</li></ul></div>
+      <div class="entity-card"><h4>Split (abstract)</h4><ul><li>user + amount</li><li>EqualSplit</li><li>ExactSplit</li><li>PercentSplit</li></ul></div>
+      <div class="entity-card"><h4>Group</h4><ul><li>id, users</li><li>expenses</li></ul></div>
+      <div class="entity-card"><h4>BalanceSheet</h4><ul><li>who owes whom</li><li>Map&lt;User, Map&lt;User, double&gt;&gt;</li></ul></div>
+      <div class="entity-card"><h4>Splitwise (Service)</h4><ul><li>addExpense()</li><li>showBalances()</li><li>orchestrates everything</li></ul></div>
+    </div>
+  </div>
+
+  <!-- Class Diagram -->
+  <div class="card">
+    <h2>3. Class Diagram (Mental Model)</h2>
+    <div class="hierarchy">
+User<br>
+<span class="hier-arrow"> └──</span> id, name<br><br>
+Expense<br>
+<span class="hier-arrow"> ├──</span> amount<br>
+<span class="hier-arrow"> ├──</span> paidBy<br>
+<span class="hier-arrow"> └──</span> List&lt;Split&gt;<br><br>
+Split (abstract)<br>
+<span class="hier-arrow"> ├──</span> User user<br>
+<span class="hier-arrow"> └──</span> double amount<br>
+<span class="hier-indent hier-arrow">  ↑</span><br>
+<span class="hier-indent hier-arrow">  ├──</span> <span class="hier-indent">EqualSplit</span><br>
+<span class="hier-indent hier-arrow">  ├──</span> <span class="hier-indent">ExactSplit</span><br>
+<span class="hier-indent hier-arrow">  └──</span> <span class="hier-indent">PercentSplit</span><br><br>
+Group<br>
+<span class="hier-arrow"> ├──</span> List&lt;User&gt;<br>
+<span class="hier-arrow"> └──</span> List&lt;Expense&gt;<br><br>
+BalanceSheet<br>
+<span class="hier-arrow"> └──</span> Map&lt;User, Map&lt;User, double&gt;&gt;<br><br>
+Splitwise<br>
+<span class="hier-arrow"> ├──</span> addExpense()<br>
+<span class="hier-arrow"> └──</span> showBalances()
+    </div>
+    <div class="note">
+      <strong>Key Design Decision:</strong> Use abstract <code>Split</code> class → extensibility. Keep balance logic centralized in <code>BalanceSheet</code>.
+    </div>
+  </div>
+
+  <!-- Implementation -->
+  <div class="card">
+    <h2>4. C++ Implementation</h2>
+
+    <h3>Base Classes</h3>
+    <pre><code><span class="keyword">#include</span> <span class="string">&lt;bits/stdc++.h&gt;</span>
+<span class="keyword">using namespace</span> std;
+
+<span class="keyword">class</span> <span class="type">User</span> {
+<span class="keyword">public</span>:
+    string id;
+    string name;
+
+    <span class="func">User</span>(string id, string name) : id(id), name(name) {}
+};</code></pre>
+
+    <h3>Split Hierarchy</h3>
+    <pre><code><span class="keyword">class</span> <span class="type">Split</span> {
+<span class="keyword">public</span>:
+    <span class="type">User</span>* user;
+    <span class="keyword">double</span> amount;
+
+    <span class="func">Split</span>(<span class="type">User</span>* user) : user(user), amount(0) {}
+    <span class="keyword">virtual</span> ~<span class="func">Split</span>() {}
+};
+
+<span class="keyword">class</span> <span class="type">EqualSplit</span> : <span class="keyword">public</span> <span class="type">Split</span> {
+<span class="keyword">public</span>:
+    <span class="func">EqualSplit</span>(<span class="type">User</span>* user) : <span class="func">Split</span>(user) {}
+};
+
+<span class="keyword">class</span> <span class="type">ExactSplit</span> : <span class="keyword">public</span> <span class="type">Split</span> {
+<span class="keyword">public</span>:
+    <span class="func">ExactSplit</span>(<span class="type">User</span>* user, <span class="keyword">double</span> amount) : <span class="func">Split</span>(user) {
+        <span class="keyword">this</span>-&gt;amount = amount;
+    }
+};
+
+<span class="keyword">class</span> <span class="type">PercentSplit</span> : <span class="keyword">public</span> <span class="type">Split</span> {
+<span class="keyword">public</span>:
+    <span class="keyword">double</span> percent;
+
+    <span class="func">PercentSplit</span>(<span class="type">User</span>* user, <span class="keyword">double</span> percent) : <span class="func">Split</span>(user), percent(percent) {}
+};</code></pre>
+
+    <h3>Expense</h3>
+    <pre><code><span class="keyword">enum</span> <span class="type">ExpenseType</span> {
+    EQUAL,
+    EXACT,
+    PERCENT
+};
+
+<span class="keyword">class</span> <span class="type">Expense</span> {
+<span class="keyword">public</span>:
+    string id;
+    <span class="keyword">double</span> amount;
+    <span class="type">User</span>* paidBy;
+    vector&lt;<span class="type">Split</span>*&gt; splits;
+    <span class="type">ExpenseType</span> type;
+
+    <span class="func">Expense</span>(string id, <span class="keyword">double</span> amount, <span class="type">User</span>* paidBy,
+            vector&lt;<span class="type">Split</span>*&gt; splits, <span class="type">ExpenseType</span> type)
+        : id(id), amount(amount), paidBy(paidBy),
+          splits(splits), type(type) {}
+};</code></pre>
+
+    <h3>Balance Sheet</h3>
+    <pre><code><span class="keyword">class</span> <span class="type">BalanceSheet</span> {
+<span class="keyword">public</span>:
+    unordered_map&lt;string, unordered_map&lt;string, <span class="keyword">double</span>&gt;&gt; balance;
+
+    <span class="keyword">void</span> <span class="func">updateBalance</span>(<span class="type">User</span>* paidBy, <span class="type">Split</span>* split) {
+        string payer = paidBy-&gt;id;
+        string payee = split-&gt;user-&gt;id;
+
+        <span class="keyword">if</span> (payer == payee) <span class="keyword">return</span>;
+
+        balance[payee][payer] += split-&gt;amount;
+        balance[payer][payee] -= split-&gt;amount;
+    }
+
+    <span class="keyword">void</span> <span class="func">showBalances</span>() {
+        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;p : balance) {
+            <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;q : p.second) {
+                <span class="keyword">if</span> (q.second &gt; 0) {
+                    cout &lt;&lt; p.first &lt;&lt; <span class="string">" owes "</span> &lt;&lt; q.first
+                         &lt;&lt; <span class="string">" : "</span> &lt;&lt; q.second &lt;&lt; endl;
+                }
+            }
+        }
+    }
+};</code></pre>
+
+    <h3>Splitwise Service (Core Logic)</h3>
+    <pre><code><span class="keyword">class</span> <span class="type">Splitwise</span> {
+<span class="keyword">private</span>:
+    <span class="type">BalanceSheet</span> balanceSheet;
+
+<span class="keyword">public</span>:
+    <span class="keyword">void</span> <span class="func">addExpense</span>(string id, <span class="keyword">double</span> amount, <span class="type">User</span>* paidBy,
+                    vector&lt;<span class="type">Split</span>*&gt; splits, <span class="type">ExpenseType</span> type) {
+
+        <span class="keyword">int</span> n = splits.size();
+
+        <span class="keyword">if</span> (type == EQUAL) {
+            <span class="keyword">double</span> splitAmount = amount / n;
+            <span class="keyword">for</span> (<span class="keyword">auto</span> split : splits) {
+                split-&gt;amount = splitAmount;
+            }
+        }
+        <span class="keyword">else if</span> (type == PERCENT) {
+            <span class="keyword">for</span> (<span class="keyword">auto</span> split : splits) {
+                <span class="type">PercentSplit</span>* ps = dynamic_cast&lt;<span class="type">PercentSplit</span>*&gt;(split);
+                split-&gt;amount = (ps-&gt;percent * amount) / 100.0;
+            }
+        }
+        <span class="comment">// EXACT → already assigned</span>
+
+        <span class="comment">// Validate</span>
+        <span class="keyword">double</span> total = 0;
+        <span class="keyword">for</span> (<span class="keyword">auto</span> split : splits) total += split-&gt;amount;
+
+        <span class="keyword">if</span> (abs(total - amount) &gt; 0.001) {
+            <span class="keyword">throw</span> runtime_error(<span class="string">"Invalid split"</span>);
+        }
+
+        <span class="comment">// Update balances</span>
+        <span class="keyword">for</span> (<span class="keyword">auto</span> split : splits) {
+            balanceSheet.<span class="func">updateBalance</span>(paidBy, split);
+        }
+    }
+
+    <span class="keyword">void</span> <span class="func">showBalances</span>() {
+        balanceSheet.<span class="func">showBalances</span>();
+    }
+};</code></pre>
+
+    <h3>Example Usage</h3>
+    <pre><code><span class="keyword">int</span> <span class="func">main</span>() {
+    <span class="type">User</span> u1(<span class="string">"u1"</span>, <span class="string">"A"</span>);
+    <span class="type">User</span> u2(<span class="string">"u2"</span>, <span class="string">"B"</span>);
+    <span class="type">User</span> u3(<span class="string">"u3"</span>, <span class="string">"C"</span>);
+
+    <span class="type">Splitwise</span> sw;
+
+    vector&lt;<span class="type">Split</span>*&gt; splits;
+    splits.push_back(<span class="keyword">new</span> <span class="func">EqualSplit</span>(&amp;u1));
+    splits.push_back(<span class="keyword">new</span> <span class="func">EqualSplit</span>(&amp;u2));
+    splits.push_back(<span class="keyword">new</span> <span class="func">EqualSplit</span>(&amp;u3));
+
+    sw.<span class="func">addExpense</span>(<span class="string">"e1"</span>, 3000, &amp;u1, splits, EQUAL);
+
+    sw.<span class="func">showBalances</span>();
+}</code></pre>
+  </div>
+
+</main>
+<footer>Splitwise LLD · System Design Reference</footer>
+</body>
+</html>
