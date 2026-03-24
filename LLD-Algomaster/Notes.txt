@@ -4,6 +4,9 @@ LLD Questions Categories
 3. Pattern(Vending machine,State,Observer,Composite)
 4. API-Developer Tools &Infrastructure (LRU Cache,Rate limiter,Url Shortener)
 5. Finance (Splitwise,Payment Gateway)
+
+LLD Ques Approach: https://gagan93.me/blog/2024/05/17/low-level-design-interviews.html
+Parking lot: https://leetcode.com/discuss/post/6662563/parking-lot-low-level-design-by-anonymou-0ti2/
 ======================================================
 Top 5 LLD questions (4 step process) [FeaturesRequirement, Identify Entities with responseiblities,
                                       class Diagram, Implementation]
@@ -74,6 +77,12 @@ Elevator
 Library 
 Splitwise
 ============================================================================
+Resource,Type,Best For,Paid/Free,Notes
+Hello Interview – Low Level Design in a Hurry,Text + Video breakdowns,Practical framework & interview delivery,Mostly free (premium for more),"Excellent step-by-step problem breakdowns (e.g., Connect Four, Parking Lot) by ex-FAANG engineers. Focuses on how to think and communicate in interviews."
+Educative – Grokking the Low Level Design Interview Using OOD Principles,Interactive course,Patterns + real interview questions,Paid (subscription),"Battle-tested, very popular for mid-level engineers. Covers OOD fundamentals + many problems."
+AlgoMaster.io LLD Course (by Ashish Pratap Singh),Structured course,Complete beginner to advanced,Free + paid options,Built by the creator of the awesome LLD repo. Includes videos and code.
+LLDCoding.com,In-depth articles,LLD + Concurrency,"Some free, mostly paid",Great for real-world examples and thread-safety.
+==========================================================================
 #include <iostream>
 using namespace std;
 //strategypattern
