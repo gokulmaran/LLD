@@ -11,7 +11,7 @@ using namespace std;
 //   - Vehicle     → holds number, type
 //   - ParkingSpot → holds vehicle, spotId, isFree
 //   - ParkingLot  → manages all spots
-//
+
 // Responsibilities:
 //   - ParkingSpot → assign/remove vehicle
 //   - ParkingLot  → park/remove/find slots
