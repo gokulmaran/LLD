@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-
-/*Snake and ladder
+/*Snake and ladder (Requirement flow(all-code))
 1. Multiple players can play
 2. Dice generates random number (1–6)
 3. Player moves based on dice roll
@@ -32,112 +31,83 @@ class Game:
   + setup()
   + startGame()
 */
-
-// 🎯 Player
-class Player {
-public:
+class Player{
+  public:
     string name;
     int position;
-
-    Player(string n) : name(n), position(0) {}
-
-    void move(int steps) {
-        position += steps;
+    
+    Player(string n):name(n),position(0){}
+};
+class Dice{
+   public:
+    int roll(){
+      return rand()%6+1;
+    } 
+};
+class Board{
+  public:
+     int size;
+     unordered_map<int,int>snakes,ladders;
+     
+     Board(int s):size(s){}
+     
+     void addSnakes(int start,int dest){
+       snakes[start]=dest;
+     }
+     void addLadders(int start,int end){
+       ladders[start]=end;
+     }
+     int getPosition(int pos){
+       if(snakes.count(pos)){
+         return snakes[pos];
+       }
+       if(ladders.count(pos)){
+         return ladders[pos];
+       }
+       return pos;
+     }
+};
+class Game{
+  public:
+     Board board;
+     queue<Player*>q;
+     Dice dice;
+     Game(vector<string>players,int boardSize):board(boardSize){
+       for(int i=0;i<players.size();i++){
+         q.push(new Player(players[i]));
+       }
+     }
+     void setUp(){
+       board.addSnakes(90,45);
+       board.addLadders(42,85);
+     }
+     void initialise(){
+       while(true){
+       auto curr=q.front();
+       q.pop();
+       
+       int move=dice.roll();
+       int newPos=curr->position+move;
+       
+       if(newPos<=board.size){
+         int finalPos=board.getPosition(newPos);
+         curr->position=finalPos;
+       }
+       cout<<curr->name << " rolled at "<<curr->position<<endl;
+       if(curr->position==board.size){
+         cout<<curr->name<<" wins"<<endl;
+         break;
+       }
+       q.push(curr);
+     }
     }
 };
 
-// 🎲 Dice
-class Dice {
-public:
-    int roll() {
-        return rand() % 6 + 1;
-    }
-};
-
-// 🐍 Board
-class Board {
-public:
-    int size;
-    unordered_map<int, int> snakes;
-    unordered_map<int, int> ladders;
-
-    Board(int n) : size(n) {}
-
-    void addSnake(int start, int end) {
-        snakes[start] = end;
-    }
-
-    void addLadder(int start, int end) {
-        ladders[start] = end;
-    }
-
-    int getFinalPosition(int pos) {
-        if (snakes.count(pos)) return snakes[pos];
-        if (ladders.count(pos)) return ladders[pos];
-        return pos;
-    }
-};
-
-// 🎮 Game
-class Game {
-private:
-    queue<Player*> players;
-    Board board;
-    Dice dice;
-
-public:
-    Game(vector<string> names, int boardSize) : board(boardSize) {
-        for (auto &name : names) {
-            players.push(new Player(name));
-        }
-    }
-
-    void setup() {
-        // snakes
-        board.addSnake(99, 10);
-        board.addSnake(70, 50);
-
-        // ladders
-        board.addLadder(5, 25);
-        board.addLadder(40, 80);
-    }
-
-    void startGame() {
-        while (true) {
-            Player* curr = players.front();
-            players.pop();
-
-            int roll = dice.roll();
-            cout << curr->name << " rolled " << roll << endl;
-
-            int newPos = curr->position + roll;
-
-            if (newPos <= board.size) {
-                newPos = board.getFinalPosition(newPos);
-                curr->position = newPos;
-            }
-
-            cout << curr->name << " at " << curr->position << endl;
-
-            if (curr->position == board.size) {
-                cout << curr->name << " wins!\n";
-                break;
-            }
-
-            players.push(curr);
-        }
-    }
-};
-
-// 🚀 Driver
-int main() {
-    srand(time(0));
-
-    vector<string> players = {"A", "B"};
-    Game game(players, 100);
-
-    game.setup();
-    game.startGame();
-
-    return 0;
+int main() 
+{
+   vector<string>names={"A","B"};
+   Game g(names,100);
+   
+   g.setUp();
+   g.initialise();
 }
