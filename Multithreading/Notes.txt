@@ -1,0 +1,148 @@
+🔥 CORE MULTITHREADING INTERVIEW QUESTIONS (Must Master)
+1. Basics (If you mess this up → reject)
+What is a thread vs process?
+What is context switching?
+What is thread lifecycle?
+User-level vs kernel-level threads
+What is concurrency vs parallelism?
+
+👉 If you can’t explain these in 2–3 lines clearly, you’re not ready.
+
+2. Synchronization Primitives (Most asked)
+What is a mutex? How is it different from semaphore?
+Binary semaphore vs counting semaphore
+What is a spinlock?
+What is a read-write lock?
+What is a monitor?
+
+👉 Expect follow-up:
+
+“Where would you use semaphore over mutex?”
+
+3. Critical Section Problems (CLASSICS — MUST CODE)
+
+These are your bread and butter.
+
+💥 Problems:
+Producer–Consumer problem
+Readers–Writers problem
+Dining Philosophers problem
+Sleeping Barber problem
+
+👉 Interview trick:
+They don’t care about theory → they want code or design approach
+
+4. Deadlocks (High probability)
+What is deadlock?
+4 necessary conditions:
+Mutual exclusion
+Hold and wait
+No preemption
+Circular wait
+How to prevent deadlock?
+Deadlock detection vs avoidance
+Banker’s Algorithm (rare but bonus)
+
+👉 Must answer:
+
+“How do you debug deadlock in production?”
+
+5. Race Conditions & Thread Safety
+What is a race condition?
+What is atomic operation?
+What is thread-safe code?
+How to make code thread-safe?
+
+👉 Example question:
+
+int counter = 0;
+
+Thread 1: counter++
+Thread 2: counter++
+
+Why is result not always 2?
+
+6. Memory Model (This separates average vs strong candidates)
+What is memory consistency?
+What is visibility problem?
+What is instruction reordering?
+What is volatile?
+
+👉 C++ specific:
+
+std::atomic vs mutex
+memory_order (basic idea is enough)
+7. Thread Communication
+Condition variables
+wait() / notify() / notify_all()
+Blocking queue design
+
+👉 Expected:
+Design a thread-safe queue
+
+8. Thread Pools & Executors (Very Important for backend roles)
+What is thread pool?
+Why not create threads every time?
+Fixed vs cached thread pool
+Task queue design
+
+👉 Must be able to:
+Design a simple thread pool in C++
+
+9. Real Coding / Machine Coding Level
+
+These are gold.
+
+💻 Must Practice:
+Implement thread-safe Singleton (double-checked locking)
+Thread-safe LRU Cache
+Blocking Queue
+Rate Limiter (multi-thread safe)
+Logger system (async + thread-safe)
+10. Debugging & Real-World Questions (This is where you win)
+How do you detect race conditions?
+How do you debug high CPU due to threads?
+How do you reduce lock contention?
+What is lock granularity?
+What is false sharing?
+
+👉 These questions decide senior vs average
+
+💣 TOP INTERVIEW CODING QUESTIONS (Priority Order)
+
+If you do ONLY these, you're ahead of 90% candidates:
+
+Producer-Consumer using mutex + condition_variable
+Implement thread-safe queue
+Dining Philosophers (avoid deadlock)
+Thread-safe Singleton
+Reader-Writer lock implementation
+Thread pool (basic version)
+⚠️ Brutal Truth (You need to hear this)
+
+You’re already strong in DSA.
+But most engineers FAIL here because:
+
+They memorize definitions
+They can’t write concurrent code
+
+They panic when interviewer says:
+
+“Write thread-safe version”
+
+👉 If you can't write clean C++ multithreading code, you're not competitive for top backend roles.
+
+🎯 What You Should Do Next (No Excuses Plan)
+
+Spend 3–5 days max:
+
+Day 1–2:
+Mutex, semaphore, condition_variable
+Solve Producer–Consumer
+Day 3:
+Thread-safe queue + Singleton
+Day 4:
+Thread pool + Reader-Writer
+Day 5:
+Mock interview questions
+==============================================
