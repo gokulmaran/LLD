@@ -96,3 +96,21 @@ Delivered the module on time with zero P0 incidents in the first 3 months
 Reduced API latency by 40% through query optimization and strategic caching
 Established monitoring and alerting that caught 95% of issues before user impact
 =============================================
+DSA (Pattern Mastery)        → LeetCode + Revision Notes  
+LLD (Design Thinking)        → AlgoMaster + Shreyansh + Practice Questions  
+HLD (Scalable Systems)       → AlgoMaster + Interview Bunny + Case Studies  
+Core CS (OS/DBMS/Networks)   → Notes + PYQs + Targeted PDFs  
+Behavioral (STAR Stories)    → AlgoMaster + Personal Story Bank 
+
+Topics (Practice)          → Resources
+DSA (Pattern Logic)       → Claude + LeetCode  
+LLD (Class Flow)          → AlgoMaster + Shreyansh  
+HLD (API Design/Working)  → AlgoMaster + Interview Bunny  
+Technical Questions       → Claude FE + PDFs  
+Managerial Round (STAR)   → AlgoMaster  
+
+DSA → #problems solved
+LLD → #designs implemented
+HLD → #systems broken down
+CS → #concepts revised
+====================================================
