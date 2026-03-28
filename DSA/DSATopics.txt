@@ -109,3 +109,24 @@ Tries → Specialized trees
 Graphs → Most complex structures
 DP → Ultimate challenge (needs recursion + greedy + trees)
 ======================================================
+🔵 Topic-by-Topic Links (Free)
+
+TopicBest Free    Link
+
+Arrays & Hashing    NeetCode — Arrays & Hashing
+2D arrays           NeetCode — Arrays & Hashing
+Two Pointers        AlgoMaster Blog — Two Pointers
+Prefix Sum          AlgoMaster Blog — Prefix Sum
+Strings             AlgoMaster
+Sliding Window      AlgoMaster Blog — Sliding Window
+Binary Search       AlgoMaster Blog — Binary Search
+Linked List         NeetCode — Linked List
+Stacks & Queues     GeeksForGeeks — Stack & Queue
+Trees               NeetCode — Trees
+Heaps               AlgoMaster Blog — Heaps
+Graphs              AlgoMaster Blog — Graphs
+Backtracking        AlgoMaster Blog — Backtracking
+DP (Memoization)    AlgoMaster Blog — DP Patterns
+Greedy              AlgoMaster Blog — Greedy
+All 20 Patterns     AlgoMaster — 20 DSA Patterns
+===========================================================

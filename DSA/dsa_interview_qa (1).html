@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DSA Interview Q&A</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--sidebar:#13161f;--card:#1a1d27;--card2:#1f2232;
+  --border:#2a2d3e;--border2:#353850;
+  --accent:#f0b429;--accent2:#e07b39;--green:#4ade80;--blue:#60a5fa;--purple:#a78bfa;--red:#f87171;
+  --text:#e8eaf0;--muted:#8b8fa8;--muted2:#6b6f88;
+  --code-bg:#12151f;--code-border:#2a2d3e;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+/* ── LAYOUT ── */
+.shell{display:flex;height:100vh}
+.sidebar{
+  width:290px;flex-shrink:0;background:var(--sidebar);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+
+/* ── SIDEBAR TOP ── */
+.s-brand{
+  padding:20px 20px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.s-brand .logo{
+  width:34px;height:34px;background:var(--accent);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#0f1117;
+  flex-shrink:0;
+}
+.s-brand .title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);line-height:1.2}
+.s-brand .sub{font-size:11px;color:var(--muted);margin-top:1px}
+
+.s-search{padding:12px 14px;border-bottom:1px solid var(--border)}
+.s-search input{
+  width:100%;background:var(--card);border:1px solid var(--border2);
+  border-radius:7px;padding:8px 12px;font-size:12.5px;color:var(--text);
+  font-family:'Inter',sans-serif;outline:none;
+}
+.s-search input::placeholder{color:var(--muted2)}
+.s-search input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(240,180,41,.12)}
+
+/* ── SIDEBAR NAV ── */
+.s-nav{flex:1;overflow-y:auto;padding:10px 0 20px}
+.s-nav::-webkit-scrollbar{width:4px}
+.s-nav::-webkit-scrollbar-track{background:transparent}
+.s-nav::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+.s-section-label{
+  padding:10px 18px 4px;
+  font-size:9.5px;letter-spacing:.12em;font-weight:600;
+  color:var(--muted2);text-transform:uppercase;
+}
+.s-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 18px;cursor:pointer;
+  border-left:2px solid transparent;
+  transition:all .15s;margin:1px 0;
+}
+.s-item:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.s-item.active{
+  background:rgba(240,180,41,.08);
+  border-left-color:var(--accent);color:var(--accent);
+}
+.s-item .num{
+  width:22px;height:22px;border-radius:5px;
+  background:var(--card2);border:1px solid var(--border2);
+  font-size:10px;font-weight:600;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-family:'JetBrains Mono',monospace;
+}
+.s-item.active .num{background:rgba(240,180,41,.15);border-color:var(--accent);color:var(--accent)}
+.s-item .label{font-size:13px;font-weight:500;flex:1;line-height:1.3}
+.s-item .badge{
+  font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+}
+.badge-easy{background:rgba(74,222,128,.12);color:var(--green)}
+.badge-med{background:rgba(240,180,41,.12);color:var(--accent)}
+.badge-hard{background:rgba(248,113,113,.12);color:var(--red)}
+
+/* ── MAIN HEADER ── */
+.m-header{
+  padding:28px 40px 20px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,rgba(240,180,41,.04) 0%,transparent 100%);
+  flex-shrink:0;
+}
+.m-header .section-tag{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted2);font-weight:600;margin-bottom:6px;
+}
+.m-header h1{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--text);margin-bottom:6px}
+.m-header .desc{font-size:13.5px;color:var(--muted);line-height:1.6;max-width:640px}
+.m-header .meta{margin-top:10px;display:flex;gap:16px}
+.m-header .meta span{
+  font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px;
+}
+.m-header .meta b{color:var(--accent)}
+
+/* ── CONTENT ── */
+.m-content{flex:1;padding:28px 40px 50px}
+
+/* ── Q&A CARD ── */
+.qa-wrap{margin-bottom:12px}
+.qa-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  transition:border-color .15s;
+}
+.qa-card:hover{border-color:var(--border2)}
+.qa-card.open{border-color:var(--accent);background:var(--card2)}
+
+.qa-trigger{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:16px 20px;cursor:pointer;user-select:none;
+}
+.q-num{
+  width:30px;height:30px;border-radius:7px;flex-shrink:0;margin-top:1px;
+  background:var(--card2);border:1px solid var(--border2);
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;
+  color:var(--muted);display:flex;align-items:center;justify-content:center;
+}
+.qa-card.open .q-num{background:rgba(240,180,41,.12);border-color:var(--accent);color:var(--accent)}
+.q-text{flex:1;font-size:14.5px;font-weight:600;color:var(--text);line-height:1.5;padding-top:3px}
+.qa-card.open .q-text{color:var(--accent)}
+.q-diff{
+  font-size:10.5px;padding:3px 8px;border-radius:5px;
+  font-weight:600;flex-shrink:0;margin-top:4px;
+  font-family:'JetBrains Mono',monospace;
+}
+.qa-chevron{
+  flex-shrink:0;margin-top:6px;color:var(--muted);
+  transition:transform .2s;font-size:16px;
+}
+.qa-card.open .qa-chevron{transform:rotate(180deg);color:var(--accent)}
+
+/* ── ANSWER ── */
+.qa-answer{
+  display:none;padding:0 20px 20px 20px;
+  border-top:1px solid var(--border);
+}
+.qa-card.open .qa-answer{display:block}
+.answer-label{
+  display:flex;align-items:center;gap:6px;
+  padding:12px 0 10px;
+  font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:700;color:var(--green);
+}
+.answer-label::before{
+  content:'';width:7px;height:7px;border-radius:50%;
+  background:var(--green);display:inline-block;
+  box-shadow:0 0 6px rgba(74,222,128,.5);
+}
+
+.a-text{font-size:13.5px;line-height:1.7;color:#c8cad8;margin-bottom:8px}
+.a-text b,.a-text strong{color:var(--accent);font-weight:600}
+.a-text .hl{color:var(--blue)}
+.a-text .hlg{color:var(--green)}
+.a-text .hlr{color:var(--red)}
+.a-text .hlp{color:var(--purple)}
+
+.a-list{margin:8px 0 8px 0;display:flex;flex-direction:column;gap:5px}
+.a-list li{
+  display:flex;align-items:flex-start;gap:8px;
+  font-size:13px;line-height:1.6;color:#c8cad8;
+  padding-left:4px;
+}
+.a-list li::before{
+  content:'▸';color:var(--accent);flex-shrink:0;margin-top:2px;font-size:11px;
+}
+
+.a-code{
+  background:var(--code-bg);border:1px solid var(--code-border);
+  border-radius:8px;padding:14px 16px;margin:10px 0;
+  overflow-x:auto;
+}
+.a-code pre{
+  font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;
+  color:#abb2bf;white-space:pre;
+}
+.kw{color:#c678dd}.fn{color:#61afef}.str{color:#98c379}
+.cm{color:#5c6370;font-style:italic}.num{color:#d19a66}
+.tp{color:#e5c07b}
+
+.a-note{
+  background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);
+  border-radius:7px;padding:10px 14px;margin:8px 0;
+  font-size:12.5px;color:#93c5fd;line-height:1.6;
+}
+.a-note::before{content:'💡  ';font-style:normal}
+
+.complexity-table{
+  width:100%;border-collapse:collapse;margin:10px 0;
+  font-size:12.5px;font-family:'JetBrains Mono',monospace;
+}
+.complexity-table th{
+  background:rgba(240,180,41,.08);color:var(--accent);
+  padding:7px 12px;text-align:left;font-size:11px;letter-spacing:.05em;
+  border:1px solid var(--border2);
+}
+.complexity-table td{
+  padding:7px 12px;border:1px solid var(--border2);color:#c8cad8;
+}
+.complexity-table tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+
+/* ── TOPIC DIVIDER ── */
+.topic-divider{
+  display:none;padding:20px 0 10px;
+}
+.topic-divider h2{
+  font-family:'Syne',sans-serif;font-size:19px;font-weight:800;
+  color:var(--text);margin-bottom:4px;
+}
+.topic-divider .td-bar{height:2px;background:linear-gradient(90deg,var(--accent),transparent);border-radius:1px;margin-bottom:16px}
+
+/* scrollbar */
+.main::-webkit-scrollbar{width:6px}
+.main::-webkit-scrollbar-track{background:transparent}
+.main::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── PATTERN CHIPS ── */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.chip{
+  font-size:11px;padding:3px 9px;border-radius:5px;font-weight:600;
+  background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);color:var(--purple);
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:760px){
+  .sidebar{width:240px}
+  .m-content,.m-header{padding-left:20px;padding-right:20px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="s-brand">
+    <div class="logo">DS</div>
+    <div>
+      <div class="title">DSA Interview Q&amp;A</div>
+      <div class="sub">18 Topics · 90+ Questions</div>
+    </div>
+  </div>
+
+  <div class="s-search">
+    <input type="text" id="search" placeholder="Search topics…"/>
+  </div>
+
+  <nav class="s-nav" id="sideNav">
+    <div class="s-section-label">Fundamentals</div>
+    <div class="s-item active" data-topic="arrays" onclick="showTopic('arrays',this)">
+      <span class="num">01</span><span class="label">Arrays &amp; Hashing</span>
+      <span class="badge badge-easy">Easy</span>
+    </div>
+    <div class="s-item" data-topic="twoptr" onclick="showTopic('twoptr',this)">
+      <span class="num">02</span><span class="label">Two Pointers</span>
+      <span class="badge badge-easy">Easy</span>
+    </div>
+    <div class="s-item" data-topic="prefix" onclick="showTopic('prefix',this)">
+      <span class="num">03</span><span class="label">Prefix Sum</span>
+      <span class="badge badge-easy">Easy</span>
+    </div>
+    <div class="s-item" data-topic="2d" onclick="showTopic('2d',this)">
+      <span class="num">04</span><span class="label">2D Arrays</span>
+      <span class="badge badge-med">Med</span>
+    </div>
+    <div class="s-item" data-topic="strings" onclick="showTopic('strings',this)">
+      <span class="num">05</span><span class="label">Strings &amp; Sliding Window</span>
+      <span class="badge badge-med">Med</span>
+    </div>
+    <div class="s-item" data-topic="sorting" onclick="showTopic('sorting',this)">
+      <span class="num">06</span><span class="label">Sorting</span>
+      <span class="badge badge-easy">Easy</span>
+    </div>
+    <div class="s-item" data-topic="binsearch" onclick="showTopic('binsearch',this)">
+      <span class="num">07</span><span class="label">Binary Search</span>
+      <span class="badge badge-med">Med</span>
+    </div>
+    <div class="s-item" data-topic="bitmask" onclick="showTopic('bitmask',this)">
+      <span class="num">08</span><span class="label">Bitmasking</span>
+      <span class="badge badge-med">Med</span>
+    </div>
+    <div class="s-item" data-topic="numtheory" onclick="showTopic('numtheory',this)">
+      <span class="num">09</span><span class="label">Number Theory</span>
+      <span class="badge badge-med">Med</span>
+    </div>
+
+    <div class="s-section-label">Recursion &amp; Search</div>
+    <div class="s-item" data-topic="recursion" onclick="showTopic('recursion',this)">
+      <span class="num">10</span><span class="label">Recursion</span>
+      <span class="badge badge-med">Med</span>
+    </div>
+    <div class="s-item" data-topic="backtrack" onclick="showTopic('backtrack',this)">
+      <span class="num">11</span><span class="label">Backtracking</span>
+      <span class="badge badge-hard">Hard</span>
+    </div>
+
+    <div class="s-section-label">Linear Structures</div>
+    <div class="s-item" data-topic="ll" onclick="showTopic('ll',this)">
+      <span class="num">12</span><span class="label">Linked List</span>
+      <span class="badge badge-med">Med</span>
+    </div>
+    <div class="s-item" data-topic="stacks" onclick="showTopic('stacks',this)">
+      <span class="num">13</span><span class="label">Stacks</span>
+      <span class="badge badge-easy">Easy</span>
+    </div>
+    <div class="s-item" data-topic="queues" onclick="showTopic('queues',this)">
+      <span class="num">14</span><span class="label">Queues</span>
+      <span class="badge badge-easy">Easy</span>
+    </div>
+    <div class="s-item" data-topic="heaps" onclick="showTopic('heaps',this)">
+      <span class="num">15</span><span class="label">Heaps</span>
+      <span class="badge badge-med">Med</span>
+    </div>
+
+    <div class="s-section-label">Hierarchical &amp; Advanced</div>
+    <div class="s-item" data-topic="trees" onclick="showTopic('trees',this)">
+      <span class="num">16</span><span class="label">Trees</span>
+      <span class="badge badge-med">Med</span>
+    </div>
+    <div class="s-item" data-topic="tries" onclick="showTopic('tries',this)">
+      <span class="num">17</span><span class="label">Tries</span>
+      <span class="badge badge-hard">Hard</span>
+    </div>
+    <div class="s-item" data-topic="greedy" onclick="showTopic('greedy',this)">
+      <span class="num">18</span><span class="label">Greedy</span>
+      <span class="badge badge-med">Med</span>
+    </div>
+    <div class="s-item" data-topic="graphs" onclick="showTopic('graphs',this)">
+      <span class="num">19</span><span class="label">Graphs</span>
+      <span class="badge badge-hard">Hard</span>
+    </div>
+    <div class="s-item" data-topic="dp" onclick="showTopic('dp',this)">
+      <span class="num">20</span><span class="label">Dynamic Programming</span>
+      <span class="badge badge-hard">Hard</span>
+    </div>
+  </nav>
+</aside>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════════════════ -->
+<main class="main" id="mainArea">
+  <div class="m-header" id="topicHeader">
+    <div class="section-tag" id="topicTag">FUNDAMENTALS</div>
+    <h1 id="topicTitle">Arrays &amp; Hashing</h1>
+    <div class="desc" id="topicDesc">Core data structure. Master time/space trade-offs using hash maps and arrays.</div>
+    <div class="meta">
+      <span>Questions: <b id="qCount">5</b></span>
+      <span>Pattern: <b id="topicPattern">Hash Map · Index Mapping</b></span>
+    </div>
+  </div>
+  <div class="m-content" id="qaContainer"></div>
+</main>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════════════════════════════════
+const TOPICS = {
+
+arrays:{
+  title:"Arrays &amp; Hashing",tag:"FUNDAMENTALS",
+  desc:"Core data structure. Master time/space trade-offs using hash maps and arrays for O(1) lookups.",
+  pattern:"Hash Map · Frequency Count · Index Mapping",
+  qs:[
+    {q:"What is the time complexity of common array operations?",diff:"easy",
+     a:`<p class="a-text">Arrays store elements in contiguous memory, giving O(1) random access by index.</p>
+     <table class="complexity-table"><tr><th>Operation</th><th>Array</th><th>Dynamic Array (vector)</th></tr>
+     <tr><td>Access by index</td><td>O(1)</td><td>O(1)</td></tr>
+     <tr><td>Search (unsorted)</td><td>O(n)</td><td>O(n)</td></tr>
+     <tr><td>Insert at end</td><td>O(1)*</td><td>O(1) amortized</td></tr>
+     <tr><td>Insert at middle</td><td>O(n)</td><td>O(n)</td></tr>
+     <tr><td>Delete</td><td>O(n)</td><td>O(n)</td></tr></table>
+     <div class="a-note">*Only if pre-allocated space exists.</div>`},
+    {q:"How do you find two numbers in an array that sum to a target? (Two Sum)",diff:"easy",
+     a:`<p class="a-text">Use a <b>hash map</b>: store each number's index as you traverse. For each element x, check if <b>target - x</b> already exists in the map.</p>
+     <div class="a-code"><pre><span class="tp">vector</span>&lt;<span class="tp">int</span>&gt; twoSum(<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;&amp; nums, <span class="tp">int</span> target) {
+    <span class="tp">unordered_map</span>&lt;<span class="tp">int</span>,<span class="tp">int</span>&gt; seen;
+    <span class="kw">for</span> (<span class="tp">int</span> i=<span class="num">0</span>; i&lt;nums.size(); i++) {
+        <span class="tp">int</span> complement = target - nums[i];
+        <span class="kw">if</span> (seen.count(complement))
+            <span class="kw">return</span> {seen[complement], i};
+        seen[nums[i]] = i;
+    }
+    <span class="kw">return</span> {};
+}</pre></div>
+     <div class="chips"><span class="chip">O(n) time</span><span class="chip">O(n) space</span><span class="chip">Hash Map</span></div>`},
+    {q:"How do you find duplicates in an array?",diff:"easy",
+     a:`<ul class="a-list"><li>Use an <b>unordered_set</b>: insert each element; if insert fails, it's a duplicate — O(n) time, O(n) space.</li>
+     <li>Sort the array first: compare adjacent elements — O(n log n) time, O(1) space.</li>
+     <li>For arrays in range [1,n]: negate visited indices as a marker — O(n) time, O(1) space (clever trick).</li></ul>
+     <div class="a-note">The hash set approach is the most general and interview-preferred.</div>`},
+    {q:"What is a hash collision and how is it handled?",diff:"med",
+     a:`<p class="a-text">A <b>hash collision</b> occurs when two keys produce the same hash index. Two main resolution strategies:</p>
+     <ul class="a-list">
+     <li><b>Chaining:</b> Each bucket holds a linked list of all entries with the same hash. O(1) average, O(n) worst case.</li>
+     <li><b>Open Addressing (Linear Probing):</b> On collision, scan ahead to the next open slot. Cache-friendly but clustering issues arise.</li></ul>
+     <p class="a-text">A good hash function distributes keys uniformly to minimize collisions. Load factor (n/capacity) is kept below ~0.7 for performance.</p>`},
+    {q:"Find the maximum subarray sum (Kadane's Algorithm)",diff:"med",
+     a:`<p class="a-text">Kadane's Algorithm: track the current running sum. Reset to 0 (or current element if negative) at each step.</p>
+     <div class="a-code"><pre><span class="tp">int</span> maxSubArray(<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;&amp; nums) {
+    <span class="tp">int</span> maxSum = nums[<span class="num">0</span>], cur = nums[<span class="num">0</span>];
+    <span class="kw">for</span> (<span class="tp">int</span> i=<span class="num">1</span>; i&lt;nums.size(); i++) {
+        cur = max(nums[i], cur + nums[i]);
+        maxSum = max(maxSum, cur);
+    }
+    <span class="kw">return</span> maxSum;
+}</pre></div>
+     <div class="chips"><span class="chip">O(n) time</span><span class="chip">O(1) space</span><span class="chip">Greedy / DP</span></div>`},
+  ]},
+
+twoptr:{
+  title:"Two Pointers",tag:"FUNDAMENTALS",
+  desc:"Efficient linear scan technique using two indices moving inward or outward.",
+  pattern:"Left/Right Pointers · Slow-Fast Pointers",
+  qs:[
+    {q:"What is the Two Pointers technique and when do you use it?",diff:"easy",
+     a:`<p class="a-text">Two Pointers uses two indices (usually <b>left</b> and <b>right</b>) that move through data based on conditions. It reduces O(n²) brute force to <b>O(n)</b>.</p>
+     <ul class="a-list">
+     <li><b>Converging:</b> Start at both ends, move inward. Used for sorted arrays (pair sum, palindrome check).</li>
+     <li><b>Sliding window:</b> Both move right. Used for subarray/substring problems.</li>
+     <li><b>Slow/Fast:</b> Different speeds. Used in linked lists (cycle detection).</li></ul>`},
+    {q:"Check if a string is a palindrome using two pointers",diff:"easy",
+     a:`<div class="a-code"><pre><span class="tp">bool</span> isPalindrome(<span class="tp">string</span> s) {
+    <span class="tp">int</span> l=<span class="num">0</span>, r=s.size()-<span class="num">1</span>;
+    <span class="kw">while</span> (l&lt;r) {
+        <span class="kw">if</span> (s[l] != s[r]) <span class="kw">return false</span>;
+        l++; r--;
+    }
+    <span class="kw">return true</span>;
+}</pre></div>
+     <div class="chips"><span class="chip">O(n) time</span><span class="chip">O(1) space</span></div>`},
+    {q:"Find a pair with given sum in a sorted array",diff:"easy",
+     a:`<p class="a-text">With a <b>sorted array</b>, use converging two pointers. If sum &lt; target, move left pointer right. If sum &gt; target, move right pointer left.</p>
+     <div class="a-code"><pre><span class="tp">bool</span> pairSum(<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;&amp; a, <span class="tp">int</span> target) {
+    <span class="tp">int</span> l=<span class="num">0</span>, r=a.size()-<span class="num">1</span>;
+    <span class="kw">while</span> (l&lt;r) {
+        <span class="tp">int</span> s = a[l]+a[r];
+        <span class="kw">if</span> (s==target) <span class="kw">return true</span>;
+        <span class="kw">else if</span> (s&lt;target) l++;
+        <span class="kw">else</span> r--;
+    }
+    <span class="kw">return false</span>;
+}</pre></div>`},
+    {q:"Container With Most Water — explain approach",diff:"med",
+     a:`<p class="a-text">Place pointers at both ends. Area = <b>min(h[l], h[r]) × (r-l)</b>. Move the pointer with the smaller height inward (keeping larger height gives more chance of bigger area).</p>
+     <ul class="a-list">
+     <li>Time: O(n), Space: O(1)</li>
+     <li>Key insight: moving the taller side never increases the area — height is already capped by the shorter side.</li></ul>`},
+  ]},
+
+prefix:{
+  title:"Prefix Sum",tag:"FUNDAMENTALS",
+  desc:"Precompute cumulative sums for O(1) range queries instead of O(n) each time.",
+  pattern:"Prefix Array · Range Query",
+  qs:[
+    {q:"What is prefix sum and why is it useful?",diff:"easy",
+     a:`<p class="a-text">A prefix sum array P where <b>P[i] = P[i-1] + A[i]</b>. Then sum of range [l,r] = <b>P[r] - P[l-1]</b> in O(1).</p>
+     <div class="a-code"><pre><span class="cm">// Build prefix sum</span>
+<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt; prefix(n+<span class="num">1</span>, <span class="num">0</span>);
+<span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">0</span>;i&lt;n;i++) prefix[i+<span class="num">1</span>]=prefix[i]+A[i];
+<span class="cm">// Query [l, r]</span>
+<span class="tp">int</span> rangeSum = prefix[r+<span class="num">1</span>] - prefix[l];</pre></div>
+     <div class="chips"><span class="chip">O(n) build</span><span class="chip">O(1) query</span></div>`},
+    {q:"Find subarray with given sum using prefix sums",diff:"med",
+     a:`<p class="a-text">Use a hash map to store prefix sums. If <b>prefix[j] - prefix[i] == target</b>, then subarray [i+1..j] has the target sum.</p>
+     <div class="a-code"><pre><span class="tp">int</span> subarraySum(<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;&amp; nums, <span class="tp">int</span> k) {
+    <span class="tp">unordered_map</span>&lt;<span class="tp">int</span>,<span class="tp">int</span>&gt; cnt{{<span class="num">0</span>,<span class="num">1</span>}};
+    <span class="tp">int</span> prefix=<span class="num">0</span>, res=<span class="num">0</span>;
+    <span class="kw">for</span>(<span class="tp">int</span> x:nums){
+        prefix+=x;
+        res+=cnt[prefix-k];
+        cnt[prefix]++;
+    }
+    <span class="kw">return</span> res;
+}</pre></div>`},
+    {q:"2D prefix sum — how to compute region sum in O(1)?",diff:"med",
+     a:`<p class="a-text"><b>P[i][j] = A[i][j] + P[i-1][j] + P[i][j-1] - P[i-1][j-1]</b></p>
+     <p class="a-text">Region sum from (r1,c1) to (r2,c2):<br><b>P[r2][c2] - P[r1-1][c2] - P[r2][c1-1] + P[r1-1][c1-1]</b></p>
+     <div class="a-note">This is the inclusion-exclusion principle applied to 2D grids.</div>`},
+  ]},
+
+"2d":{
+  title:"2D Arrays",tag:"FUNDAMENTALS",
+  desc:"Matrix operations, traversal patterns, and in-place transformations.",
+  pattern:"Matrix Traversal · In-place Manipulation",
+  qs:[
+    {q:"How do you rotate a matrix 90° clockwise in-place?",diff:"med",
+     a:`<p class="a-text">Two steps: <b>1)</b> Transpose (swap matrix[i][j] with matrix[j][i]), <b>2)</b> Reverse each row.</p>
+     <div class="a-code"><pre><span class="kw">void</span> <span class="fn">rotate</span>(<span class="tp">vector</span>&lt;<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;&gt;&amp; m) {
+    <span class="tp">int</span> n=m.size();
+    <span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">0</span>;i&lt;n;i++)
+        <span class="kw">for</span>(<span class="tp">int</span> j=i+<span class="num">1</span>;j&lt;n;j++) swap(m[i][j],m[j][i]);
+    <span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">0</span>;i&lt;n;i++) reverse(m[i].begin(),m[i].end());
+}</pre></div>
+     <div class="chips"><span class="chip">O(n²) time</span><span class="chip">O(1) space</span></div>`},
+    {q:"How do you traverse a matrix in spiral order?",diff:"med",
+     a:`<p class="a-text">Use four boundaries: <b>top, bottom, left, right</b>. Shrink them after each traversal direction.</p>
+     <div class="a-code"><pre><span class="kw">while</span>(top&lt;=bottom &amp;&amp; left&lt;=right){
+    <span class="kw">for</span>(j: left→right) add m[top][j]; top++;
+    <span class="kw">for</span>(i: top→bottom) add m[i][right]; right--;
+    <span class="kw">if</span>(top&lt;=bottom) <span class="kw">for</span>(j: right→left) add m[bottom][j]; bottom--;
+    <span class="kw">if</span>(left&lt;=right) <span class="kw">for</span>(i: bottom→top) add m[i][left]; left++;
+}</pre></div>`},
+    {q:"Set Matrix Zeroes — how to do it O(1) space?",diff:"hard",
+     a:`<p class="a-text">Use the first row and first column as markers. If cell (i,j)==0, mark matrix[i][0]=0 and matrix[0][j]=0. Handle first row/column separately.</p>
+     <ul class="a-list">
+     <li>First pass: record which rows/cols need zeroing using the matrix itself as storage.</li>
+     <li>Second pass: zero out cells based on markers.</li>
+     <li>Third pass: zero out first row/column if originally they contained zero.</li></ul>`},
+    {q:"How to search in a row-sorted and column-sorted matrix?",diff:"med",
+     a:`<p class="a-text">Start from <b>top-right corner</b>. If current > target, move left. If current &lt; target, move down. O(m+n).</p>
+     <div class="a-note">This works because moving left decreases the value and moving down increases it — a staircase search.</div>`},
+  ]},
+
+strings:{
+  title:"Strings &amp; Sliding Window",tag:"FUNDAMENTALS",
+  desc:"Substring problems, character frequency, and the fixed/variable window technique.",
+  pattern:"Sliding Window · Frequency Map · Two Pointers",
+  qs:[
+    {q:"What is the Sliding Window technique?",diff:"easy",
+     a:`<p class="a-text">Maintain a <b>window</b> (subarray/substring) with two pointers. Expand the right pointer to add elements; shrink the left pointer when a condition is violated.</p>
+     <ul class="a-list">
+     <li><b>Fixed window:</b> Window size k is constant. Slide one step at a time.</li>
+     <li><b>Variable window:</b> Expand/shrink based on a constraint (e.g., at most k distinct chars).</li></ul>
+     <div class="chips"><span class="chip">O(n) time</span><span class="chip">O(k) space</span></div>`},
+    {q:"Longest substring without repeating characters",diff:"med",
+     a:`<div class="a-code"><pre><span class="tp">int</span> <span class="fn">lengthOfLongestSubstring</span>(<span class="tp">string</span> s) {
+    <span class="tp">unordered_map</span>&lt;<span class="tp">char</span>,<span class="tp">int</span>&gt; last;
+    <span class="tp">int</span> res=<span class="num">0</span>, left=<span class="num">0</span>;
+    <span class="kw">for</span>(<span class="tp">int</span> r=<span class="num">0</span>; r&lt;s.size(); r++){
+        <span class="kw">if</span>(last.count(s[r])) left=max(left, last[s[r]]+<span class="num">1</span>);
+        last[s[r]]=r;
+        res=max(res, r-left+<span class="num">1</span>);
+    }
+    <span class="kw">return</span> res;
+}</pre></div>
+     <div class="chips"><span class="chip">O(n) time</span><span class="chip">O(min(n,m)) space</span></div>`},
+    {q:"Check if two strings are anagrams",diff:"easy",
+     a:`<p class="a-text">Count character frequencies. Two strings are anagrams if their frequency maps are equal.</p>
+     <div class="a-code"><pre><span class="tp">bool</span> <span class="fn">isAnagram</span>(<span class="tp">string</span> s, <span class="tp">string</span> t) {
+    <span class="kw">if</span>(s.size()!=t.size()) <span class="kw">return false</span>;
+    <span class="tp">int</span> freq[<span class="num">26</span>]={};
+    <span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">0</span>;i&lt;s.size();i++) { freq[s[i]-<span class="str">'a'</span>]++; freq[t[i]-<span class="str">'a'</span>]--; }
+    <span class="kw">for</span>(<span class="tp">int</span> x:freq) <span class="kw">if</span>(x) <span class="kw">return false</span>;
+    <span class="kw">return true</span>;
+}</pre></div>`},
+    {q:"Minimum window substring — explain approach",diff:"hard",
+     a:`<p class="a-text">Use a <b>frequency map</b> of t. Expand right pointer adding chars; when all chars of t are covered, try shrinking from left to minimize the window.</p>
+     <ul class="a-list">
+     <li>Track <b>have</b> (satisfied chars) vs <b>need</b> (total unique chars in t).</li>
+     <li>When have==need, record window and shrink left.</li>
+     <li>Time: O(|s| + |t|), Space: O(|t|)</li></ul>`},
+  ]},
+
+sorting:{
+  title:"Sorting",tag:"FUNDAMENTALS",
+  desc:"Comparison-based and non-comparison sorting algorithms and their trade-offs.",
+  pattern:"Divide & Conquer · Counting · Partition",
+  qs:[
+    {q:"Compare the main sorting algorithms",diff:"easy",
+     a:`<table class="complexity-table">
+     <tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Space</th><th>Stable</th></tr>
+     <tr><td>Bubble Sort</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>Yes</td></tr>
+     <tr><td>Selection Sort</td><td>O(n²)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>No</td></tr>
+     <tr><td>Insertion Sort</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>Yes</td></tr>
+     <tr><td>Merge Sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td><td>Yes</td></tr>
+     <tr><td>Quick Sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n²)</td><td>O(log n)</td><td>No</td></tr>
+     <tr><td>Heap Sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(1)</td><td>No</td></tr>
+     <tr><td>Counting Sort</td><td>O(n+k)</td><td>O(n+k)</td><td>O(n+k)</td><td>O(k)</td><td>Yes</td></tr></table>`},
+    {q:"How does Merge Sort work?",diff:"med",
+     a:`<p class="a-text"><b>Divide & Conquer:</b> Recursively split the array in half, sort each half, then merge two sorted halves.</p>
+     <ul class="a-list">
+     <li>Base case: array of size 1 is sorted.</li>
+     <li>Merge step: use two pointers on both halves, pick smaller element each time — O(n).</li>
+     <li>Total: T(n) = 2T(n/2) + O(n) → O(n log n) by Master Theorem.</li>
+     <li>Preferred when stable sort + guaranteed O(n log n) is needed.</li></ul>`},
+    {q:"What is Quick Sort's worst case and how do you avoid it?",diff:"med",
+     a:`<p class="a-text">Worst case O(n²) happens when pivot is always the min or max (already sorted/reverse-sorted array).</p>
+     <ul class="a-list">
+     <li><b>Random pivot:</b> Choose pivot randomly — reduces worst case probability.</li>
+     <li><b>Median-of-three:</b> Pivot = median of first, middle, last elements.</li>
+     <li><b>Introsort:</b> Standard library often uses Quick Sort + switches to Heap Sort if recursion depth exceeds threshold.</li></ul>`},
+  ]},
+
+binsearch:{
+  title:"Binary Search",tag:"ALGORITHMS",
+  desc:"Halve the search space each iteration. Works on sorted data or monotonic functions.",
+  pattern:"Left/Right Boundary · Search on Answer",
+  qs:[
+    {q:"Implement standard binary search",diff:"easy",
+     a:`<div class="a-code"><pre><span class="tp">int</span> <span class="fn">binarySearch</span>(<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;&amp; nums, <span class="tp">int</span> target) {
+    <span class="tp">int</span> l=<span class="num">0</span>, r=nums.size()-<span class="num">1</span>;
+    <span class="kw">while</span>(l&lt;=r){
+        <span class="tp">int</span> mid = l+(r-l)/<span class="num">2</span>; <span class="cm">// avoids overflow</span>
+        <span class="kw">if</span>(nums[mid]==target) <span class="kw">return</span> mid;
+        <span class="kw">else if</span>(nums[mid]&lt;target) l=mid+<span class="num">1</span>;
+        <span class="kw">else</span> r=mid-<span class="num">1</span>;
+    }
+    <span class="kw">return -1</span>;
+}</pre></div>
+     <div class="chips"><span class="chip">O(log n)</span><span class="chip">O(1) space</span></div>`},
+    {q:"Find first and last position of element in sorted array",diff:"med",
+     a:`<p class="a-text">Run binary search twice — once to find <b>left boundary</b> (first occurrence), once for <b>right boundary</b> (last occurrence).</p>
+     <div class="a-code"><pre><span class="cm">// Left boundary: when nums[mid]==target, move r=mid-1</span>
+<span class="cm">// Right boundary: when nums[mid]==target, move l=mid+1</span></pre></div>
+     <div class="a-note">Template: use a boolean flag "findFirst" to control which boundary you're searching.</div>`},
+    {q:"What is 'binary search on answer'?",diff:"hard",
+     a:`<p class="a-text">When the answer has a <b>monotonic property</b> (feasible for x → feasible for x-1), binary search on the answer space itself.</p>
+     <ul class="a-list">
+     <li>Define a <b>check(mid)</b> function that returns true/false.</li>
+     <li>Binary search on [lo, hi] to find the smallest/largest valid mid.</li>
+     <li>Examples: Koko Eating Bananas, Minimize Max Distance, Book Allocation.</li></ul>`},
+    {q:"Search in rotated sorted array",diff:"med",
+     a:`<p class="a-text">At each mid, one half is always sorted. Check which half and decide which side to go.</p>
+     <div class="a-code"><pre><span class="kw">if</span>(nums[l]&lt;=nums[mid]){ <span class="cm">// left half sorted</span>
+    <span class="kw">if</span>(target>=nums[l] &amp;&amp; target&lt;nums[mid]) r=mid-<span class="num">1</span>;
+    <span class="kw">else</span> l=mid+<span class="num">1</span>;
+} <span class="kw">else</span> { <span class="cm">// right half sorted</span>
+    <span class="kw">if</span>(target>nums[mid] &amp;&amp; target&lt;=nums[r]) l=mid+<span class="num">1</span>;
+    <span class="kw">else</span> r=mid-<span class="num">1</span>;
+}</pre></div>`},
+  ]},
+
+bitmask:{
+  title:"Bitmasking",tag:"ALGORITHMS",
+  desc:"Use bitwise operations for efficient set representation and manipulation.",
+  pattern:"Bit Manipulation · XOR tricks · State compression",
+  qs:[
+    {q:"What are the essential bitwise operations?",diff:"easy",
+     a:`<table class="complexity-table">
+     <tr><th>Operation</th><th>Code</th><th>Use Case</th></tr>
+     <tr><td>Check bit i</td><td>(n >> i) & 1</td><td>Is bit i set?</td></tr>
+     <tr><td>Set bit i</td><td>n | (1 << i)</td><td>Turn bit on</td></tr>
+     <tr><td>Clear bit i</td><td>n & ~(1 << i)</td><td>Turn bit off</td></tr>
+     <tr><td>Toggle bit i</td><td>n ^ (1 << i)</td><td>Flip bit</td></tr>
+     <tr><td>Remove lowest set bit</td><td>n & (n-1)</td><td>Count set bits</td></tr>
+     <tr><td>Isolate lowest set bit</td><td>n & (-n)</td><td>Fenwick tree</td></tr></table>`},
+    {q:"Count the number of set bits (popcount)",diff:"easy",
+     a:`<div class="a-code"><pre><span class="cm">// Brian Kernighan's algorithm</span>
+<span class="tp">int</span> <span class="fn">countBits</span>(<span class="tp">int</span> n){
+    <span class="tp">int</span> cnt=<span class="num">0</span>;
+    <span class="kw">while</span>(n){ n&=(n-<span class="num">1</span>); cnt++; }
+    <span class="kw">return</span> cnt;
+}
+<span class="cm">// Or use __builtin_popcount(n) in C++</span></pre></div>
+     <div class="chips"><span class="chip">O(set bits)</span></div>`},
+    {q:"Find the single non-duplicate element in an array where all others appear twice",diff:"easy",
+     a:`<p class="a-text"><b>XOR all elements.</b> a ^ a = 0, so duplicates cancel out and only the unique element remains.</p>
+     <div class="a-code"><pre><span class="tp">int</span> single = <span class="num">0</span>;
+<span class="kw">for</span>(<span class="tp">int</span> x : nums) single ^= x;</pre></div>
+     <div class="chips"><span class="chip">O(n) time</span><span class="chip">O(1) space</span></div>`},
+    {q:"Generate all subsets using bitmask",diff:"med",
+     a:`<p class="a-text">For n elements, there are 2ⁿ subsets. Each bit in mask i represents whether element j is included.</p>
+     <div class="a-code"><pre><span class="kw">for</span>(<span class="tp">int</span> mask=<span class="num">0</span>; mask&lt;(<span class="num">1</span>&lt;&lt;n); mask++){
+    <span class="kw">for</span>(<span class="tp">int</span> j=<span class="num">0</span>; j&lt;n; j++)
+        <span class="kw">if</span>(mask&amp;(<span class="num">1</span>&lt;&lt;j)) cout&lt;&lt;arr[j]&lt;&lt;<span class="str">" "</span>;
+    cout&lt;&lt;<span class="str">"\\n"</span>;
+}</pre></div>`},
+  ]},
+
+numtheory:{
+  title:"Number Theory",tag:"MATHEMATICS",
+  desc:"GCD, primes, modular arithmetic — foundations for competitive math problems.",
+  pattern:"Sieve · GCD · Modular Arithmetic",
+  qs:[
+    {q:"How does the Sieve of Eratosthenes work?",diff:"easy",
+     a:`<p class="a-text">Mark all multiples of each prime as composite. Start from 2, mark 4,6,8... then 3, mark 6,9,12... etc.</p>
+     <div class="a-code"><pre><span class="tp">vector</span>&lt;<span class="tp">bool</span>&gt; sieve(<span class="tp">int</span> n){
+    <span class="tp">vector</span>&lt;<span class="tp">bool</span>&gt; isPrime(n+<span class="num">1</span>, <span class="kw">true</span>);
+    isPrime[<span class="num">0</span>]=isPrime[<span class="num">1</span>]=<span class="kw">false</span>;
+    <span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">2</span>; i*i&lt;=n; i++)
+        <span class="kw">if</span>(isPrime[i])
+            <span class="kw">for</span>(<span class="tp">int</span> j=i*i; j&lt;=n; j+=i) isPrime[j]=<span class="kw">false</span>;
+    <span class="kw">return</span> isPrime;
+}</pre></div>
+     <div class="chips"><span class="chip">O(n log log n)</span><span class="chip">O(n) space</span></div>`},
+    {q:"What is GCD and how does Euclidean algorithm work?",diff:"easy",
+     a:`<p class="a-text"><b>gcd(a,b) = gcd(b, a%b)</b>. Base case: gcd(a,0)=a.</p>
+     <div class="a-code"><pre><span class="tp">int</span> gcd(<span class="tp">int</span> a, <span class="tp">int</span> b){ <span class="kw">return</span> b ? gcd(b, a%b) : a; }
+<span class="tp">int</span> lcm(<span class="tp">int</span> a, <span class="tp">int</span> b){ <span class="kw">return</span> a/gcd(a,b)*b; }</pre></div>
+     <div class="chips"><span class="chip">O(log min(a,b))</span></div>`},
+    {q:"What is modular arithmetic and why (a*b)%m = ((a%m)*(b%m))%m?",diff:"med",
+     a:`<p class="a-text">In modular arithmetic, we work within a finite ring. The distributive property means: <b>(a+b)%m = ((a%m)+(b%m))%m</b> and similarly for multiplication.</p>
+     <ul class="a-list">
+     <li>Used to prevent integer overflow in large number problems.</li>
+     <li>Modular exponentiation: compute aⁿ%m in O(log n) using fast power.</li>
+     <li>Common modulus in competitive programming: 10⁹+7 (prime).</li></ul>`},
+  ]},
+
+recursion:{
+  title:"Recursion",tag:"RECURSION & SEARCH",
+  desc:"Break problems into smaller sub-problems. Master the call stack and base cases.",
+  pattern:"Divide & Conquer · Tree Recursion · Memoization",
+  qs:[
+    {q:"What are the key components of a recursive solution?",diff:"easy",
+     a:`<ul class="a-list">
+     <li><b>Base case:</b> The termination condition. Without it, infinite recursion and stack overflow.</li>
+     <li><b>Recursive case:</b> Problem reduced to a smaller subproblem.</li>
+     <li><b>Progress:</b> Each call must move closer to the base case.</li></ul>
+     <div class="a-note">Every recursive solution can be written iteratively (with an explicit stack). Recursion is more readable but has O(depth) stack space overhead.</div>`},
+    {q:"Explain the Fibonacci sequence with recursion vs memoization",diff:"easy",
+     a:`<div class="a-code"><pre><span class="cm">// Naive: O(2^n) — exponential, redundant calls</span>
+<span class="tp">int</span> fib(<span class="tp">int</span> n){ <span class="kw">return</span> n&lt;=<span class="num">1</span> ? n : fib(n-<span class="num">1</span>)+fib(n-<span class="num">2</span>); }
+
+<span class="cm">// Memoized: O(n) — store computed results</span>
+<span class="tp">int</span> memo[<span class="num">100</span>]={};
+<span class="tp">int</span> fib(<span class="tp">int</span> n){
+    <span class="kw">if</span>(n&lt;=<span class="num">1</span>) <span class="kw">return</span> n;
+    <span class="kw">if</span>(memo[n]) <span class="kw">return</span> memo[n];
+    <span class="kw">return</span> memo[n]=fib(n-<span class="num">1</span>)+fib(n-<span class="num">2</span>);
+}</pre></div>`},
+    {q:"What is the difference between top-down and bottom-up recursion?",diff:"med",
+     a:`<ul class="a-list">
+     <li><b>Top-down (memoization):</b> Start from the original problem, recurse and cache results. Natural recursive structure. May have function call overhead.</li>
+     <li><b>Bottom-up (tabulation):</b> Start from base cases, fill table iteratively. No recursion stack. Better space and often faster in practice.</li></ul>`},
+  ]},
+
+backtrack:{
+  title:"Backtracking",tag:"RECURSION & SEARCH",
+  desc:"Explore all possibilities by building candidates incrementally and abandoning ('pruning') invalid paths.",
+  pattern:"Choose · Explore · Unchoose",
+  qs:[
+    {q:"What is the backtracking template?",diff:"med",
+     a:`<div class="a-code"><pre><span class="kw">void</span> <span class="fn">backtrack</span>(state, choices) {
+    <span class="kw">if</span> (isGoal(state)) { record(state); <span class="kw">return</span>; }
+    <span class="kw">for</span> (choice : choices) {
+        <span class="kw">if</span> (!isValid(choice)) <span class="kw">continue</span>; <span class="cm">// prune</span>
+        makeChoice(choice);            <span class="cm">// choose</span>
+        backtrack(state, newChoices);  <span class="cm">// explore</span>
+        undoChoice(choice);            <span class="cm">// unchoose</span>
+    }
+}</pre></div>
+     <div class="chips"><span class="chip">Permutations</span><span class="chip">Combinations</span><span class="chip">N-Queens</span><span class="chip">Sudoku</span></div>`},
+    {q:"Generate all permutations of an array",diff:"med",
+     a:`<div class="a-code"><pre><span class="kw">void</span> <span class="fn">permute</span>(<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;&amp; nums, <span class="tp">int</span> start, <span class="tp">vector</span>&lt;<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;&gt;&amp; res){
+    <span class="kw">if</span>(start==nums.size()){ res.push_back(nums); <span class="kw">return</span>; }
+    <span class="kw">for</span>(<span class="tp">int</span> i=start; i&lt;nums.size(); i++){
+        swap(nums[start],nums[i]);
+        permute(nums,start+<span class="num">1</span>,res);
+        swap(nums[start],nums[i]); <span class="cm">// backtrack</span>
+    }
+}</pre></div>
+     <div class="chips"><span class="chip">O(n! × n)</span></div>`},
+    {q:"What is pruning in backtracking?",diff:"med",
+     a:`<p class="a-text">Pruning cuts off branches of the search tree that <b>cannot possibly lead to a valid solution</b>, dramatically reducing time complexity.</p>
+     <ul class="a-list">
+     <li>In N-Queens: skip columns/diagonals already occupied.</li>
+     <li>In Sudoku: skip cells where digit violates constraints.</li>
+     <li>In Combinations: stop if remaining elements &lt; elements needed.</li></ul>
+     <div class="a-note">Good pruning is the key difference between a working backtracking solution and a fast one.</div>`},
+  ]},
+
+ll:{
+  title:"Linked List",tag:"LINEAR STRUCTURES",
+  desc:"Dynamic chain of nodes. Master pointer manipulation, slow-fast pointers, and reversal.",
+  pattern:"Two Pointers · Dummy Node · Reversal",
+  qs:[
+    {q:"Detect a cycle in a linked list (Floyd's algorithm)",diff:"med",
+     a:`<p class="a-text">Use <b>slow and fast pointers</b>. Slow moves 1 step, fast moves 2 steps. If they meet, there's a cycle.</p>
+     <div class="a-code"><pre><span class="tp">bool</span> <span class="fn">hasCycle</span>(ListNode* head){
+    ListNode *s=head, *f=head;
+    <span class="kw">while</span>(f &amp;&amp; f->next){
+        s=s->next; f=f->next->next;
+        <span class="kw">if</span>(s==f) <span class="kw">return true</span>;
+    }
+    <span class="kw">return false</span>;
+}</pre></div>`},
+    {q:"Reverse a linked list (iterative and recursive)",diff:"easy",
+     a:`<div class="a-code"><pre><span class="cm">// Iterative — O(n) time, O(1) space</span>
+ListNode* <span class="fn">reverse</span>(ListNode* head){
+    ListNode *prev=<span class="kw">nullptr</span>, *cur=head;
+    <span class="kw">while</span>(cur){ ListNode* nxt=cur->next; cur->next=prev; prev=cur; cur=nxt; }
+    <span class="kw">return</span> prev;
+}
+<span class="cm">// Recursive — O(n) time, O(n) stack space</span>
+ListNode* <span class="fn">reverse</span>(ListNode* head){
+    <span class="kw">if</span>(!head||!head->next) <span class="kw">return</span> head;
+    ListNode* rest=reverse(head->next);
+    head->next->next=head; head->next=<span class="kw">nullptr</span>;
+    <span class="kw">return</span> rest;
+}</pre></div>`},
+    {q:"Find the middle of a linked list",diff:"easy",
+     a:`<p class="a-text">Slow/fast pointers: when fast reaches the end, slow is at the middle.</p>
+     <div class="a-code"><pre>ListNode *s=head, *f=head;
+<span class="kw">while</span>(f &amp;&amp; f->next){ s=s->next; f=f->next->next; }
+<span class="cm">// s is now the middle node</span></pre></div>`},
+    {q:"Merge two sorted linked lists",diff:"easy",
+     a:`<p class="a-text">Use a <b>dummy head</b> node to simplify edge cases. Compare heads of both lists and append the smaller one.</p>
+     <div class="a-code"><pre>ListNode dummy(<span class="num">0</span>), *tail=&amp;dummy;
+<span class="kw">while</span>(l1&amp;&amp;l2){
+    <span class="kw">if</span>(l1->val&lt;l2->val){tail->next=l1;l1=l1->next;}
+    <span class="kw">else</span>{tail->next=l2;l2=l2->next;}
+    tail=tail->next;
+}
+tail->next=l1?l1:l2;</pre></div>`},
+  ]},
+
+stacks:{
+  title:"Stacks",tag:"LINEAR STRUCTURES",
+  desc:"LIFO data structure. Used for expression evaluation, undo, DFS, and monotonic problems.",
+  pattern:"Monotonic Stack · Expression Eval · DFS",
+  qs:[
+    {q:"Implement a stack using arrays/vectors",diff:"easy",
+     a:`<p class="a-text">Use <b>std::stack</b> in C++ (backed by deque). Or manually with a vector using push_back/pop_back.</p>
+     <ul class="a-list">
+     <li>push: O(1) amortized</li><li>pop: O(1)</li><li>top/peek: O(1)</li><li>isEmpty: O(1)</li></ul>
+     <div class="a-note">std::stack is a container adaptor — defaults to deque, but can use vector: stack&lt;int, vector&lt;int&gt;&gt;</div>`},
+    {q:"Valid Parentheses — check balanced brackets",diff:"easy",
+     a:`<div class="a-code"><pre><span class="tp">bool</span> <span class="fn">isValid</span>(<span class="tp">string</span> s){
+    stack&lt;<span class="tp">char</span>&gt; st;
+    <span class="kw">for</span>(<span class="tp">char</span> c:s){
+        <span class="kw">if</span>(c==<span class="str">'('</span>||c==<span class="str">'['</span>||c==<span class="str">'{'</span>) st.push(c);
+        <span class="kw">else</span>{
+            <span class="kw">if</span>(st.empty()) <span class="kw">return false</span>;
+            <span class="tp">char</span> t=st.top(); st.pop();
+            <span class="kw">if</span>((c==<span class="str">')'</span>&amp;&amp;t!=<span class="str">'('</span>)||(c==<span class="str">']'</span>&amp;&amp;t!=<span class="str">'['</span>)||(c==<span class="str">'}'</span>&amp;&amp;t!=<span class="str">'{'</span>)) <span class="kw">return false</span>;
+        }
+    }
+    <span class="kw">return</span> st.empty();
+}</pre></div>`},
+    {q:"What is a Monotonic Stack and when to use it?",diff:"hard",
+     a:`<p class="a-text">A stack that is always maintained in monotonically increasing or decreasing order. Used to find <b>next greater/smaller element</b> efficiently.</p>
+     <div class="a-code"><pre><span class="cm">// Next Greater Element — O(n)</span>
+<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt; nge(nums.size(), -<span class="num">1</span>);
+stack&lt;<span class="tp">int</span>&gt; st; <span class="cm">// stores indices</span>
+<span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">0</span>;i&lt;nums.size();i++){
+    <span class="kw">while</span>(!st.empty()&amp;&amp;nums[i]>nums[st.top()]){
+        nge[st.top()]=nums[i]; st.pop();
+    }
+    st.push(i);
+}</pre></div>
+     <div class="chips"><span class="chip">Largest Rectangle Histogram</span><span class="chip">Trapping Rain Water</span></div>`},
+  ]},
+
+queues:{
+  title:"Queues",tag:"LINEAR STRUCTURES",
+  desc:"FIFO data structure. BFS, scheduling, and sliding window max problems.",
+  pattern:"BFS · Deque · Circular Queue",
+  qs:[
+    {q:"Difference between Queue, Deque, and Priority Queue",diff:"easy",
+     a:`<ul class="a-list">
+     <li><b>Queue:</b> FIFO. Front for dequeue, back for enqueue. O(1) both ends.</li>
+     <li><b>Deque (double-ended queue):</b> Insert/remove from both ends. O(1). Used in sliding window max.</li>
+     <li><b>Priority Queue (Heap):</b> Element with highest (or lowest) priority dequeued first. O(log n) insert, O(log n) remove, O(1) peek.</li></ul>`},
+    {q:"Implement a queue using two stacks",diff:"med",
+     a:`<p class="a-text">Stack1 for enqueue, Stack2 for dequeue. When Stack2 is empty, pour all of Stack1 into Stack2.</p>
+     <div class="a-code"><pre>stack&lt;<span class="tp">int</span>&gt; s1, s2;
+<span class="kw">void</span> enqueue(<span class="tp">int</span> x){ s1.push(x); }
+<span class="tp">int</span> dequeue(){
+    <span class="kw">if</span>(s2.empty()) <span class="kw">while</span>(!s1.empty()){ s2.push(s1.top()); s1.pop(); }
+    <span class="tp">int</span> x=s2.top(); s2.pop(); <span class="kw">return</span> x;
+}</pre></div>
+     <div class="chips"><span class="chip">O(1) amortized per operation</span></div>`},
+    {q:"Sliding Window Maximum using Deque",diff:"hard",
+     a:`<p class="a-text">Maintain a <b>monotonically decreasing deque</b> of indices. Front is always the max of current window.</p>
+     <div class="a-code"><pre>deque&lt;<span class="tp">int</span>&gt; dq;
+<span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">0</span>;i&lt;n;i++){
+    <span class="kw">while</span>(!dq.empty()&amp;&amp;dq.front()&lt;i-k+<span class="num">1</span>) dq.pop_front();
+    <span class="kw">while</span>(!dq.empty()&amp;&amp;nums[dq.back()]&lt;nums[i]) dq.pop_back();
+    dq.push_back(i);
+    <span class="kw">if</span>(i>=k-<span class="num">1</span>) res.push_back(nums[dq.front()]);
+}</pre></div>
+     <div class="chips"><span class="chip">O(n) time</span><span class="chip">O(k) space</span></div>`},
+  ]},
+
+heaps:{
+  title:"Heaps",tag:"HIERARCHICAL",
+  desc:"Complete binary tree satisfying heap property. Foundation of priority queues and heap sort.",
+  pattern:"Min-Heap · Max-Heap · K-th Largest",
+  qs:[
+    {q:"What is a heap and what are its properties?",diff:"easy",
+     a:`<ul class="a-list">
+     <li><b>Complete binary tree:</b> All levels filled except possibly last (left-filled).</li>
+     <li><b>Heap property:</b> Min-heap: parent ≤ children. Max-heap: parent ≥ children.</li>
+     <li>Root is always the min (or max). Extract-min/max: O(log n). Insert: O(log n). Peek: O(1).</li>
+     <li>Stored as an array: parent of i is at (i-1)/2; children at 2i+1 and 2i+2.</li></ul>`},
+    {q:"Find the Kth largest element in an array",diff:"med",
+     a:`<p class="a-text">Use a <b>min-heap of size k</b>. Push all elements; if size &gt; k, pop the minimum. At the end, top is the kth largest.</p>
+     <div class="a-code"><pre>priority_queue&lt;<span class="tp">int</span>, <span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;, greater&lt;<span class="tp">int</span>&gt;&gt; minH;
+<span class="kw">for</span>(<span class="tp">int</span> x:nums){
+    minH.push(x);
+    <span class="kw">if</span>(minH.size()>k) minH.pop();
+}
+<span class="kw">return</span> minH.top();</pre></div>
+     <div class="chips"><span class="chip">O(n log k)</span><span class="chip">O(k) space</span></div>`},
+    {q:"Merge K sorted arrays using a heap",diff:"hard",
+     a:`<p class="a-text">Push the first element of each array into a min-heap with (value, arrayIndex, elementIndex). Repeatedly extract min and push the next element from that array.</p>
+     <ul class="a-list">
+     <li>Time: O(N log K) where N = total elements, K = number of arrays.</li>
+     <li>This pattern generalizes to "merge K sorted lists" (LeetCode 23).</li></ul>`},
+  ]},
+
+trees:{
+  title:"Trees",tag:"HIERARCHICAL",
+  desc:"Hierarchical non-linear structure. Master DFS/BFS traversals, BST operations, and path problems.",
+  pattern:"DFS · BFS · Inorder/Preorder/Postorder",
+  qs:[
+    {q:"What are the tree traversal methods?",diff:"easy",
+     a:`<ul class="a-list">
+     <li><b>Inorder (L→Root→R):</b> BST gives sorted output.</li>
+     <li><b>Preorder (Root→L→R):</b> Used for serialization, copying tree.</li>
+     <li><b>Postorder (L→R→Root):</b> Used for deletion, expression evaluation.</li>
+     <li><b>Level-order (BFS):</b> Process level by level using a queue.</li></ul>
+     <div class="chips"><span class="chip">DFS: O(n) stack</span><span class="chip">BFS: O(width) queue</span></div>`},
+    {q:"Height/Diameter of a binary tree",diff:"med",
+     a:`<div class="a-code"><pre><span class="tp">int</span> <span class="fn">height</span>(TreeNode* root){
+    <span class="kw">if</span>(!root) <span class="kw">return</span> <span class="num">0</span>;
+    <span class="kw">return</span> <span class="num">1</span> + max(height(root->left), height(root->right));
+}
+<span class="cm">// Diameter: max path through any node (need not pass root)</span>
+<span class="tp">int</span> maxD=<span class="num">0</span>;
+<span class="tp">int</span> <span class="fn">dfs</span>(TreeNode* node){
+    <span class="kw">if</span>(!node) <span class="kw">return</span> <span class="num">0</span>;
+    <span class="tp">int</span> l=dfs(node->left), r=dfs(node->right);
+    maxD=max(maxD, l+r);
+    <span class="kw">return</span> <span class="num">1</span>+max(l,r);
+}</pre></div>`},
+    {q:"Lowest Common Ancestor (LCA) in a BST",diff:"med",
+     a:`<p class="a-text">In a BST: if both p,q &lt; root → LCA is in left subtree. If both &gt; root → right subtree. Otherwise root is the LCA.</p>
+     <div class="a-code"><pre>TreeNode* <span class="fn">lca</span>(TreeNode* root, TreeNode* p, TreeNode* q){
+    <span class="kw">if</span>(p->val &lt; root->val &amp;&amp; q->val &lt; root->val)
+        <span class="kw">return</span> lca(root->left, p, q);
+    <span class="kw">if</span>(p->val > root->val &amp;&amp; q->val > root->val)
+        <span class="kw">return</span> lca(root->right, p, q);
+    <span class="kw">return</span> root;
+}</pre></div>`},
+    {q:"Validate a Binary Search Tree",diff:"med",
+     a:`<p class="a-text">Pass min/max bounds down. Each node must be strictly within (min, max).</p>
+     <div class="a-code"><pre><span class="tp">bool</span> <span class="fn">valid</span>(TreeNode* n, <span class="tp">long</span> lo=LONG_MIN, <span class="tp">long</span> hi=LONG_MAX){
+    <span class="kw">if</span>(!n) <span class="kw">return true</span>;
+    <span class="kw">if</span>(n->val&lt;=lo || n->val>=hi) <span class="kw">return false</span>;
+    <span class="kw">return</span> valid(n->left,lo,n->val) &amp;&amp; valid(n->right,n->val,hi);
+}</pre></div>`},
+  ]},
+
+tries:{
+  title:"Tries (Prefix Trees)",tag:"HIERARCHICAL",
+  desc:"Tree for storing strings by prefix. O(m) search where m = word length.",
+  pattern:"Prefix Match · Word Search · Autocomplete",
+  qs:[
+    {q:"What is a Trie and what is its structure?",diff:"med",
+     a:`<p class="a-text">A <b>trie</b> (retrieval tree) is a tree where each node represents a character. The path from root to a node spells a prefix. Nodes have up to 26 children (for lowercase English).</p>
+     <div class="a-code"><pre><span class="kw">struct</span> TrieNode {
+    TrieNode* children[<span class="num">26</span>] = {};
+    <span class="tp">bool</span> isEnd = <span class="kw">false</span>;
+};</pre></div>
+     <ul class="a-list"><li>Insert: O(m)</li><li>Search: O(m)</li><li>StartsWith: O(m)</li><li>Space: O(ALPHABET × total_chars)</li></ul>`},
+    {q:"Implement insert and search in a Trie",diff:"med",
+     a:`<div class="a-code"><pre><span class="kw">void</span> <span class="fn">insert</span>(<span class="tp">string</span> word){
+    TrieNode* cur = root;
+    <span class="kw">for</span>(<span class="tp">char</span> c:word){
+        <span class="tp">int</span> i=c-<span class="str">'a'</span>;
+        <span class="kw">if</span>(!cur->children[i]) cur->children[i]=<span class="kw">new</span> TrieNode();
+        cur=cur->children[i];
+    }
+    cur->isEnd=<span class="kw">true</span>;
+}
+<span class="tp">bool</span> <span class="fn">search</span>(<span class="tp">string</span> word){
+    TrieNode* cur=root;
+    <span class="kw">for</span>(<span class="tp">char</span> c:word){
+        <span class="kw">if</span>(!cur->children[c-<span class="str">'a'</span>]) <span class="kw">return false</span>;
+        cur=cur->children[c-<span class="str">'a'</span>];
+    }
+    <span class="kw">return</span> cur->isEnd;
+}</pre></div>`},
+    {q:"When should you use a Trie over a HashMap?",diff:"hard",
+     a:`<ul class="a-list">
+     <li>When you need <b>prefix-based</b> operations (autocomplete, startsWith checks).</li>
+     <li>When storing many strings with common prefixes — Trie is more memory efficient than storing full strings.</li>
+     <li>HashMap is better for exact lookups; Trie excels at prefix queries and lexicographic ordering.</li></ul>`},
+  ]},
+
+greedy:{
+  title:"Greedy",tag:"ALGORITHMS",
+  desc:"Make the locally optimal choice at each step and hope it leads to a global optimum.",
+  pattern:"Sort · Exchange Argument · Interval Scheduling",
+  qs:[
+    {q:"What makes a problem solvable by Greedy?",diff:"med",
+     a:`<ul class="a-list">
+     <li><b>Greedy choice property:</b> A locally optimal choice leads to a globally optimal solution.</li>
+     <li><b>Optimal substructure:</b> Optimal solution contains optimal solutions to subproblems.</li>
+     <li>Proof technique: <b>Exchange argument</b> — show swapping a non-greedy choice with a greedy one never worsens the solution.</li></ul>
+     <div class="a-note">If Greedy fails but the problem has overlapping subproblems, use Dynamic Programming instead.</div>`},
+    {q:"Activity Selection / Interval Scheduling Maximization",diff:"med",
+     a:`<p class="a-text">Sort intervals by <b>end time</b>. Greedily select the interval that ends earliest and doesn't overlap with the last selected.</p>
+     <div class="a-code"><pre>sort(intervals.begin(),intervals.end(),
+     [](<span class="kw">auto</span>&amp; a, <span class="kw">auto</span>&amp; b){ <span class="kw">return</span> a[<span class="num">1</span>]&lt;b[<span class="num">1</span>]; });
+<span class="tp">int</span> count=<span class="num">1</span>, end=intervals[<span class="num">0</span>][<span class="num">1</span>];
+<span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">1</span>;i&lt;intervals.size();i++)
+    <span class="kw">if</span>(intervals[i][<span class="num">0</span>]>=end){ count++; end=intervals[i][<span class="num">1</span>]; }</pre></div>`},
+    {q:"Jump Game — can you reach the last index?",diff:"med",
+     a:`<p class="a-text">Track the <b>maximum reachable index</b>. If current index &gt; max reachable, return false.</p>
+     <div class="a-code"><pre><span class="tp">bool</span> <span class="fn">canJump</span>(<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;&amp; nums){
+    <span class="tp">int</span> maxR=<span class="num">0</span>;
+    <span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">0</span>;i&lt;nums.size();i++){
+        <span class="kw">if</span>(i>maxR) <span class="kw">return false</span>;
+        maxR=max(maxR, i+nums[i]);
+    }
+    <span class="kw">return true</span>;
+}</pre></div>`},
+  ]},
+
+graphs:{
+  title:"Graphs",tag:"ADVANCED",
+  desc:"Vertices connected by edges. Master BFS, DFS, shortest paths, and topological sort.",
+  pattern:"BFS · DFS · Dijkstra · Union-Find · Topo Sort",
+  qs:[
+    {q:"BFS vs DFS — when to use each?",diff:"easy",
+     a:`<ul class="a-list">
+     <li><b>BFS:</b> Shortest path in unweighted graphs. Level-order exploration. Uses a queue. O(V+E).</li>
+     <li><b>DFS:</b> Detect cycles, topological sort, connected components, path finding. Uses stack/recursion. O(V+E).</li>
+     <li>BFS finds shortest path; DFS explores deep — choose based on the problem goal.</li></ul>`},
+    {q:"Detect a cycle in a directed graph",diff:"hard",
+     a:`<p class="a-text">Use DFS with 3 color states: <b>WHITE</b> (unvisited), <b>GRAY</b> (in current DFS path), <b>BLACK</b> (fully processed). A back edge (to a GRAY node) = cycle.</p>
+     <div class="a-code"><pre><span class="tp">bool</span> <span class="fn">dfs</span>(<span class="tp">int</span> u, <span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;&amp; color, <span class="tp">vector</span>&lt;<span class="tp">vector</span>&lt;<span class="tp">int</span>&gt;&gt;&amp; adj){
+    color[u]=<span class="num">1</span>; <span class="cm">// GRAY</span>
+    <span class="kw">for</span>(<span class="tp">int</span> v:adj[u]){
+        <span class="kw">if</span>(color[v]==<span class="num">1</span>) <span class="kw">return true</span>; <span class="cm">// back edge</span>
+        <span class="kw">if</span>(!color[v] &amp;&amp; dfs(v,color,adj)) <span class="kw">return true</span>;
+    }
+    color[u]=<span class="num">2</span>; <span class="kw">return false</span>; <span class="cm">// BLACK</span>
+}</pre></div>`},
+    {q:"Dijkstra's shortest path algorithm",diff:"hard",
+     a:`<p class="a-text">Greedy algorithm using a <b>min-heap</b>. Always process the unvisited node with the smallest known distance.</p>
+     <div class="a-code"><pre>priority_queue&lt;pair&lt;<span class="tp">int</span>,<span class="tp">int</span>&gt;,<span class="tp">vector</span>&lt;pair&lt;<span class="tp">int</span>,<span class="tp">int</span>&gt;&gt;,greater&lt;&gt;&gt; pq;
+dist[src]=<span class="num">0</span>; pq.push({<span class="num">0</span>,src});
+<span class="kw">while</span>(!pq.empty()){
+    <span class="kw">auto</span> [d,u]=pq.top(); pq.pop();
+    <span class="kw">if</span>(d>dist[u]) <span class="kw">continue</span>;
+    <span class="kw">for</span>(<span class="kw">auto</span>[v,w]:adj[u])
+        <span class="kw">if</span>(dist[u]+w&lt;dist[v]){dist[v]=dist[u]+w;pq.push({dist[v],v});}
+}</pre></div>
+     <div class="chips"><span class="chip">O((V+E) log V)</span><span class="chip">No negative edges</span></div>`},
+    {q:"What is Topological Sort?",diff:"hard",
+     a:`<p class="a-text">Linear ordering of vertices such that for every directed edge u→v, u comes before v. Only valid for <b>DAGs</b> (Directed Acyclic Graphs).</p>
+     <ul class="a-list">
+     <li><b>Kahn's Algorithm (BFS):</b> Start with nodes of in-degree 0. Process and reduce neighbors' in-degrees.</li>
+     <li><b>DFS-based:</b> Post-order DFS — push to stack when all neighbors are processed. Reverse stack = topo order.</li>
+     <li>Applications: Build systems, course prerequisite scheduling, dependency resolution.</li></ul>`},
+    {q:"Union-Find (Disjoint Set Union) — what is it and how does it work?",diff:"hard",
+     a:`<p class="a-text">Efficiently tracks which elements are in which connected component. Supports two operations: <b>find</b> (which component?) and <b>union</b> (merge two components).</p>
+     <div class="a-code"><pre><span class="tp">int</span> parent[N], rank[N]={};
+<span class="kw">void</span> init(){ <span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">0</span>;i&lt;N;i++) parent[i]=i; }
+<span class="tp">int</span> find(<span class="tp">int</span> x){ <span class="kw">return</span> parent[x]==x?x:parent[x]=find(parent[x]); }
+<span class="kw">void</span> unite(<span class="tp">int</span> a, <span class="tp">int</span> b){
+    a=find(a); b=find(b);
+    <span class="kw">if</span>(rank[a]&lt;rank[b]) swap(a,b);
+    parent[b]=a; <span class="kw">if</span>(rank[a]==rank[b]) rank[a]++;
+}</pre></div>
+     <div class="chips"><span class="chip">O(α(n)) ≈ O(1) amortized</span></div>`},
+  ]},
+
+dp:{
+  title:"Dynamic Programming",tag:"ADVANCED",
+  desc:"Break into overlapping subproblems, memoize results. Bottom-up tables or top-down recursion.",
+  pattern:"Memoization · Tabulation · State Definition",
+  qs:[
+    {q:"What are the steps to solve a DP problem?",diff:"med",
+     a:`<ul class="a-list">
+     <li><b>1. Define state:</b> What does dp[i] (or dp[i][j]) represent?</li>
+     <li><b>2. Recurrence:</b> How does dp[i] relate to smaller subproblems?</li>
+     <li><b>3. Base cases:</b> What are the smallest subproblems?</li>
+     <li><b>4. Order:</b> In what order should you fill the table?</li>
+     <li><b>5. Answer:</b> Which cell contains the final answer?</li></ul>
+     <div class="a-note">If you can write a correct brute force recursive solution, converting it to memoization is mechanical — add a memo table and check before recursing.</div>`},
+    {q:"Longest Common Subsequence (LCS)",diff:"med",
+     a:`<p class="a-text">dp[i][j] = LCS length of s1[0..i-1] and s2[0..j-1].</p>
+     <div class="a-code"><pre>dp[i][j] = dp[i-<span class="num">1</span>][j-<span class="num">1</span>] + <span class="num">1</span>          <span class="kw">if</span> s1[i-<span class="num">1</span>]==s2[j-<span class="num">1</span>]
+           max(dp[i-<span class="num">1</span>][j], dp[i][j-<span class="num">1</span>]) otherwise</pre></div>
+     <div class="chips"><span class="chip">O(m×n) time</span><span class="chip">O(m×n) space</span><span class="chip">Can optimize to O(n)</span></div>`},
+    {q:"0/1 Knapsack problem",diff:"hard",
+     a:`<p class="a-text">dp[i][w] = max value using items 1..i with capacity w.</p>
+     <div class="a-code"><pre><span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">1</span>;i&lt;=n;i++)
+    <span class="kw">for</span>(<span class="tp">int</span> w=<span class="num">0</span>;w&lt;=W;w++){
+        dp[i][w]=dp[i-<span class="num">1</span>][w]; <span class="cm">// skip item i</span>
+        <span class="kw">if</span>(wt[i]&lt;=w) dp[i][w]=max(dp[i][w], dp[i-<span class="num">1</span>][w-wt[i]]+val[i]);
+    }
+<span class="cm">// Space optimization: use 1D array, iterate w right-to-left</span></pre></div>`},
+    {q:"Coin Change — minimum coins to make amount",diff:"med",
+     a:`<p class="a-text">dp[i] = minimum coins to make amount i. For each coin c: dp[i] = min(dp[i], dp[i-c]+1).</p>
+     <div class="a-code"><pre><span class="tp">vector</span>&lt;<span class="tp">int</span>&gt; dp(amount+<span class="num">1</span>, INT_MAX);
+dp[<span class="num">0</span>]=<span class="num">0</span>;
+<span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">1</span>;i&lt;=amount;i++)
+    <span class="kw">for</span>(<span class="tp">int</span> c:coins)
+        <span class="kw">if</span>(c&lt;=i &amp;&amp; dp[i-c]!=INT_MAX)
+            dp[i]=min(dp[i], dp[i-c]+<span class="num">1</span>);</pre></div>
+     <div class="chips"><span class="chip">O(amount × coins)</span></div>`},
+    {q:"Climbing Stairs — how many ways to climb n stairs (1 or 2 steps)?",diff:"easy",
+     a:`<p class="a-text">This is Fibonacci! dp[n] = dp[n-1] + dp[n-2]. From step n, you either came from n-1 or n-2.</p>
+     <div class="a-code"><pre><span class="tp">int</span> a=<span class="num">1</span>, b=<span class="num">1</span>;
+<span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">2</span>;i&lt;=n;i++){ <span class="tp">int</span> c=a+b; a=b; b=c; }
+<span class="kw">return</span> b;</pre></div>
+     <div class="chips"><span class="chip">O(n) time</span><span class="chip">O(1) space</span></div>`},
+  ]},
+
+};
+
+// ══════════════════════════════════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════════════════════════════════
+const diffColors = {easy:'badge-easy',med:'badge-med',hard:'badge-hard'};
+
+function renderQA(topic){
+  const t = TOPICS[topic];
+  if(!t) return;
+
+  document.getElementById('topicTag').textContent   = t.tag;
+  document.getElementById('topicTitle').innerHTML   = t.title;
+  document.getElementById('topicDesc').textContent  = t.desc;
+  document.getElementById('topicPattern').textContent = t.pattern;
+  document.getElementById('qCount').textContent     = t.qs.length;
+
+  const container = document.getElementById('qaContainer');
+  container.innerHTML = '';
+
+  t.qs.forEach((item, idx) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'qa-wrap';
+
+    const diff = item.diff || 'med';
+    const diffLabel = diff.charAt(0).toUpperCase() + diff.slice(1);
+
+    wrap.innerHTML = `
+      <div class="qa-card" id="qa-${idx}">
+        <div class="qa-trigger" onclick="toggleQA('qa-${idx}')">
+          <div class="q-num">Q${idx+1}</div>
+          <div class="q-text">${item.q}</div>
+          <div class="q-diff badge ${diffColors[diff]}">${diffLabel}</div>
+          <div class="qa-chevron">▾</div>
+        </div>
+        <div class="qa-answer">
+          <div class="answer-label">ANSWER</div>
+          ${item.a}
+        </div>
+      </div>`;
+    container.appendChild(wrap);
+  });
+}
+
+function toggleQA(id){
+  const card = document.getElementById(id);
+  card.classList.toggle('open');
+}
+
+function showTopic(topic, el){
+  document.querySelectorAll('.s-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  renderQA(topic);
+  document.getElementById('mainArea').scrollTo(0,0);
+}
+
+// search
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.s-item').forEach(item => {
+    const label = item.querySelector('.label').textContent.toLowerCase();
+    item.style.display = label.includes(q) ? 'flex' : 'none';
+  });
+});
+
+// init
+renderQA('arrays');
+</script>
+</body>
+</html>
