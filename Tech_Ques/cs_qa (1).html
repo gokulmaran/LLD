@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS Fundamentals — Q&A</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d14;
+    --surface: #12121c;
+    --card: #181825;
+    --border: #252535;
+    --accent: #f5c842;
+    --red: #e05a5a;
+    --green: #4ade80;
+    --blue: #60a5fa;
+    --purple: #c084fc;
+    --text: #e2e2f0;
+    --muted: #9090b0;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Plus Jakarta Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+  .hbadge {
+    background: var(--accent);
+    color: #000;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .hstats {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .hstats b { color: var(--accent); font-weight: 700; }
+
+  /* ── Layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 265px 1fr;
+    min-height: calc(100vh - 57px);
+  }
+
+  /* ── Sidebar ── */
+  aside {
+    border-right: 1px solid var(--border);
+    padding: 14px 0 40px;
+    position: sticky;
+    top: 57px;
+    height: calc(100vh - 57px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  aside::-webkit-scrollbar { width: 3px; }
+  aside::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .sec-label {
+    padding: 12px 16px 4px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  .tbtn {
+    width: 100%;
+    text-align: left;
+    padding: 9px 16px;
+    background: none;
+    border: none;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .tbtn:hover { background: var(--surface); }
+  .tbtn.active { background: var(--surface); border-left-color: var(--accent); }
+  .tbtn .tnum {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    min-width: 20px;
+    flex-shrink: 0;
+  }
+  .tbtn .tlabel {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+    flex: 1;
+  }
+  .tbtn.active .tlabel { color: var(--accent); }
+  .tbtn .dbadge {
+    font-size: 9px;
+    font-family: var(--mono);
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .d-medium { background: #0d2a0d; color: #4ade80; }
+  .d-hard   { background: #2a0d0d; color: #e05a5a; }
+  .d-easy   { background: #0d1a2a; color: #60a5fa; }
+
+  /* ── Main ── */
+  main {
+    padding: 32px 40px 60px;
+    max-width: 940px;
+  }
+
+  .topic-hdr {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .topic-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cpill {
+    padding: 2px 9px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .topic-hdr h2 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .topic-tags { display: flex; gap: 7px; flex-wrap: wrap; }
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 9px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--muted);
+  }
+
+  /* ── Progress ── */
+  .prog-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .prog-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .prog-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.35s ease;
+  }
+  .prog-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .prog-label b { color: var(--accent); }
+
+  /* ── Q&A ── */
+  .qa-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .qa-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card);
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .qa-card:hover { border-color: #333348; }
+  .qa-card.open { border-color: var(--accent); }
+
+  .qa-q {
+    padding: 17px 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    user-select: none;
+  }
+  .qnum {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+  .qa-card.open .qnum { color: var(--accent); }
+  .qtext {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .qa-card.open .qtext { color: var(--accent); }
+
+  .tog {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: all 0.22s;
+    line-height: 1;
+    margin-top: 1px;
+  }
+  .qa-card.open .tog {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    transform: rotate(45deg);
+    font-size: 18px;
+  }
+
+  /* ── Answer ── */
+  .qa-a {
+    display: none;
+    padding: 0 18px 20px 59px;
+  }
+  .qa-card.open .qa-a { display: block; }
+
+  .ans-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ans-label::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .ans-body {
+    font-size: 15px;
+    line-height: 1.9;
+    color: #c0c0d4;
+  }
+  .ans-body strong { color: var(--accent); font-weight: 700; }
+  .ans-body em { color: var(--blue); font-style: italic; }
+  .ans-body code {
+    background: #1c1c2e;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: #93c5fd;
+    border: 1px solid #2c2c44;
+  }
+  .ans-body ul, .ans-body ol {
+    margin: 10px 0;
+    padding-left: 22px;
+  }
+  .ans-body li { margin-bottom: 6px; line-height: 1.75; font-size: 15px; }
+  .ans-body .note {
+    background: #181830;
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Category pill colors */
+  .cat-cpp   { background: #1e0d30; color: #c084fc; }
+  .cat-oop   { background: #0d1e1e; color: #2dd4bf; }
+  .cat-os    { background: #1e1a0d; color: #fbbf24; }
+  .cat-linux { background: #0d1e0d; color: #4ade80; }
+  .cat-dbms  { background: #0d0d1e; color: #60a5fa; }
+  .cat-cn    { background: #1e0d0d; color: #f87171; }
+
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: relative; top: 0; height: auto; max-height: 38vh; }
+    main { padding: 18px 16px 40px; }
+    .topic-hdr h2 { font-size: 22px; }
+    .qtext { font-size: 15px; }
+    .ans-body { font-size: 14px; }
+    .ans-body li { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hbadge">CS</div>
+  <h1>CS Fundamentals — Q&amp;A</h1>
+  <div class="hstats">C++ · OOP · OS · Linux · DBMS · CN &nbsp;|&nbsp; <b id="tq">0</b> Questions</div>
+</header>
+
+<div class="layout">
+  <aside id="sidebar"></aside>
+  <main id="main"></main>
+</div>
+
+<script>
+const TOPICS = [
+  /* ══════════════════════════  C++  ══════════════════════════ */
+  {
+    id:1, cat:'cpp', catLabel:'C++', title:'C++ — Memory & Basics', difficulty:'Medium',
+    tags:['Stack','Heap','Pointers','References','RAII'],
+    questions:[
+      {
+        q:'What is the difference between stack and heap memory in C++?',
+        a:`<strong>Stack</strong> memory is automatically managed — variables are allocated when a function is entered and freed when it returns. It is fast (just moves a stack pointer) but limited in size (typically 1–8 MB).<br><br>
+        <strong>Heap</strong> memory is manually managed via <code>new</code> / <code>delete</code>. It can grow large but allocation is slower and requires explicit cleanup to avoid memory leaks.<br><br>
+        <ul>
+          <li>Local variables, function call frames → <strong>stack</strong></li>
+          <li>Dynamically sized or long-lived objects → <strong>heap</strong></li>
+          <li><strong>Stack overflow:</strong> too-deep recursion or huge local arrays</li>
+          <li><strong>Memory leak:</strong> heap allocation with no corresponding delete</li>
+        </ul>
+        Modern C++ prefers RAII wrappers (smart pointers, <code>std::vector</code>) over raw <code>new/delete</code>.`
+      },
+      {
+        q:'What are pointers vs references? When do you use each?',
+        a:`<strong>Pointer</strong> (<code>int* p</code>): A variable storing a memory address. Can be null, reassigned to point elsewhere, and used with pointer arithmetic.<br><br>
+        <strong>Reference</strong> (<code>int&amp; r</code>): An alias for an existing variable. Cannot be null, cannot be reseated after initialization, must be initialized at declaration.<br><br>
+        <ul>
+          <li>Use <strong>reference</strong> for function parameters when the argument must exist and you won't change what it refers to.</li>
+          <li>Use <strong>pointer</strong> when the value can be null, when you need to reallocate, or for dynamic structures (linked lists, trees).</li>
+          <li>Prefer references for clarity and safety; pointers for optionality or ownership semantics.</li>
+        </ul>`
+      },
+      {
+        q:'What are smart pointers? Compare unique_ptr, shared_ptr, and weak_ptr.',
+        a:`Smart pointers wrap raw pointers and automatically free memory when they go out of scope (RAII).<br><br>
+        <strong><code>unique_ptr</code></strong>: Sole ownership. Cannot be copied — only moved. Zero overhead vs a raw pointer. Preferred default choice.<br><br>
+        <strong><code>shared_ptr</code></strong>: Shared ownership via atomic reference counting. The object is deleted when the last owner is destroyed. Small overhead (ref count allocation).<br><br>
+        <strong><code>weak_ptr</code></strong>: Non-owning observer of a <code>shared_ptr</code>-managed object. Does not increase the ref count. Must call <code>.lock()</code> before use. Essential for breaking circular references.<br><br>
+        <div class="note">Rule of thumb: default to <code>unique_ptr</code>. Upgrade to <code>shared_ptr</code> only when multiple owners genuinely need to share lifetime. Use <code>weak_ptr</code> to break cycles.</div>`
+      },
+      {
+        q:'What is RAII? Why is it the cornerstone of modern C++?',
+        a:`<strong>RAII (Resource Acquisition Is Initialization)</strong>: a resource (memory, file handle, mutex lock, socket) is acquired in a constructor and released in the destructor.<br><br>
+        Since destructors run deterministically when an object goes out of scope — even during exception unwinding — resources are <em>always</em> cleaned up without explicit try/finally.<br><br>
+        <strong>Classic RAII examples:</strong><ul>
+          <li><code>std::vector</code> — heap memory freed on destruction</li>
+          <li><code>std::lock_guard</code> — mutex unlocked on destruction</li>
+          <li><code>std::ifstream</code> — file closed on destruction</li>
+          <li><code>unique_ptr</code> — heap object deleted on destruction</li>
+        </ul>
+        RAII makes C++ exception-safe and eliminates the most common classes of resource bugs.`
+      },
+      {
+        q:'Explain the Rule of Three / Five / Zero.',
+        a:`These rules determine which special member functions you must define when a class manages a resource.<br><br>
+        <strong>Rule of Three (C++03):</strong> If you write a custom destructor, copy constructor, or copy assignment operator — write all three.<br><br>
+        <strong>Rule of Five (C++11):</strong> Adds move constructor and move assignment for efficiency. Define all five if you define any.<br><br>
+        <strong>Rule of Zero:</strong> Design classes that need <em>none</em> of the five by composing RAII wrappers (<code>std::string</code>, <code>std::vector</code>, <code>unique_ptr</code>). Let compiler-generated defaults do the work.<br><br>
+        <div class="note">Aim for the Rule of Zero. Only drop to Rule of Five when writing a low-level resource-owning class (custom allocator, buffer, file handle).</div>`
+      },
+    ]
+  },
+  {
+    id:2, cat:'cpp', catLabel:'C++', title:'C++ — Templates & Modern C++', difficulty:'Medium',
+    tags:['Templates','Lambda','Move','Concepts'],
+    questions:[
+      {
+        q:'How does virtual dispatch work in C++? What is a vtable?',
+        a:`When a class declares at least one <code>virtual</code> function, the compiler creates a <strong>vtable</strong> — a table of function pointers, one entry per virtual function.<br><br>
+        Every object of such a class contains a hidden <strong>vptr</strong> pointing to its class's vtable. A call through a base pointer:<br>
+        <code>base->virtualFunc()</code><br>
+        …follows the vptr, looks up the correct function in the vtable, and calls it — enabling <strong>runtime polymorphism</strong>.<br><br>
+        <ul>
+          <li>Virtual call cost: one extra memory dereference (usually negligible)</li>
+          <li>Use <code>override</code> to explicitly mark overrides (compiler catches mismatched signatures)</li>
+          <li>Always mark base class destructor <code>virtual</code> to avoid partial destruction via a base pointer</li>
+          <li><code>final</code> prevents further overriding and can allow the compiler to devirtualize calls</li>
+        </ul>`
+      },
+      {
+        q:'What are templates? Compare function templates vs class templates.',
+        a:`<strong>Templates</strong> let you write generic, type-independent code. The compiler generates type-specific code at compile time — zero runtime overhead.<br><br>
+        <strong>Function template:</strong><br>
+        <code>template&lt;typename T&gt; T max(T a, T b) { return a &gt; b ? a : b; }</code><br><br>
+        <strong>Class template:</strong><br>
+        <code>template&lt;typename T&gt; class Stack { ... };</code><br><br>
+        <strong>Template specialization:</strong> Provide a custom implementation for a specific type.<br><br>
+        <strong>Variadic templates (C++11):</strong> Accept any number of type arguments — basis for <code>std::tuple</code>, <code>std::make_unique</code>.<br><br>
+        <strong>Concepts (C++20):</strong> Named constraints on template parameters — better error messages and documented requirements instead of cryptic substitution failures.`
+      },
+      {
+        q:'Explain move semantics and rvalue references.',
+        a:`Before C++11, returning a large object triggered an expensive copy. <strong>Move semantics</strong> allow "stealing" resources from temporaries instead of copying.<br><br>
+        <strong>Rvalue reference</strong> (<code>T&amp;&amp;</code>) binds to temporaries and expiring values. A <strong>move constructor</strong> transfers ownership — e.g., swaps the internal pointer and nulls out the source — instead of deep-copying.<br><br>
+        <code>std::string a = "hello";<br>std::string b = std::move(a); // a is now empty; b owns the data</code><br><br>
+        <strong>std::move</strong> is just a cast to an rvalue reference — the actual work is done by the move constructor/assignment operator.<br><br>
+        <strong>Perfect forwarding</strong> (<code>std::forward</code>) preserves the lvalue/rvalue category of an argument when passing it through a template function.`
+      },
+      {
+        q:'What are lambdas? Explain capture modes with examples.',
+        a:`A <strong>lambda</strong> is an anonymous inline function:<br>
+        <code>[capture](params) -&gt; return_type { body }</code><br><br>
+        <strong>Capture modes:</strong><ul>
+          <li><code>[]</code> — capture nothing</li>
+          <li><code>[=]</code> — capture all locals by value (copy)</li>
+          <li><code>[&amp;]</code> — capture all locals by reference</li>
+          <li><code>[x, &amp;y]</code> — capture x by value, y by reference</li>
+          <li><code>[this]</code> — capture current object pointer</li>
+        </ul>
+        Lambdas are syntactic sugar for compiler-generated functor structs. They unlock powerful algorithm usage:<br>
+        <code>std::sort(v.begin(), v.end(), [](int a, int b){ return a &gt; b; });</code><br><br>
+        <div class="note">Never capture local variables by reference if the lambda can outlive the local scope — dangling reference is undefined behavior.</div>`
+      },
+    ]
+  },
+  {
+    id:3, cat:'cpp', catLabel:'C++', title:'C++ — STL & Pitfalls', difficulty:'Hard',
+    tags:['vector','map','unordered_map','UB','complexity'],
+    questions:[
+      {
+        q:'Compare vector, list, deque, and array. When to use each?',
+        a:`<ul>
+          <li><strong>std::vector:</strong> Dynamic array. O(1) random access. O(n) insert/erase at middle. Excellent cache locality. <em>Default choice.</em></li>
+          <li><strong>std::list:</strong> Doubly linked list. O(1) insert/erase anywhere (with iterator). No random access. Poor cache locality. Use only when frequent mid-list modifications dominate.</li>
+          <li><strong>std::deque:</strong> Double-ended queue. O(1) push/pop at both ends, O(1) random access. Moderate cache performance. Use for BFS queues, sliding windows.</li>
+          <li><strong>std::array:</strong> Fixed-size on the stack. Zero overhead. O(1) everything. Use when size is known at compile time.</li>
+        </ul>
+        <div class="note">Start with <code>vector</code>. Profile before switching to another container.</div>`
+      },
+      {
+        q:'Compare std::map vs std::unordered_map.',
+        a:`<strong>std::map:</strong> Red-black BST. Keys sorted. O(log n) insert/find/delete. Supports ordered iteration, <code>lower_bound</code>, range queries. ~40 bytes/node overhead.<br><br>
+        <strong>std::unordered_map:</strong> Hash table. Average O(1) insert/find/delete. O(n) worst case (all keys collide). No ordering. Higher upfront memory (bucket array).<br><br>
+        <strong>Choose map when:</strong> sorted order or range queries needed; n is small; no suitable hash.<br>
+        <strong>Choose unordered_map when:</strong> pure lookup performance matters; keys are ints or strings; no ordering needed.<br><br>
+        <div class="note">For competitive programming with integer keys, consider <code>__gnu_pbds::gp_hash_table</code> for faster constants than <code>unordered_map</code>.</div>`
+      },
+      {
+        q:'What is undefined behavior (UB)? Give common examples and how to detect it.',
+        a:`<strong>Undefined behavior</strong>: The C++ standard places no requirements on what the program does. Compilers assume UB never occurs and optimize aggressively, causing mysterious bugs.<br><br>
+        <strong>Common examples:</strong><ul>
+          <li>Dereferencing a null or dangling pointer</li>
+          <li>Out-of-bounds array access</li>
+          <li>Signed integer overflow (<code>INT_MAX + 1</code>)</li>
+          <li>Using an object after <code>std::move</code></li>
+          <li>Data race — two threads writing a non-atomic variable concurrently</li>
+          <li>Reading an uninitialized variable</li>
+          <li>Calling a virtual function in a destructor of the base class (derived part is already destroyed)</li>
+        </ul>
+        <strong>Detection tools:</strong> <code>-fsanitize=address</code> (ASan), <code>-fsanitize=undefined</code> (UBSan), Valgrind, clang-tidy.`
+      },
+    ]
+  },
+
+  /* ══════════════════════════  OOP  ══════════════════════════ */
+  {
+    id:4, cat:'oop', catLabel:'OOP', title:'OOP — Four Pillars', difficulty:'Easy',
+    tags:['Encapsulation','Inheritance','Polymorphism','Abstraction'],
+    questions:[
+      {
+        q:'Explain the four pillars of OOP with examples.',
+        a:`<strong>1. Encapsulation:</strong> Bundling data and methods that operate on it; hiding internal state. Access controlled via public/private/protected.<br>
+        Example: A <code>BankAccount</code> class exposes <code>deposit()</code> and <code>getBalance()</code> but keeps <code>balance</code> private — prevents external corruption.<br><br>
+        <strong>2. Inheritance:</strong> A child class derives from a parent, reusing and extending its behavior.<br>
+        Example: <code>Dog</code> extends <code>Animal</code> — inherits <code>breathe()</code>, adds <code>bark()</code>.<br><br>
+        <strong>3. Polymorphism:</strong> Same interface, different implementations.<br>
+        <em>Compile-time:</em> function overloading, templates.<br>
+        <em>Runtime:</em> virtual functions — a base pointer calls the correct derived class method.<br><br>
+        <strong>4. Abstraction:</strong> Exposing only essential features, hiding complexity.<br>
+        Example: A <code>List</code> interface exposes <code>add()</code>, <code>get()</code> — callers don't care if it's a linked list or array.`
+      },
+      {
+        q:'What is the difference between method overloading and overriding?',
+        a:`<strong>Overloading (compile-time polymorphism):</strong> Multiple functions with the same name but different parameter types or counts in the same class. Resolved at compile time by signature.<br><br>
+        <code>void print(int x);<br>void print(double x);<br>void print(string s);</code><br><br>
+        <strong>Overriding (runtime polymorphism):</strong> A derived class provides its own implementation of a base class virtual function. Same name and parameter types. Resolved at runtime via vtable.<br><br>
+        <code>class Animal { virtual void speak() { } };<br>class Dog : public Animal { void speak() override { } };</code><br><br>
+        <strong>Key rule:</strong> Overloading = same name, different params. Overriding = same name, same params, different class in hierarchy.`
+      },
+      {
+        q:'What is the difference between an abstract class and an interface?',
+        a:`<strong>Abstract class:</strong> Has at least one pure virtual function (<code>= 0</code>). Cannot be instantiated. Can have data members, constructors, and concrete methods — used for partial implementation sharing.<br><br>
+        <strong>Interface</strong> (conceptual): Contains only pure virtual functions and no data — defines a pure contract. In Java/C# it is a language keyword. In C++ it is simulated with an all-pure abstract class.<br><br>
+        <ul>
+          <li>Abstract class → "is-a" relationship with shared code</li>
+          <li>Interface → "can-do" capability contract</li>
+          <li>Java: extend one abstract class, implement many interfaces</li>
+          <li>C++: multiple inheritance handles both roles</li>
+        </ul>`
+      },
+      {
+        q:'What is the diamond problem? How is it solved with virtual inheritance?',
+        a:`The <strong>diamond problem</strong> arises when a class inherits from two classes that both inherit from a common base — the base gets duplicated.<br><br>
+        <code>class A { int x; };<br>class B : public A {};<br>class C : public A {};<br>class D : public B, public C {}; // Two copies of A!</code><br><br>
+        <strong>Solution — Virtual Inheritance:</strong><br>
+        <code>class B : virtual public A {};<br>class C : virtual public A {};<br>class D : public B, public C {}; // Only one shared A</code><br><br>
+        With virtual inheritance a single instance of A is shared. Java and C# avoid the problem entirely by permitting single class inheritance but multiple interface implementations.`
+      },
+    ]
+  },
+  {
+    id:5, cat:'oop', catLabel:'OOP', title:'OOP — SOLID & Design Patterns', difficulty:'Medium',
+    tags:['SOLID','Strategy','Observer','Factory'],
+    questions:[
+      {
+        q:'Explain each SOLID principle with an example.',
+        a:`<ul>
+          <li><strong>S — Single Responsibility:</strong> One class, one reason to change. <code>UserService</code> handles user logic; <code>EmailService</code> handles email — don't mix them.</li>
+          <li><strong>O — Open/Closed:</strong> Open for extension, closed for modification. Add new behavior by extending or composing, not editing existing code.</li>
+          <li><strong>L — Liskov Substitution:</strong> Subtypes must be substitutable for their base without breaking behavior. A <code>Square</code> that violates <code>Rectangle</code>'s width/height invariants breaks LSP.</li>
+          <li><strong>I — Interface Segregation:</strong> Clients should not depend on interfaces they don't use. Split fat interfaces into smaller, focused ones.</li>
+          <li><strong>D — Dependency Inversion:</strong> Depend on abstractions, not concretions. Pass a <code>IDatabase</code> interface, not a concrete <code>MySQLDatabase</code>.</li>
+        </ul>`
+      },
+      {
+        q:'Composition over inheritance — when to use each?',
+        a:`<strong>Inheritance</strong> models "is-a" relationships. It shares implementation but tightly couples child to parent — base class changes cascade downward.<br><br>
+        <strong>Composition</strong> models "has-a" — a class delegates to a contained object. More flexible, easier to test (mock dependencies), avoids fragile base class and deep hierarchies.<br><br>
+        <strong>Prefer composition when:</strong><ul>
+          <li>Behavior needs to vary at runtime (swap strategies)</li>
+          <li>The relationship is "uses" not "is"</li>
+          <li>You need to combine behaviors from multiple sources</li>
+        </ul>
+        <strong>Prefer inheritance when:</strong><ul>
+          <li>A true is-a relationship exists and LSP holds</li>
+          <li>You need runtime polymorphic dispatch (virtual functions)</li>
+        </ul>`
+      },
+      {
+        q:'Describe the Strategy, Observer, and Factory design patterns.',
+        a:`<strong>Strategy Pattern:</strong> Defines a family of algorithms, encapsulates each, and makes them interchangeable. A <code>Sorter</code> accepts any <code>SortStrategy</code> (BubbleSort, MergeSort). Enables switching behavior at runtime without modifying the client.<br><br>
+        <strong>Observer Pattern:</strong> One-to-many dependency — when a subject changes state, all registered observers are notified automatically. Powers event systems, MVC (Model notifies Views), pub-sub queues. Decouples producer from consumers.<br><br>
+        <strong>Factory Pattern:</strong> Encapsulates object creation. The client requests an object via a factory method without knowing the concrete class.<br>
+        <em>Factory Method:</em> subclass decides what to instantiate.<br>
+        <em>Abstract Factory:</em> creates families of related objects.<br><br>
+        <div class="note">Design patterns are vocabulary and starting points — not mandatory recipes. Apply when the problem naturally fits.</div>`
+      },
+    ]
+  },
+
+  /* ══════════════════════════  OS  ══════════════════════════ */
+  {
+    id:6, cat:'os', catLabel:'OS', title:'OS — Processes & Scheduling', difficulty:'Medium',
+    tags:['PCB','Fork','Scheduler','MLFQ'],
+    questions:[
+      {
+        q:'What is the difference between a process and a thread?',
+        a:`A <strong>process</strong> is an independent program in execution with its own memory space (code, data, heap, stack), file descriptors, and OS resources.<br><br>
+        A <strong>thread</strong> is a unit of execution within a process. Threads in the same process share heap, globals, and file descriptors — each has its own stack and register set.<br><br>
+        <ul>
+          <li><strong>Isolation:</strong> A crashing process doesn't affect others; a crashing thread can kill the whole process</li>
+          <li><strong>Creation cost:</strong> Spawning a thread is far cheaper than forking a process</li>
+          <li><strong>Communication:</strong> Threads share memory (need synchronization); processes use IPC (pipes, sockets, shared mem)</li>
+          <li><strong>Context switch:</strong> Thread switch is lighter — no page table swap or TLB flush</li>
+        </ul>`
+      },
+      {
+        q:'Compare CPU scheduling algorithms: FCFS, SJF, Round Robin, Priority, and MLFQ.',
+        a:`<strong>FCFS:</strong> Non-preemptive. Simple. Suffers from the <em>convoy effect</em> — short jobs wait behind long ones.<br><br>
+        <strong>SJF (Shortest Job First):</strong> Optimal average wait time. Requires knowing burst time. Preemptive variant = SRTF.<br><br>
+        <strong>Round Robin:</strong> Each job gets a time quantum; then preempted. Fair. Performance hinges on quantum size.<br><br>
+        <strong>Priority:</strong> Highest priority runs first. Risk of <em>starvation</em> — solved by <strong>aging</strong> (gradually raise priority of waiting jobs).<br><br>
+        <strong>MLFQ (Multilevel Feedback Queue):</strong> Multiple queues with decreasing priority. New jobs enter the top queue. CPU-bound jobs sink; I/O-bound stay high. Periodic boost prevents starvation. Best real-world approximation of SJF without advance burst time knowledge.`
+      },
+      {
+        q:'What are the four Coffman conditions for deadlock? How can it be prevented?',
+        a:`All four must hold simultaneously:<ul>
+          <li><strong>Mutual Exclusion:</strong> Resource is held non-shareably</li>
+          <li><strong>Hold and Wait:</strong> Process holds a resource while waiting for another</li>
+          <li><strong>No Preemption:</strong> Resources can't be forcibly taken away</li>
+          <li><strong>Circular Wait:</strong> Circular chain of processes, each waiting on the next</li>
+        </ul>
+        <strong>Handling strategies:</strong><ul>
+          <li><strong>Prevention:</strong> Negate one condition (e.g., acquire all resources at once — breaks Hold &amp; Wait)</li>
+          <li><strong>Avoidance:</strong> Banker's algorithm — grant only if the system stays in a safe state</li>
+          <li><strong>Detection &amp; Recovery:</strong> Allow deadlocks, detect via resource allocation graph, recover by killing or rolling back processes</li>
+          <li><strong>Ignore:</strong> Most desktop OSes just reboot — deadlocks are rare enough</li>
+        </ul>`
+      },
+      {
+        q:'Explain virtual memory, paging, and the TLB.',
+        a:`<strong>Virtual memory</strong> gives each process the illusion of a large, private address space. The <strong>MMU</strong> translates virtual addresses to physical addresses using <strong>page tables</strong>.<br><br>
+        <strong>Paging:</strong> Memory is divided into fixed-size pages (typically 4 KB). No external fragmentation. Page table maps virtual page number → physical frame number.<br><br>
+        <strong>TLB (Translation Lookaside Buffer):</strong> Hardware cache of recent VA→PA translations. A TLB hit costs ~1 cycle; a miss triggers a page table walk (multiple memory reads).<br><br>
+        <strong>Page fault:</strong> Accessed page not in RAM → OS loads it from disk (swap space). Excessive faults → <strong>thrashing</strong>.<br><br>
+        <strong>Page replacement algorithms:</strong> LRU (best practical), FIFO (simple, poor, Bélády's anomaly), Optimal (theoretical benchmark).`
+      },
+      {
+        q:'What is a system call? Walk through what happens when you call read().',
+        a:`A <strong>system call</strong> is the mechanism by which user-space programs request kernel services (I/O, process creation, memory, networking).<br><br>
+        <strong>Execution flow for <code>read(fd, buf, n)</code>:</strong><ol style="padding-left:20px;margin-top:8px">
+          <li>glibc wrapper places syscall number in a register, executes the <code>syscall</code> instruction</li>
+          <li>CPU switches from <strong>user mode (ring 3) → kernel mode (ring 0)</strong></li>
+          <li>Kernel validates arguments, checks file descriptor table</li>
+          <li>If data is in page cache → copies to user buffer immediately</li>
+          <li>If not → I/O request issued; process blocks; scheduler runs another process</li>
+          <li>When I/O completes → process woken up; returns to user mode with byte count in register</li>
+        </ol>
+        The mode switch costs ~100 ns. High-throughput servers batch I/O or use <code>io_uring</code> to minimize syscall overhead.`
+      },
+    ]
+  },
+  {
+    id:7, cat:'os', catLabel:'OS', title:'OS — Synchronization & IPC', difficulty:'Hard',
+    tags:['Mutex','Semaphore','Monitor','Deadlock','IPC'],
+    questions:[
+      {
+        q:'Compare mutex, semaphore, spinlock, and monitor.',
+        a:`<strong>Mutex:</strong> Binary lock with <em>ownership</em> — only the thread that acquired it can release it. Sleeps waiting threads. Use to protect a critical section.<br><br>
+        <strong>Semaphore:</strong> Counter (0..N). <code>wait()</code> decrements; <code>signal()</code> increments. No ownership — any thread can signal. Use for signaling between threads or counting available resources (connection pool).<br><br>
+        <strong>Spinlock:</strong> Busy-waits (loops in userspace) instead of blocking. Zero context-switch overhead. Only use when critical section is extremely short and lock contention is rare — wastes CPU if held long.<br><br>
+        <strong>Monitor:</strong> High-level abstraction combining a mutex with one or more <strong>condition variables</strong>. Threads call <code>wait()</code> inside the monitor (atomically releases lock + blocks) and wake via <code>notify()</code>. Java's <code>synchronized</code> blocks use monitors.`
+      },
+      {
+        q:'Solve the producer-consumer problem using semaphores.',
+        a:`<strong>Shared bounded buffer of size N:</strong><br><br>
+        <strong>Semaphores:</strong><ul>
+          <li><code>mutex = 1</code> — protects buffer access (binary semaphore)</li>
+          <li><code>empty = N</code> — counts available empty slots</li>
+          <li><code>full = 0</code> — counts filled slots</li>
+        </ul>
+        <strong>Producer:</strong><ol style="padding-left:20px;margin-top:6px">
+          <li><code>wait(empty)</code> — block if buffer full</li>
+          <li><code>wait(mutex)</code> — enter critical section</li>
+          <li>Add item to buffer</li>
+          <li><code>signal(mutex)</code></li>
+          <li><code>signal(full)</code> — notify consumer</li>
+        </ol>
+        <strong>Consumer:</strong><ol style="padding-left:20px;margin-top:6px">
+          <li><code>wait(full)</code> — block if buffer empty</li>
+          <li><code>wait(mutex)</code></li>
+          <li>Remove item from buffer</li>
+          <li><code>signal(mutex)</code></li>
+          <li><code>signal(empty)</code></li>
+        </ol>`
+      },
+      {
+        q:'What are the main IPC mechanisms in Linux?',
+        a:`<ul>
+          <li><strong>Pipes:</strong> Unidirectional byte stream. Anonymous pipes connect parent-child. Named pipes (FIFOs) work between unrelated processes.</li>
+          <li><strong>Message Queues:</strong> Kernel-managed queue of structured messages. Non-blocking send/receive. POSIX (<code>mq_open</code>) or System V.</li>
+          <li><strong>Shared Memory:</strong> Fastest IPC — processes map the same physical pages. Requires explicit synchronization (semaphore/mutex). <code>shm_open</code> or <code>mmap</code>.</li>
+          <li><strong>Sockets:</strong> Work locally (Unix domain) or over a network (TCP/UDP). Bidirectional. Most flexible.</li>
+          <li><strong>Signals:</strong> Asynchronous notifications (SIGTERM, SIGUSR1). Minimal data transfer — just a signal number.</li>
+          <li><strong>Memory-mapped files:</strong> <code>mmap</code> a file into address space — allows file I/O as memory operations.</li>
+        </ul>`
+      },
+    ]
+  },
+
+  /* ══════════════════════════  Linux  ══════════════════════════ */
+  {
+    id:8, cat:'linux', catLabel:'Linux', title:'Linux — File System & Permissions', difficulty:'Easy',
+    tags:['inode','chmod','ln','FHS'],
+    questions:[
+      {
+        q:'Explain the Linux file system hierarchy (FHS). What are the key directories?',
+        a:`<ul>
+          <li><code>/</code> — Root of the entire filesystem</li>
+          <li><code>/bin</code> — Essential user binaries (ls, cp, mv, cat)</li>
+          <li><code>/sbin</code> — System admin binaries (fsck, iptables, init)</li>
+          <li><code>/etc</code> — System-wide configuration files</li>
+          <li><code>/home</code> — User home directories</li>
+          <li><code>/var</code> — Variable data: logs (<code>/var/log</code>), spools, databases</li>
+          <li><code>/tmp</code> — Temporary files — cleared on reboot</li>
+          <li><code>/proc</code> — Virtual filesystem exposing kernel and process info (no disk storage)</li>
+          <li><code>/dev</code> — Device files (disks, terminals, <code>/dev/null</code>)</li>
+          <li><code>/usr</code> — Secondary hierarchy for user programs and libraries</li>
+          <li><code>/lib</code> — Shared libraries needed by /bin and /sbin</li>
+          <li><code>/opt</code> — Optional third-party software</li>
+        </ul>`
+      },
+      {
+        q:'What is an inode? What information does it store?',
+        a:`An <strong>inode</strong> (index node) is a disk data structure describing a file or directory — everything <em>except</em> its name and actual content.<br><br>
+        <strong>Inode stores:</strong><ul>
+          <li>File type (regular file, directory, symlink, block/char device, socket, FIFO)</li>
+          <li>Permissions (owner/group/other × read/write/execute)</li>
+          <li>Owner UID and GID</li>
+          <li>File size in bytes</li>
+          <li>Timestamps: <em>atime</em> (last access), <em>mtime</em> (last modification), <em>ctime</em> (last inode change)</li>
+          <li>Hard link count</li>
+          <li>Pointers to data blocks (direct, indirect, double-indirect)</li>
+        </ul>
+        The <strong>filename</strong> lives in a directory entry that maps name → inode number. A <strong>hard link</strong> is simply another directory entry pointing to the same inode.`
+      },
+      {
+        q:'Explain Linux file permissions. What does chmod 755 mean?',
+        a:`Permissions have three groups — <strong>owner | group | others</strong> — each with read (r=4), write (w=2), execute (x=1).<br><br>
+        <code>chmod 755 file</code>:<ul>
+          <li><strong>7</strong> (owner): 4+2+1 = <strong>rwx</strong></li>
+          <li><strong>5</strong> (group): 4+0+1 = <strong>r-x</strong></li>
+          <li><strong>5</strong> (others): 4+0+1 = <strong>r-x</strong></li>
+        </ul>
+        <code>ls -l</code> shows: <code>-rwxr-xr-x</code><br><br>
+        <strong>Special permission bits:</strong><ul>
+          <li><strong>Setuid (4xxx):</strong> Execute as file owner (e.g., <code>/usr/bin/passwd</code> runs as root)</li>
+          <li><strong>Setgid (2xxx):</strong> Execute as file group; on directories, new files inherit the directory group</li>
+          <li><strong>Sticky bit (1xxx):</strong> On directories: only the owner can delete their own files (used on <code>/tmp</code>)</li>
+        </ul>`
+      },
+      {
+        q:'What is the difference between hard links and symbolic (soft) links?',
+        a:`<strong>Hard link:</strong> A directory entry pointing directly to an inode. Multiple hard links = multiple names for the same data. The file persists as long as any hard link exists. Cannot cross filesystem boundaries. Cannot link directories.<br><br>
+        <strong>Symbolic (soft) link:</strong> A special file containing a path string pointing to a target. Can cross filesystems. Can link directories. If the target is deleted → <em>dangling symlink</em>.<br><br>
+        <code>ln source hardlink</code> — hard link<br>
+        <code>ln -s /path/to/target symlink</code> — symlink<br><br>
+        <strong>Key difference:</strong> Hard link = a second name for the same inode (same data). Symlink = a shortcut that stores a path string (different inode).`
+      },
+    ]
+  },
+  {
+    id:9, cat:'linux', catLabel:'Linux', title:'Linux — Processes & Shell', difficulty:'Medium',
+    tags:['grep','awk','sed','signals','pipe','cron'],
+    questions:[
+      {
+        q:'What are the key Linux signals and how do you send them?',
+        a:`<strong>Signals</strong> are asynchronous notifications sent to processes:<ul>
+          <li><strong>SIGTERM (15):</strong> Politely ask to terminate. Can be caught/handled. Always try this first.</li>
+          <li><strong>SIGKILL (9):</strong> Force kill. Cannot be caught, blocked, or ignored. Last resort.</li>
+          <li><strong>SIGINT (2):</strong> Interrupt from keyboard — Ctrl+C.</li>
+          <li><strong>SIGHUP (1):</strong> Terminal closed; commonly used to tell daemons to reload their config.</li>
+          <li><strong>SIGSEGV (11):</strong> Segmentation fault — invalid memory access.</li>
+          <li><strong>SIGCHLD (17):</strong> Child process stopped or terminated — sent to parent.</li>
+          <li><strong>SIGUSR1/2 (10/12):</strong> User-defined signals for custom inter-process communication.</li>
+        </ul>
+        <code>kill -15 PID</code> &nbsp;|&nbsp; <code>kill -9 PID</code> &nbsp;|&nbsp; <code>pkill nginx</code> &nbsp;|&nbsp; <code>killall python3</code>`
+      },
+      {
+        q:'Explain grep, awk, sed, and pipe with practical examples.',
+        a:`<strong>grep</strong> — search for patterns:<br>
+        <code>grep -rn "ERROR" /var/log/</code> — recursive, show line numbers<br>
+        <code>grep -v "DEBUG" app.log</code> — invert match (exclude DEBUG)<br><br>
+        <strong>awk</strong> — field-based text processing:<br>
+        <code>awk '{print $1, $NF}' access.log</code> — print first and last fields<br>
+        <code>awk -F: '{print $1}' /etc/passwd</code> — list all usernames<br><br>
+        <strong>sed</strong> — stream editor for substitution/deletion:<br>
+        <code>sed 's/foo/bar/g' file.txt</code> — replace all occurrences<br>
+        <code>sed -i '/^#/d' config.conf</code> — delete comment lines in-place<br><br>
+        <strong>Pipe chains — practical one-liner:</strong><br>
+        <code>cat access.log | grep "404" | awk '{print $7}' | sort | uniq -c | sort -rn | head -10</code><br>
+        → Top 10 URLs returning 404`
+      },
+      {
+        q:'How do you monitor system resources in Linux?',
+        a:`<ul>
+          <li><strong>top / htop:</strong> Live process list with CPU%, MEM%, load average. htop adds color, mouse support, and tree view.</li>
+          <li><strong>free -h:</strong> Memory usage — total, used, free, buffers/cache, available</li>
+          <li><strong>df -h:</strong> Disk space usage per mounted filesystem</li>
+          <li><strong>du -sh /path:</strong> Disk usage of a directory</li>
+          <li><strong>iostat -x 1:</strong> Disk I/O statistics per device, refreshed every second</li>
+          <li><strong>ss -tulnp:</strong> Active network sockets with PIDs (replacement for netstat)</li>
+          <li><strong>vmstat 1:</strong> CPU, memory, I/O overview — good for spotting swapping</li>
+          <li><strong>strace -p PID:</strong> Trace system calls of a running process</li>
+          <li><strong>lsof -i :8080:</strong> What process is using port 8080</li>
+          <li><strong>dmesg | tail:</strong> Kernel ring buffer — hardware errors, OOM killer events</li>
+        </ul>`
+      },
+      {
+        q:'What is cron? Write a cron expression for "every weekday at 8:30 AM".',
+        a:`<strong>cron</strong> is the Unix job scheduler — runs commands at specified times using the <strong>crontab</strong>.<br><br>
+        <strong>Cron expression format:</strong><br>
+        <code>minute  hour  day-of-month  month  day-of-week  command</code><br>
+        <code>  *       *        *           *        *</code><br><br>
+        <strong>"Every weekday at 8:30 AM":</strong><br>
+        <code>30 8 * * 1-5 /path/to/script.sh</code><br><br>
+        <strong>Common cron shortcuts:</strong><ul>
+          <li><code>@reboot</code> — run once at startup</li>
+          <li><code>@daily</code> = <code>0 0 * * *</code></li>
+          <li><code>@hourly</code> = <code>0 * * * *</code></li>
+        </ul>
+        <code>crontab -e</code> — edit user's crontab<br>
+        <code>crontab -l</code> — list current crontab<br>
+        Cron output goes to user's mail or redirect: <code>> /tmp/out.log 2>&amp;1</code>`
+      },
+    ]
+  },
+
+  /* ══════════════════════════  DBMS  ══════════════════════════ */
+  {
+    id:10, cat:'dbms', catLabel:'DBMS', title:'DBMS — SQL & Fundamentals', difficulty:'Medium',
+    tags:['ACID','Joins','Normalization','Index'],
+    questions:[
+      {
+        q:'Explain ACID properties. How are atomicity and durability implemented?',
+        a:`<ul>
+          <li><strong>Atomicity:</strong> All-or-nothing. If any step fails, the whole transaction rolls back. Implemented via <strong>undo log</strong> — changes recorded before applying; reversed on abort.</li>
+          <li><strong>Consistency:</strong> Transaction takes the DB from one valid state to another — all constraints, triggers, and rules are satisfied.</li>
+          <li><strong>Isolation:</strong> Concurrent transactions don't see each other's intermediate state. Implemented via <strong>locking</strong> or <strong>MVCC</strong>.</li>
+          <li><strong>Durability:</strong> Committed data survives crashes. Implemented via <strong>WAL (Write-Ahead Log)</strong> — changes written to durable log before touching data pages. On crash the log is replayed to recover committed state.</li>
+        </ul>`
+      },
+      {
+        q:'Explain all types of SQL JOINs with examples.',
+        a:`<strong>INNER JOIN:</strong> Rows matching in both tables.<br>
+        <code>SELECT * FROM orders o INNER JOIN customers c ON o.customer_id = c.id;</code><br><br>
+        <strong>LEFT JOIN:</strong> All rows from the left table; NULLs where no match on the right.<br><br>
+        <strong>RIGHT JOIN:</strong> All rows from the right table; NULLs where no match on the left.<br><br>
+        <strong>FULL OUTER JOIN:</strong> All rows from both; NULLs where no match on either side.<br><br>
+        <strong>CROSS JOIN:</strong> Cartesian product — every row × every row. Use carefully (can explode row count).<br><br>
+        <strong>SELF JOIN:</strong> Table joined with itself. Example: employees with their manager from the same table.<br><br>
+        <div class="note">INNER JOIN and LEFT JOIN cover 90%+ of real use cases. Always think about NULLs in LEFT/RIGHT/FULL join results.</div>`
+      },
+      {
+        q:'What is normalization? Explain 1NF through BCNF.',
+        a:`Normalization eliminates redundancy and update/insert/delete anomalies.<br><br>
+        <strong>1NF:</strong> Atomic (indivisible) values in each cell; no repeating groups; unique rows.<br><br>
+        <strong>2NF:</strong> In 1NF + no <em>partial dependencies</em> — every non-key attribute depends on the <em>whole</em> composite primary key.<br><br>
+        <strong>3NF:</strong> In 2NF + no <em>transitive dependencies</em> — non-key attributes depend only on the PK, not on other non-key attributes.<br><br>
+        <strong>BCNF:</strong> For every functional dependency X → Y, X must be a superkey. Stricter than 3NF; handles overlapping candidate key edge cases.<br><br>
+        <div class="note">Normalize to 3NF for OLTP (transactional) systems. Denormalize intentionally for OLAP/analytics to avoid expensive joins.</div>`
+      },
+      {
+        q:'How does a B-Tree index work? What queries can and cannot use it?',
+        a:`A <strong>B-Tree index</strong> is a balanced tree storing sorted key values. Leaf nodes contain keys with row pointers; internal nodes guide traversal. Height = O(log n) even for millions of rows — a typical lookup touches 3–4 nodes.<br><br>
+        <strong>Supported query types:</strong><ul>
+          <li>Equality: <code>WHERE id = 5</code></li>
+          <li>Range: <code>WHERE age BETWEEN 20 AND 30</code>, <code>&gt;</code>, <code>&lt;</code></li>
+          <li>Prefix match: <code>WHERE name LIKE 'Ali%'</code></li>
+          <li>Ordered output: <code>ORDER BY indexed_col</code></li>
+        </ul>
+        <strong>Cannot use index:</strong><ul>
+          <li>Leading wildcard: <code>LIKE '%suffix'</code></li>
+          <li>Function on column: <code>WHERE YEAR(created_at) = 2024</code></li>
+          <li>Low-selectivity column scanned on a large table (full scan may be cheaper)</li>
+        </ul>
+        <strong>Covering index:</strong> includes all columns the query needs → index-only scan, no table access.`
+      },
+      {
+        q:'Explain isolation levels and the anomalies they prevent.',
+        a:`<strong>Anomalies:</strong><ul>
+          <li><strong>Dirty read:</strong> Reading uncommitted changes from another transaction</li>
+          <li><strong>Non-repeatable read:</strong> Same row returns different data when re-read within a transaction</li>
+          <li><strong>Phantom read:</strong> A re-executed range query returns new rows (inserted by another transaction)</li>
+        </ul>
+        <strong>Isolation levels (weakest → strongest):</strong><ul>
+          <li><strong>Read Uncommitted:</strong> Allows all three anomalies</li>
+          <li><strong>Read Committed:</strong> Prevents dirty reads. Default in PostgreSQL, Oracle, SQL Server.</li>
+          <li><strong>Repeatable Read:</strong> Prevents dirty + non-repeatable reads. Default in MySQL InnoDB. May allow phantoms.</li>
+          <li><strong>Serializable:</strong> Prevents all anomalies. Transactions appear serial. Highest cost.</li>
+        </ul>
+        <strong>MVCC</strong> (PostgreSQL, MySQL InnoDB): readers see a consistent snapshot without blocking writers — achieves Read Committed or Repeatable Read without read locks.`
+      },
+    ]
+  },
+  {
+    id:11, cat:'dbms', catLabel:'DBMS', title:'DBMS — Transactions & Distributed', difficulty:'Hard',
+    tags:['MVCC','2PL','CAP','Sharding','Replication'],
+    questions:[
+      {
+        q:'Compare optimistic vs pessimistic locking. What is 2PL?',
+        a:`<strong>Pessimistic locking:</strong> Lock before accessing a resource. Prevents conflicts upfront. Can cause deadlocks and reduces concurrency. Use when conflicts are frequent.<br><br>
+        <strong>Optimistic locking:</strong> No locks — read freely. At commit, check if data changed (version number or timestamp). If conflicted → abort and retry. Use when conflicts are rare (e.g., most web app reads).<br><br>
+        <strong>2PL (Two-Phase Locking):</strong> A protocol for serializability with two phases:<ul>
+          <li><strong>Growing phase:</strong> Acquire locks; cannot release any</li>
+          <li><strong>Shrinking phase:</strong> Release locks; cannot acquire new ones</li>
+        </ul>
+        Guarantees serializability but can deadlock. <strong>Strict 2PL</strong> (hold all write locks until commit) prevents cascading aborts.`
+      },
+      {
+        q:'What is the CAP theorem? Give real-world database examples.',
+        a:`A distributed system can guarantee at most <strong>2 of 3</strong>:<ul>
+          <li><strong>Consistency:</strong> Every read returns the latest write</li>
+          <li><strong>Availability:</strong> Every request gets a non-error response</li>
+          <li><strong>Partition Tolerance:</strong> System continues despite network partitions</li>
+        </ul>
+        Since network partitions are inevitable, the real trade-off is <strong>CP vs AP</strong>:<ul>
+          <li><strong>CP:</strong> HBase, ZooKeeper, etcd, MongoDB (w:majority) — refuse requests during partition to maintain consistency</li>
+          <li><strong>AP:</strong> Cassandra, DynamoDB, CouchDB — serve possibly stale data during partition</li>
+          <li><strong>CA (single node only):</strong> Traditional RDBMS without replication</li>
+        </ul>`
+      },
+      {
+        q:'What is database sharding? What are the trade-offs?',
+        a:`<strong>Sharding</strong> (horizontal partitioning) splits data across multiple nodes based on a <strong>shard key</strong>.<br><br>
+        <strong>Strategies:</strong><ul>
+          <li><strong>Range-based:</strong> Shard by value range. Simple but risks hot spots.</li>
+          <li><strong>Hash-based:</strong> <code>hash(key) % N</code>. Even distribution; range queries span shards.</li>
+          <li><strong>Directory-based:</strong> Lookup table maps keys → shards. Flexible; lookup is a bottleneck.</li>
+        </ul>
+        <strong>Advantages:</strong> Horizontal scalability; smaller per-shard indexes and tables.<br>
+        <strong>Disadvantages:</strong><ul>
+          <li>Cross-shard JOINs are expensive or impossible</li>
+          <li>Distributed transactions are complex</li>
+          <li>Rebalancing when adding shards is painful</li>
+        </ul>
+        <div class="note">Exhaust vertical scaling and read replicas before sharding. Sharding dramatically increases operational complexity.</div>`
+      },
+    ]
+  },
+
+  /* ══════════════════════════  CN  ══════════════════════════ */
+  {
+    id:12, cat:'cn', catLabel:'CN', title:'CN — Network Fundamentals', difficulty:'Medium',
+    tags:['OSI','TCP','UDP','DNS','ARP','Subnetting'],
+    questions:[
+      {
+        q:'Describe the OSI model. What does each layer do?',
+        a:`<ul>
+          <li><strong>7 — Application:</strong> User-facing protocols — HTTP, FTP, DNS, SMTP, WebSocket</li>
+          <li><strong>6 — Presentation:</strong> Encoding, encryption, compression — TLS/SSL, JPEG, JSON</li>
+          <li><strong>5 — Session:</strong> Session establishment and management — RPC, NetBIOS</li>
+          <li><strong>4 — Transport:</strong> End-to-end delivery — TCP (reliable), UDP (fast)</li>
+          <li><strong>3 — Network:</strong> Logical addressing and routing — IP, ICMP, OSPF, BGP</li>
+          <li><strong>2 — Data Link:</strong> MAC addressing, framing, error detection — Ethernet, Wi-Fi, ARP</li>
+          <li><strong>1 — Physical:</strong> Bits over cable or radio — cables, voltages, NIC hardware</li>
+        </ul>
+        <strong>TCP/IP model</strong> (practical) maps to 4 layers: Application, Transport, Internet, Link. Memorize OSI for interviews; use TCP/IP in practice.`
+      },
+      {
+        q:'What happens when you type "google.com" and press Enter?',
+        a:`<ol style="padding-left:20px;margin-top:4px">
+          <li><strong>URL parsing:</strong> Browser parses scheme (https), host (google.com), path (/)</li>
+          <li><strong>DNS resolution:</strong> Browser cache → OS cache → /etc/hosts → recursive resolver → root → .com TLD → authoritative NS → IP address returned</li>
+          <li><strong>TCP 3-way handshake:</strong> SYN → SYN-ACK → ACK to port 443</li>
+          <li><strong>TLS handshake:</strong> Negotiate cipher suite, exchange/verify certificates, derive session keys</li>
+          <li><strong>HTTP/2 request:</strong> GET / with headers (Host, Accept-Encoding, Cookie)</li>
+          <li><strong>Server processing:</strong> Load balancer → web server → app server → cache/DB</li>
+          <li><strong>HTTP response:</strong> 200 OK with HTML content</li>
+          <li><strong>Browser rendering:</strong> Parse HTML → build DOM → fetch subresources → CSSOM + DOM → render tree → layout → paint → display</li>
+        </ol>`
+      },
+      {
+        q:'Compare TCP and UDP. When do you use each?',
+        a:`<strong>TCP:</strong><ul>
+          <li>Connection-oriented — 3-way handshake before data transfer</li>
+          <li>Reliable: guaranteed delivery, in-order, no duplicates</li>
+          <li>Flow control (receive window) + congestion control (CWND)</li>
+          <li>Higher latency and overhead</li>
+          <li>Use for: HTTP/S, databases, SSH, FTP, email</li>
+        </ul>
+        <strong>UDP:</strong><ul>
+          <li>Connectionless — just send datagrams</li>
+          <li>No delivery or ordering guarantees</li>
+          <li>Minimal overhead (~8 byte header vs ~20 byte TCP)</li>
+          <li>Application handles any needed reliability</li>
+          <li>Use for: DNS, video/audio streaming, VoIP, gaming, QUIC/HTTP3</li>
+        </ul>
+        <strong>QUIC (HTTP/3)</strong> uses UDP but implements per-stream reliability at the application layer.`
+      },
+      {
+        q:'How does DNS work? List key DNS record types.',
+        a:`<strong>Resolution flow:</strong><ol style="padding-left:20px;margin-top:6px">
+          <li>Browser cache → OS cache → <code>/etc/hosts</code></li>
+          <li><strong>Recursive resolver</strong> (ISP or 8.8.8.8) checks its own cache</li>
+          <li>Queries <strong>root nameservers</strong> → "go ask .com TLD"</li>
+          <li>Queries <strong>.com TLD servers</strong> → "go ask google.com NS"</li>
+          <li>Queries <strong>authoritative nameserver</strong> → returns IP</li>
+          <li>Response cached per TTL; returned to browser</li>
+        </ol>
+        <strong>Key record types:</strong><ul>
+          <li><strong>A</strong> — domain → IPv4</li>
+          <li><strong>AAAA</strong> — domain → IPv6</li>
+          <li><strong>CNAME</strong> — alias → another domain</li>
+          <li><strong>MX</strong> — mail exchange server</li>
+          <li><strong>TXT</strong> — arbitrary text (SPF, DKIM, verification)</li>
+          <li><strong>NS</strong> — authoritative nameservers for a domain</li>
+          <li><strong>PTR</strong> — reverse DNS (IP → hostname)</li>
+        </ul>`
+      },
+      {
+        q:'What is subnetting? How does CIDR notation work?',
+        a:`A <strong>subnet</strong> is a logical subdivision of an IP network. Devices within the same subnet communicate directly (Layer 2); devices in different subnets need a router (Layer 3).<br><br>
+        <strong>CIDR notation</strong>: <code>IP/prefix</code> — the prefix length is the number of bits reserved for the network portion.<br><br>
+        <strong>Example: <code>192.168.1.0/24</code></strong><ul>
+          <li>Subnet mask: <code>255.255.255.0</code></li>
+          <li>Network address: <code>192.168.1.0</code></li>
+          <li>Broadcast: <code>192.168.1.255</code></li>
+          <li>Usable hosts: <code>192.168.1.1 – .254</code> = <strong>254 hosts</strong></li>
+        </ul>
+        Usable hosts = 2^(32 − prefix) − 2<br><br>
+        <strong>Private IP ranges (RFC 1918):</strong><ul>
+          <li><code>10.0.0.0/8</code> — up to 16M hosts</li>
+          <li><code>172.16.0.0/12</code> — up to 1M hosts</li>
+          <li><code>192.168.0.0/16</code> — up to 65K hosts</li>
+        </ul>`
+      },
+    ]
+  },
+  {
+    id:13, cat:'cn', catLabel:'CN', title:'CN — HTTP, TLS & Application Protocols', difficulty:'Medium',
+    tags:['HTTP/2','HTTP/3','TLS 1.3','WebSocket','REST','gRPC'],
+    questions:[
+      {
+        q:'Compare HTTP/1.1, HTTP/2, and HTTP/3. What problem does each solve?',
+        a:`<strong>HTTP/1.1:</strong> One active request per TCP connection (pipelining broken in practice). Browsers open 6–8 parallel connections. Text headers repeated every request — wasteful.<br><br>
+        <strong>HTTP/2 (2015):</strong> Binary framing. <strong>Multiplexing</strong> — many streams over one TCP connection. <strong>Header compression</strong> (HPACK). Server push. Still suffers from TCP head-of-line blocking — a lost packet stalls <em>all</em> streams.<br><br>
+        <strong>HTTP/3 / QUIC (2022):</strong> Runs over <strong>UDP</strong>. QUIC implements per-stream reliability — lost packet only blocks its own stream. <strong>0-RTT or 1-RTT</strong> connection setup. TLS 1.3 built-in. Dramatically better on high-latency or lossy networks (mobile, satellite).<br><br>
+        Performance on reliable networks: HTTP/2 ≈ HTTP/3. On lossy: HTTP/3 >> HTTP/2.`
+      },
+      {
+        q:'How does TLS 1.3 work? What changed from TLS 1.2?',
+        a:`<strong>TLS 1.2 handshake (2 RTT):</strong><ol style="padding-left:20px;margin-top:6px">
+          <li>Client Hello — cipher suites, random</li>
+          <li>Server Hello — chosen cipher, certificate, random</li>
+          <li>Client verifies cert; sends pre-master secret encrypted with server public key</li>
+          <li>Both derive session keys; Finished messages</li>
+        </ol>
+        <strong>TLS 1.3 improvements:</strong><ul>
+          <li><strong>1-RTT handshake:</strong> Client sends key share in first flight alongside Hello</li>
+          <li><strong>0-RTT resumption:</strong> Resumed sessions can send application data immediately (risk: replay attacks)</li>
+          <li>Removed weak algorithms: RSA key exchange, SHA-1, MD5, RC4, DES, 3DES</li>
+          <li><strong>Forward secrecy always required:</strong> ephemeral Diffie-Hellman (ECDHE)</li>
+          <li>More of the handshake is encrypted (certificate is now encrypted)</li>
+        </ul>`
+      },
+      {
+        q:'What is the difference between REST and gRPC?',
+        a:`<strong>REST:</strong><ul>
+          <li>HTTP/1.1 or HTTP/2, text-based (JSON/XML)</li>
+          <li>Human-readable, browser-friendly</li>
+          <li>Stateless, resource-oriented (CRUD via GET/POST/PUT/DELETE)</li>
+          <li>No formal contract (OpenAPI/Swagger is optional)</li>
+          <li>Larger payload size</li>
+        </ul>
+        <strong>gRPC:</strong><ul>
+          <li>HTTP/2, binary Protocol Buffers (protobuf)</li>
+          <li>~3–10× smaller payload, faster serialization</li>
+          <li>Strongly typed with <code>.proto</code> schema — code generated for 10+ languages</li>
+          <li>Native streaming: server-side, client-side, bidirectional</li>
+          <li>Built-in deadlines, retries, load balancing</li>
+          <li>Not browser-friendly without grpc-web proxy</li>
+        </ul>
+        Use REST for public APIs and browser clients. Use gRPC for internal microservice communication where performance matters.`
+      },
+      {
+        q:'What is WebSocket? When would you use it over HTTP?',
+        a:`<strong>HTTP:</strong> Request-response — the client always initiates. The server cannot push data without a client request. Each request carries full headers.<br><br>
+        <strong>WebSocket:</strong> Full-duplex, persistent connection. After an HTTP Upgrade handshake, both sides can send messages at any time with minimal overhead (small frame header).<br><br>
+        <strong>Upgrade handshake:</strong><br>
+        <code>GET /chat HTTP/1.1<br>Upgrade: websocket<br>Connection: Upgrade<br>Sec-WebSocket-Key: ...</code><br><br>
+        <strong>Use WebSocket when:</strong><ul>
+          <li>Real-time bidirectional communication: chat, collaborative editing, multiplayer games</li>
+          <li>Live dashboards, trading platforms (server pushes price updates)</li>
+          <li>Notifications without polling</li>
+        </ul>
+        <strong>Alternatives:</strong> Server-Sent Events (SSE) for unidirectional server push; HTTP/2 push for assets; long-polling as a fallback.`
+      },
+    ]
+  },
+];
+
+// ─── Bootstrap ───
+const totalQ = TOPICS.reduce((s,t) => s + t.questions.length, 0);
+document.getElementById('tq').textContent = totalQ;
+
+let currentId = 1;
+
+const catCfg = {
+  cpp:   { sectionTitle:'C++ Programming' },
+  oop:   { sectionTitle:'Object-Oriented Programming' },
+  os:    { sectionTitle:'Operating Systems' },
+  linux: { sectionTitle:'Linux' },
+  dbms:  { sectionTitle:'Databases (DBMS)' },
+  cn:    { sectionTitle:'Computer Networks' },
+};
+
+function buildSidebar() {
+  const sb = document.getElementById('sidebar');
+  sb.innerHTML = '';
+  let lastCat = '';
+  TOPICS.forEach(t => {
+    if (t.cat !== lastCat) {
+      const lbl = document.createElement('div');
+      lbl.className = 'sec-label';
+      lbl.textContent = catCfg[t.cat].sectionTitle;
+      sb.appendChild(lbl);
+      lastCat = t.cat;
+    }
+    const btn = document.createElement('button');
+    btn.className = `tbtn ${t.id === currentId ? 'active' : ''}`;
+    const dc = t.difficulty === 'Hard' ? 'd-hard' : t.difficulty === 'Easy' ? 'd-easy' : 'd-medium';
+    btn.innerHTML = `<span class="tnum">${String(t.id).padStart(2,'0')}</span>
+      <span class="tlabel">${t.title}</span>
+      <span class="dbadge ${dc}">${t.difficulty}</span>`;
+    btn.onclick = () => { currentId = t.id; buildSidebar(); renderTopic(t.id); window.scrollTo(0,0); };
+    sb.appendChild(btn);
+  });
+}
+
+function renderTopic(id) {
+  const t = TOPICS.find(x => x.id === id);
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div class="topic-hdr">
+      <div class="topic-meta">
+        <span class="cpill cat-${t.cat}">${t.catLabel}</span>
+        TOPIC ${String(t.id).padStart(2,'0')} &nbsp;·&nbsp; ${t.difficulty.toUpperCase()}
+      </div>
+      <h2>${t.title}</h2>
+      <div class="topic-tags">${t.tags.map(tg=>`<span class="tag">${tg}</span>`).join('')}</div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+      <div class="prog-label"><b id="prog-open">0</b> / ${t.questions.length} answered</div>
+    </div>
+    <div class="qa-list" id="qa-list"></div>
+  `;
+
+  const list = document.getElementById('qa-list');
+  t.questions.forEach((qa, i) => {
+    const card = document.createElement('div');
+    card.className = 'qa-card';
+    card.innerHTML = `
+      <div class="qa-q">
+        <span class="qnum">Q${i+1}</span>
+        <span class="qtext">${qa.q}</span>
+        <span class="tog">+</span>
+      </div>
+      <div class="qa-a">
+        <div class="ans-label">ANSWER</div>
+        <div class="ans-body">${qa.a}</div>
+      </div>
+    `;
+    card.querySelector('.qa-q').onclick = () => {
+      card.classList.toggle('open');
+      updateProg(t);
+    };
+    list.appendChild(card);
+  });
+}
+
+function updateProg(t) {
+  const open = document.querySelectorAll('.qa-card.open').length;
+  document.getElementById('prog').style.width = `${(open/t.questions.length)*100}%`;
+  document.getElementById('prog-open').textContent = open;
+}
+
+buildSidebar();
+renderTopic(1);
+</script>
+</body>
+</html>
