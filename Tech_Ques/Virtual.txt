@@ -633,3 +633,52 @@ int main() {
     cout << s2.c_str() << endl; // Yello!
 }
 =========================================================
+🟢 std::async
+
+Runs a function asynchronously and returns a future to get the result later.
+
+🔵 std::future
+
+A placeholder that holds a value which will be available in the future.
+
+🟡 std::promise
+
+A way to set a value (or exception) that will later be read by a future.
+
+#include <iostream>
+#include <future>
+using namespace std;
+
+int compute() {
+    return 42;
+}
+
+int main() {
+    future<int> f = async(launch::async, compute);
+
+    cout << "Doing other work...\n";
+
+    cout << "Result: " << f.get() << endl;
+}
+🔥 2. promise + future (manual control)
+✅ Code
+#include <iostream>
+#include <thread>
+#include <future>
+using namespace std;
+
+void worker(promise<int> p) {
+    p.set_value(100);
+}
+
+int main() {
+    promise<int> p;
+    future<int> f = p.get_future();
+
+    thread t(worker, move(p));
+
+    cout << "Result: " << f.get() << endl;
+
+    t.join();
+}
+==============================================================
