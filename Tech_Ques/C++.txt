@@ -1,0 +1,296 @@
+Diff between Data structure and algorithm
+
+✅ 
+Data Structure (Interview Definition)
+
+A data structure is a way of organizing and storing data in memory so that it can be accessed and modified efficiently.
+
+✅ Algorithm (Interview Definition)
+
+An algorithm is a finite sequence of well-defined steps used to solve a problem or perform a computation.
+===================================================
+
+✅ Smart Pointer (Interview Definition)
+https://youtu.be/UOB7-B2MfwA?si=p9zITHvVp3vZj5vg
+
+A smart pointer is an object that manages the lifetime of a 
+dynamically allocated resource and automatically deallocates it when it is no longer needed.
+
+⚡ Types You MUST Know
+unique_ptr → single owner
+shared_ptr → multiple owners (reference counting)
+weak_ptr → does not increase ref count of shared pointer,non-owning reference (prevents cycles)
+
+✅ Example: unique_ptr
+
+#include <iostream>
+#include <memory>
+using namespace std;
+
+class Test {
+public:
+    Test() { cout << "Constructor\n"; }
+    ~Test() { cout << "Destructor\n"; }
+};
+
+int main() {
+    unique_ptr<Test> ptr = make_unique<Test>();
+
+    // No delete needed
+    return 0;
+}
+
+✅ Example: shared_ptr
+#include <iostream>
+#include <memory>
+using namespace std;
+
+int main() {
+    shared_ptr<int> p1 = make_shared<int>(10);
+    shared_ptr<int> p2 = p1; // shared ownership
+
+    cout << p1.use_count() << endl; // reference count is 2
+
+    return 0;
+}
+
+weak_ptr does NOT increase reference count
+✅ Simple weak_ptr Example
+#include <iostream>
+#include <memory>
+using namespace std;
+
+int main() {
+    shared_ptr<int> sp = make_shared<int>(100);
+
+    weak_ptr<int> wp = sp;  // weak_ptr observes shared_ptr
+
+    cout << "Shared count: " << sp.use_count() << endl; // 1
+
+    // Access using lock()
+    if (auto temp = wp.lock()) {
+        cout << "Value: " << *temp << endl;
+    }
+
+    // Destroy shared_ptr
+    sp.reset();
+
+    // Now weak_ptr becomes expired
+    if (auto temp = wp.lock()) {
+        cout << "Value: " << *temp << endl;
+    } else {
+        cout << "Object no longer exists\n";
+    }
+
+    return 0;
+}
+============================================================
+
+✅ Shallow Copy (Definition)
+
+Shallow copy creates a new object by copying the memory addresses of the original object, 
+so both objects share the same underlying data.
+
+✅ Deep Copy (Definition)
+
+Deep copy creates a new object by allocating separate memory and copying the actual data, 
+so the objects are independent of each other.
+
+Shallow copy
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class String {
+public:
+    char* data;
+
+    String(const char* str) {
+        data = new char[strlen(str) + 1];
+        strcpy(data, str);
+    }
+
+    // ❌ Default copy constructor → shallow copy
+
+    ~String() {
+        delete[] data;
+    }
+};
+
+int main() {
+    String s1("hello");
+    String s2 = s1;  // shallow copy
+
+    s2.data[0] = 'H';
+
+    cout << "s1: " << s1.data << endl;
+    cout << "s2: " << s2.data << endl;
+
+    return 0;
+}
+===============================================
+Deep copy
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class String {
+public:
+    char* data;
+
+    String(const char* str) {
+        data = new char[strlen(str) + 1];
+        strcpy(data, str);
+    }
+
+    // ✅ Deep copy constructor
+    String(const String& other) {
+        data = new char[strlen(other.data) + 1];
+        strcpy(data, other.data);
+    }
+
+    ~String() {
+        delete[] data;
+    }
+};
+
+int main() {
+    String s1("hello");
+    String s2 = s1;  // deep copy
+
+    s2.data[0] = 'H';
+
+    cout << "s1: " << s1.data << endl;
+    cout << "s2: " << s2.data << endl;
+
+    return 0;
+}
+==================================================
+explicit constructor
+The explicit keyword is used to prevent implicit conversions 
+by requiring constructors to be called explicitly.
+
+✅ With explicit (Correct)
+#include <iostream>
+using namespace std;
+
+class Test {
+public:
+    explicit Test(int x) {
+        cout << "Constructor called with " << x << endl;
+    }
+};
+
+void func(Test t) {}
+
+int main() {
+    func(10);  // ❌ ERROR
+    func(Test(10));  // ✅ OK
+}
+⚡ What Changed?
+explicit Test(int x);
+
+👉 Now:
+
+No automatic conversion
+You must be intentional
+🧠 When to Use explicit
+
+👉 Use it for:
+
+Single-argument constructors
+Conversion constructors
+
+👉 Especially when:
+
+Conversion is not obvious or safe
+=========================================
+Implementation of strings
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class MyString {
+private:
+    char* data;
+    int length;
+
+public:
+    // Constructor
+    MyString(const char* str = "") {
+        length = strlen(str);
+        data = new char[length + 1];
+        strcpy(data, str);
+    }
+
+    // Copy Constructor (Deep Copy)
+    MyString(const MyString& other) {
+        length = other.length;
+        data = new char[length + 1];
+        strcpy(data, other.data);
+    }
+
+    // Copy Assignment Operator
+    // MyString& operator=(const MyString& other) {
+    //     if (this == &other) return *this; // self assignment check
+
+    //     delete[] data;
+
+    //     length = other.length;
+    //     data = new char[length + 1];
+    //     strcpy(data, other.data);
+
+    //     return *this;
+    // }
+
+    // Destructor
+    ~MyString() {
+        delete[] data;
+    }
+
+    // Length function
+    int size() const {
+        return length;
+    }
+
+    // Print
+    void print() const {
+        cout << data << endl;
+    }
+
+    // Operator []
+    char& operator[](int index) {
+        return data[index];
+    }
+
+    // Concatenation
+    MyString operator+(const MyString& other) {
+        MyString temp;
+        delete[] temp.data;
+
+        temp.length = length + other.length;
+        temp.data = new char[temp.length + 1];
+
+        strcpy(temp.data, data);
+        strcat(temp.data, other.data);
+
+        return temp;
+    }
+};
+
+int main() {
+    MyString s1("Hello");
+    MyString s2(" World");
+
+    MyString s3 = s1 + s2;
+
+    s3.print();  // Hello World
+
+    s3[0] = 'h';
+    s3.print();  // hello World
+
+    cout << "Length: " << s3.size() << endl;
+
+    return 0;
+}
+===========================================

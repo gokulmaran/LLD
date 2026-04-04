@@ -61,6 +61,38 @@ Object → vptr → vtable → function
 Virtual function → enables runtime polymorphism
 vtable → holds addresses of virtual functions
 vptr → connects object to its vtable
+
+Virtual Destructor
+A virtual destructor is a destructor declared with the virtual keyword in a base class, 
+which ensures that when an object is deleted through a base class pointer, 
+the derived class’s destructor is called first, followed by the base class destructor.
+
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+    virtual ~Base() {
+        cout << "Base Destructor\n";
+    }
+};
+
+class Derived : public Base {
+public:
+    ~Derived() {
+        cout << "Derived Destructor\n";
+    }
+};
+
+int main() {
+    Base* obj = new Derived();
+    delete obj;
+    return 0;
+}
+---------------------------------------
+Destructor vs virtual destructor
+When you delete a derived class object through a base class pointer, a non-virtual destructor only 
+calls the base class destructor — the derived class destructor is skipped, causing a resource leak.
 =================================================================
 🔥 What is a Static Function in C++?
 ✅ Definition
