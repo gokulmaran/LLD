@@ -75,6 +75,15 @@ BookMyShow
 Elevator
 Library 
 Splitwise
+========================================
+LLD interview hacks
+1)Refer chatgpt (In c++ any confusion,refer Java)
+2)Class need to present minimum 4 or 5
+3) Use one Design Pattern
+4) COde usage ,working need to be known
+5) data members, Constructor, member func 
+6) Full code type -- (need to engaged until finish) [1.working entire known]
+    i)Like Design Patterns--> Logic on one go with main func work end
 ============================================================================
 #include <iostream>
 using namespace std;
