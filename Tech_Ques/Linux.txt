@@ -1,0 +1,675 @@
+Linux & Systems Programming — Interview Q&A
+
+⚙️ 1. System Calls (open, read, write, close)
+
+Q1. What is a System Call? How is it different from a library function?
+A: A system call is a controlled entry point into the kernel — it switches CPU from user mode to kernel mode to perform privileged operations.
+User Space                    Kernel Space
+┌─────────────┐               ┌──────────────────┐
+│  printf()   │  ──library──► │                  │
+│  fopen()    │               │   libc wrapper   │
+│  malloc()   │               │       │          │
+└─────────────┘               │       ▼          │
+                              │   write()        │
+                 syscall      │   open()         │
+User program ────────────────►│   mmap()         │
+                (int 0x80 /   │   brk()          │
+                 syscall)     │                  │
+                              └──────────────────┘
+Library FunctionSystem CallRuns inUser spaceKernel spaceMode switch❌ No✅ Yes (expensive)Exampleprintf, mallocwrite, mmapPortabilityHigh (libc)OS-specificSpeedFastSlower (context switch)
+=====================================================================
+
+Q2. Explain open(), read(), write(), close() with a complete example.
+A:
+cpp#include <fcntl.h>
+#include <unistd.h>
+#include <iostream>
+using namespace std;
+
+int main() {
+    // open() — returns file descriptor
+    // Flags: O_RDONLY, O_WRONLY, O_RDWR, O_CREAT, O_TRUNC, O_APPEND
+    int fd = open("test.txt", O_CREAT | O_RDWR | O_TRUNC, 0644);
+    if (fd < 0) {
+        perror("open failed");
+        return 1;
+    }
+    cout << "File descriptor: " << fd << "\n";   // e.g. 3
+
+    // write() — returns bytes written, -1 on error
+    const char* msg = "Hello, Linux!\n";
+    ssize_t written = write(fd, msg, 14);
+    cout << "Bytes written: " << written << "\n";
+
+    // lseek() — rewind to beginning
+    lseek(fd, 0, SEEK_SET);
+
+    // read() — returns bytes read, 0 = EOF, -1 = error
+    char buf[64] = {};
+    ssize_t bytes = read(fd, buf, sizeof(buf));
+    cout << "Read " << bytes << " bytes: " << buf;
+
+    // close() — releases file descriptor
+    close(fd);
+    return 0;
+}
+// Output:
+// File descriptor: 3
+// Bytes written: 14
+// Read 14 bytes: Hello, Linux!
+File descriptor table:
+Per-process FD table:
+FD 0 ──► stdin   (keyboard)
+FD 1 ──► stdout  (terminal)
+FD 2 ──► stderr  (terminal)
+FD 3 ──► test.txt  ← our open() call
+
+Q3. What is the difference between open() flags O_TRUNC, O_APPEND, O_CREAT?
+A:
+cpp// O_CREAT  — create file if doesn't exist (needs mode arg)
+int fd = open("a.txt", O_WRONLY | O_CREAT, 0644);
+
+// O_TRUNC  — truncate existing file to 0 bytes on open
+int fd = open("a.txt", O_WRONLY | O_TRUNC);
+
+// O_APPEND — every write goes to end of file (atomic)
+int fd = open("log.txt", O_WRONLY | O_APPEND);
+
+// O_NONBLOCK — don't block on read/write (for pipes, sockets)
+int fd = open("/dev/tty", O_RDWR | O_NONBLOCK);
+
+// O_SYNC — every write flushed to disk before returning
+int fd = open("safe.txt", O_WRONLY | O_SYNC);
+
+Q4. What is errno? How do you use perror() and strerror()?
+A: errno is a global integer set by system calls on failure. perror() and strerror() convert it to a human-readable message.
+cpp#include <cerrno>
+#include <cstring>
+#include <fcntl.h>
+
+int main() {
+    int fd = open("/root/secret", O_RDONLY);
+    if (fd < 0) {
+        // Method 1: perror — prints to stderr automatically
+        perror("open");                          // open: Permission denied
+
+        // Method 2: strerror — returns string
+        cout << "Error " << errno << ": "
+             << strerror(errno) << "\n";         // Error 13: Permission denied
+
+        // Common errno values:
+        // ENOENT  = 2  — No such file or directory
+        // EACCES  = 13 — Permission denied
+        // EBADF   = 9  — Bad file descriptor
+        // ENOMEM  = 12 — Out of memory
+        // EINTR   = 4  — Interrupted by signal
+    }
+    return 0;
+}
+=====================================================================
+
+🔄 2. File Descriptors & I/O
+
+Q5. What is dup() and dup2()? Give a real use case.
+A: dup() creates a copy of a file descriptor. dup2() copies to a specific fd number — used to redirect stdin/stdout.
+cpp#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+    // Redirect stdout to a file
+    int fd = open("output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    // dup2(oldfd, newfd) — newfd now points to same file as oldfd
+    dup2(fd, STDOUT_FILENO);   // fd 1 now points to output.txt
+    close(fd);                  // original fd no longer needed
+
+    // This now writes to output.txt, not terminal!
+    write(STDOUT_FILENO, "This goes to file!\n", 19);
+
+    return 0;
+}
+// output.txt contains: This goes to file!
+Shell pipe implementation using dup2:
+cpp// How shell implements: ls | grep txt
+int pipefd[2];
+pipe(pipefd);
+
+if (fork() == 0) {          // child runs ls
+    dup2(pipefd[1], STDOUT_FILENO);   // stdout → pipe write
+    close(pipefd[0]);
+    execlp("ls", "ls", nullptr);
+} else {                    // parent runs grep
+    dup2(pipefd[0], STDIN_FILENO);    // stdin ← pipe read
+    close(pipefd[1]);
+    execlp("grep", "grep", "txt", nullptr);
+}
+=====================================================================
+
+Q6. What is the difference between Buffered I/O and Unbuffered I/O?
+A:
+Buffered (stdio)Unbuffered (syscall)Functionsfopen, fread, fwrite, fcloseopen, read, write, closeBufferUser-space bufferNo buffer (direct kernel)System callsFewer (batched)One per callSpeedFaster for small I/OBetter for large/raw I/OThread safe✅ (with locking)Manual locking needed
+cpp// Buffered (stdio) — fwrite batches into user buffer
+FILE* f = fopen("a.txt", "w");
+fwrite("hello", 1, 5, f);   // may not hit disk yet
+fflush(f);                    // force flush buffer
+fclose(f);
+
+// Unbuffered (syscall) — every write goes to kernel
+int fd = open("a.txt", O_WRONLY | O_CREAT, 0644);
+write(fd, "hello", 5);       // immediately to kernel buffer
+close(fd);
+
+Q7. What is select() / poll() / epoll()? When do you use them?
+A: These are I/O multiplexing mechanisms — monitor multiple file descriptors simultaneously without blocking.
+Problem: Server needs to handle 1000 clients
+         Can't do blocking read() on each!
+
+Solution: I/O multiplexing — "tell me when any fd is ready"
+cpp// select() — watch multiple fds (limited to FD_SETSIZE=1024)
+fd_set readfds;
+FD_ZERO(&readfds);
+FD_SET(fd1, &readfds);
+FD_SET(fd2, &readfds);
+
+struct timeval tv = {5, 0};    // 5 second timeout
+int ready = select(max_fd+1, &readfds, nullptr, nullptr, &tv);
+if (FD_ISSET(fd1, &readfds)) { /* fd1 has data */ }
+
+// poll() — no FD limit, cleaner API
+struct pollfd fds[2];
+fds[0] = {fd1, POLLIN, 0};   // watch fd1 for read
+fds[1] = {fd2, POLLIN, 0};
+int ready = poll(fds, 2, 5000);  // 5s timeout
+if (fds[0].revents & POLLIN) { /* fd1 ready */ }
+
+// epoll() — Linux only, O(1), scales to millions of fds
+int epfd = epoll_create1(0);
+struct epoll_event ev = {EPOLLIN, {.fd = fd1}};
+epoll_ctl(epfd, EPOLL_CTL_ADD, fd1, &ev);
+
+struct epoll_event events[10];
+int n = epoll_wait(epfd, events, 10, 5000);
+for (int i = 0; i < n; i++) {
+    // events[i].data.fd is ready
+}
+selectpollepollFD limit1024UnlimitedUnlimitedComplexityO(n)O(n)O(1)Portability✅ POSIX✅ POSIXLinux onlyUse caseSimple/portableMedium scaleHigh performance
+=====================================================================
+
+🗺️ 3. Memory-Mapped Files (mmap)
+
+Q8. What is mmap()? What are its uses?
+A: mmap() maps a file or device into the process's virtual address space — access file like an array, no explicit read/write needed.
+Without mmap:            With mmap:
+read() → copy to buf     file pages mapped directly into VA space
+buf[i]                   ptr[i]  ← same speed as memory access!
+
+Physical RAM:
+┌──────────────────────────────────┐
+│  Page cache  │  Process pages   │
+│  (file data) │  (mapped here)   │
+└──────────────────────────────────┘
+         ↑ Same physical pages — zero copy!
+cpp#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main() {
+    int fd = open("data.bin", O_RDWR | O_CREAT, 0644);
+    ftruncate(fd, 4096);       // set file size to 4KB
+
+    // mmap(addr, length, prot, flags, fd, offset)
+    char* ptr = (char*)mmap(
+        nullptr,               // kernel chooses address
+        4096,                  // map 4096 bytes
+        PROT_READ | PROT_WRITE,// readable + writable
+        MAP_SHARED,            // changes reflected in file
+        fd,
+        0                      // offset in file
+    );
+
+    if (ptr == MAP_FAILED) { perror("mmap"); return 1; }
+
+    // Access file like memory!
+    strcpy(ptr, "Hello mmap world!");
+    cout << "Read back: " << ptr << "\n";
+
+    // Flush changes to disk
+    msync(ptr, 4096, MS_SYNC);
+
+    munmap(ptr, 4096);        // unmap
+    close(fd);
+    return 0;
+}
+mmap use cases:
+Use CaseHowFast file I/OAccess large files as arraysShared memoryMAP_SHARED + same file between processesAnonymous memoryMAP_ANONYMOUS — like malloc but from OSExecutable loadingOS maps ELF sections via mmapDatabase buffersPostgreSQL, SQLite use mmap for pages
+
+Q9. What is the difference between MAP_SHARED and MAP_PRIVATE?
+A:
+cpp// MAP_SHARED — writes visible to other processes + written to file
+char* p1 = mmap(0, size, PROT_WRITE, MAP_SHARED, fd, 0);
+p1[0] = 'X';    // ← file on disk updated, other processes see 'X'
+
+// MAP_PRIVATE — copy-on-write, changes NOT reflected to file
+char* p2 = mmap(0, size, PROT_WRITE, MAP_PRIVATE, fd, 0);
+p2[0] = 'X';    // ← private copy created, file unchanged
+
+// MAP_ANONYMOUS — no file backing (like malloc but page-aligned)
+char* p3 = mmap(0, size, PROT_READ|PROT_WRITE,
+                MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+// Use for large allocations or shared memory between fork'd processes
+=====================================================================
+
+🌐 4. Sockets & Networking
+
+Q10. What is the difference between blocking and non-blocking sockets?
+A:
+cpp// Blocking socket (default)
+// read() waits until data arrives — thread is blocked!
+int fd = socket(AF_INET, SOCK_STREAM, 0);
+read(fd, buf, 1024);   // ← blocks here indefinitely
+
+// Non-blocking socket
+int flags = fcntl(fd, F_GETFL, 0);
+fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+
+// Now read() returns immediately
+ssize_t n = read(fd, buf, 1024);
+if (n < 0 && errno == EAGAIN) {
+    // No data available right now — try later
+    // Use select/poll/epoll to wait efficiently
+}
+BlockingNon-blockingThread usageOne thread per connectionOne thread → many connectionsCode complexitySimpleComplex (event loop)ScalabilityPoor (C10K problem)ExcellentUsed bySimple serversnginx, Node.js, Redis
+=====================================================================
+Q11. What is the SO_REUSEADDR socket option? Why is it important?
+A: After a server crashes/restarts, the port stays in TIME_WAIT state for ~60 seconds. SO_REUSEADDR lets you rebind immediately.
+cppint server_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+// Set before bind() — always do this for servers!
+int opt = 1;
+setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR,
+           &opt, sizeof(opt));
+
+// Now bind works even if port is in TIME_WAIT
+bind(server_fd, (sockaddr*)&addr, sizeof(addr));
+=====================================================================
+
+🔔 5. Signals (Deep Dive)
+
+Q12. What is signal masking? How do you block signals temporarily?
+A: Signal masking lets you temporarily block signals during critical sections.
+cpp#include <csignal>
+#include <unistd.h>
+
+int main() {
+    sigset_t mask, old_mask;
+
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGINT);    // add SIGINT to mask
+    sigaddset(&mask, SIGTERM);   // add SIGTERM to mask
+
+    // Block SIGINT and SIGTERM
+    sigprocmask(SIG_BLOCK, &mask, &old_mask);
+
+    // Critical section — signals are blocked here
+    // (they are queued, not lost)
+    cout << "In critical section — signals blocked\n";
+    sleep(3);
+
+    // Restore original mask — queued signals delivered now
+    sigprocmask(SIG_SETMASK, &old_mask, nullptr);
+
+    cout << "Signals unblocked\n";
+    return 0;
+}
+=====================================================================
+Q13. What is sigsuspend()? How do you safely wait for a signal?
+A: sigsuspend() atomically unblocks signals and suspends the process — avoids race condition between unblocking and sleeping.
+cpp// WRONG — race condition!
+sigprocmask(SIG_UNBLOCK, &mask, nullptr);
+pause();   // ← signal could arrive HERE before pause()!
+
+// CORRECT — atomic unblock + sleep
+sigset_t empty;
+sigemptyset(&empty);
+sigsuspend(&empty);   // atomically: unblock all + sleep until signal
+=====================================================================
+
+🖥️ 6. Linux Commands
+
+Q14. Explain ps, top, htop — what do they show?
+A:
+bash# ps — snapshot of current processes
+ps aux
+# USER  PID  %CPU %MEM  VSZ    RSS   STAT  COMMAND
+# root  1     0.0  0.1   225k   11k   Ss    /sbin/init
+# Columns:
+# VSZ = Virtual memory size (total mapped)
+# RSS = Resident Set Size (actual RAM used)
+# STAT: S=sleeping, R=running, Z=zombie, D=uninterruptible sleep
+
+ps -ef              # full format with PPID
+ps -p 1234          # specific PID
+ps --forest         # show process tree
+
+# top — live updating process monitor
+top
+# Press: k=kill, r=renice, M=sort by mem, P=sort by CPU
+# Load average: 1.2  0.8  0.5  (1min, 5min, 15min)
+# >1.0 per core = overloaded
+
+# useful top flags
+top -p 1234         # monitor specific PID
+top -u username     # filter by user
+top -b -n 1         # batch mode (for scripts)
+=====================================================================
+
+Q15. What is strace? How do you use it?
+A: strace traces all system calls made by a process — invaluable for debugging.
+bash# Trace all syscalls of a command
+strace ls -l
+
+# Common output:
+# execve("/usr/bin/ls", ["ls", "-l"], ...)  = 0
+# openat(AT_FDCWD, ".", O_RDONLY|O_DIRECTORY) = 3
+# getdents64(3, ..., 32768)                 = 152
+# write(1, "total 48\n...", ...)             = 512
+
+# Attach to running process
+strace -p 1234
+
+# Count syscalls (summary)
+strace -c ls
+# % time  seconds  calls  errors  syscall
+# 45.2    0.001    12     0       read
+# 30.1    0.001    8      0       write
+
+# Filter specific syscall
+strace -e trace=open,read,write ls
+
+# Save output to file
+strace -o trace.txt ./myprogram
+
+# Follow child processes (fork/exec)
+strace -f ./server
+=====================================================================
+
+Q16. What is ldd? What does it show?
+A: ldd shows shared library dependencies of an executable.
+bashldd /usr/bin/ls
+#         linux-vdso.so.1 (0x00007ffd...)
+#         libselinux.so.1 => /lib/x86_64.../libselinux.so.1
+#         libc.so.6 => /lib/x86_64.../libc.so.6
+#         /lib64/ld-linux-x86-64.so.2
+
+ldd ./myprogram      # check your own binary
+ldd -v ./myprogram   # verbose — show all dependencies
+
+# Check if library is missing
+ldd ./myprogram | grep "not found"
+# libmylib.so => not found   ← need to set LD_LIBRARY_PATH
+
+# Set library path at runtime
+export LD_LIBRARY_PATH=/path/to/libs:$LD_LIBRARY_PATH
+
+# Useful related commands
+nm ./myprogram         # list symbols (functions/variables)
+objdump -d ./myprogram # disassemble
+readelf -h ./myprogram # ELF headers
+=====================================================================
+
+Q17. How do you use gdb for debugging?
+A: gdb is the GNU debugger — attach to processes, set breakpoints, inspect memory.
+bash# Compile with debug info
+g++ -g -O0 myprogram.cpp -o myprogram
+
+# Start gdb
+gdb ./myprogram
+
+# Essential gdb commands:
+(gdb) run arg1 arg2        # start program
+(gdb) break main           # breakpoint at function
+(gdb) break file.cpp:42    # breakpoint at line
+(gdb) continue             # resume execution
+(gdb) next                 # step over (one line)
+(gdb) step                 # step into function
+(gdb) print x              # print variable x
+(gdb) print *ptr           # dereference pointer
+(gdb) backtrace            # show call stack
+(gdb) info locals          # show local variables
+(gdb) watch x              # watchpoint — stop when x changes
+(gdb) list                 # show source code
+(gdb) quit                 # exit
+
+# Attach to running process
+gdb -p 1234
+
+# Debug core dump (crash analysis)
+ulimit -c unlimited        # enable core dumps
+./myprogram                # let it crash → core file
+gdb ./myprogram core       # load core dump
+(gdb) backtrace            # see crash stack trace
+=====================================================================
+
+Q18. Explain important Linux commands for systems programming.
+A:
+bash# Process & System
+top / htop             # live process monitor
+ps aux                 # all processes snapshot
+kill -9 PID            # force kill
+nice / renice          # change process priority
+nohup cmd &            # run after logout
+pgrep nginx            # find PID by name
+
+# File & I/O
+lsof                   # list open files (by all processes)
+lsof -p 1234           # open files of specific PID
+lsof -i :8080          # what's using port 8080
+fuser -n tcp 8080      # find process on port
+dd if=/dev/zero of=f bs=1M count=100  # create 100MB file
+sync                   # flush all buffers to disk
+
+# Network
+netstat -tulpn         # listening ports + PIDs
+ss -tulpn              # faster modern netstat
+tcpdump -i eth0 port 80  # capture packets
+curl -v http://...     # HTTP request verbose
+ping / traceroute      # network diagnostics
+
+# Memory & Performance
+free -h                # RAM usage
+vmstat 1               # virtual memory stats (per second)
+iostat 1               # disk I/O stats
+perf top               # CPU performance profiling
+valgrind ./prog        # memory leak detection
+
+# Libraries & Binaries
+ldd ./prog             # shared library deps
+nm ./prog              # symbols list
+objdump -d ./prog      # disassemble
+file ./prog            # ELF type/arch info
+strings ./prog         # printable strings in binary
+
+# Debugging
+strace -p PID          # trace running process syscalls
+ltrace ./prog          # trace library calls
+dmesg | tail           # kernel ring buffer (driver errors)
+/proc/PID/maps         # virtual memory map of process
+/proc/PID/fd/          # open file descriptors of process
+cat /proc/PID/status   # process status info
+=====================================================================
+
+🔨 7. Makefiles & Build Systems
+
+Q19. Explain Makefile structure. Write one from scratch.
+A:
+makefile# Makefile syntax:
+# target: dependencies
+#     recipe (TAB-indented!)
+
+# Variables
+CXX      = g++
+CXXFLAGS = -Wall -Wextra -std=c++17 -g
+LDFLAGS  = -lpthread
+SRC      = main.cpp server.cpp utils.cpp
+OBJ      = $(SRC:.cpp=.o)     # replace .cpp with .o
+TARGET   = myserver
+
+# Default target (runs when you type 'make')
+all: $(TARGET)
+
+# Link step
+$(TARGET): $(OBJ)
+	$(CXX) $(OBJ) -o $(TARGET) $(LDFLAGS)
+
+# Compile step (pattern rule)
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+# $< = first dependency (the .cpp file)
+# $@ = target name (the .o file)
+
+# Phony targets (not real files)
+.PHONY: clean run install
+
+clean:
+	rm -f $(OBJ) $(TARGET)
+
+run: $(TARGET)
+	./$(TARGET)
+
+# Dependency on header (rebuild if header changes)
+main.o: main.cpp server.h utils.h
+server.o: server.cpp server.h
+bashmake              # build all
+make clean        # remove build artifacts
+make run          # build and run
+make -j4          # parallel build (4 jobs)
+make -n           # dry run (show commands without executing)
+=====================================================================
+
+Q20. Explain CMake. Write a CMakeLists.txt.
+A: CMake is a cross-platform build system generator — generates Makefiles, Ninja files, or VS projects.
+cmake# CMakeLists.txt
+
+cmake_minimum_required(VERSION 3.15)
+project(MyServer VERSION 1.0 LANGUAGES CXX)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Compiler flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fsanitize=address")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+# Source files
+set(SOURCES
+    src/main.cpp
+    src/server.cpp
+    src/utils.cpp
+)
+
+# Create executable
+add_executable(myserver ${SOURCES})
+
+# Include directories
+target_include_directories(myserver PRIVATE include/)
+
+# Link libraries
+target_link_libraries(myserver PRIVATE pthread)
+
+# Find and link external library
+find_package(OpenSSL REQUIRED)
+target_link_libraries(myserver PRIVATE OpenSSL::SSL)
+
+# Add subdirectory (for libraries)
+add_subdirectory(libs/mylib)
+
+# Build a static library
+add_library(mylib STATIC lib/mylib.cpp)
+
+# Install rules
+install(TARGETS myserver DESTINATION /usr/local/bin)
+bash# Build with CMake
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release   # configure
+cmake --build . -j4                    # build (parallel)
+cmake --build . --target clean         # clean
+
+# Debug build
+cmake .. -DCMAKE_BUILD_TYPE=Debug
+cmake --build .
+
+# Install
+sudo cmake --install .
+=====================================================================
+📋 8. POSIX APIs
+
+Q21. What are POSIX threads (pthreads)?
+A: POSIX threads provide a standardized threading API across Unix-like systems.
+cpp#include <pthread.h>
+#include <iostream>
+using namespace std;
+
+struct Args { int id; int result; };
+
+void* worker(void* arg) {
+    Args* a = (Args*)arg;
+    cout << "Thread " << a->id << " running\n";
+    a->result = a->id * a->id;
+    return nullptr;
+}
+
+int main() {
+    pthread_t threads[4];
+    Args args[4];
+
+    // Create threads
+    for (int i = 0; i < 4; i++) {
+        args[i].id = i;
+        pthread_create(&threads[i], nullptr, worker, &args[i]);
+    }
+
+    // Join threads
+    for (int i = 0; i < 4; i++) {
+        pthread_join(threads[i], nullptr);
+        cout << "Result " << i << " = " << args[i].result << "\n";
+    }
+
+    // Mutex usage
+    pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_lock(&mtx);
+    // critical section
+    pthread_mutex_unlock(&mtx);
+    pthread_mutex_destroy(&mtx);
+
+    return 0;
+}
+// Compile: g++ -pthread prog.cpp
+=====================================================================
+Q22. What is /proc filesystem? How is it useful?
+A: /proc is a virtual filesystem — exposes kernel and process info as files. No disk — purely in-memory.
+bash# Process info
+cat /proc/1234/status      # process state, memory, threads
+cat /proc/1234/maps        # virtual memory layout
+cat /proc/1234/fd/         # open file descriptors
+cat /proc/1234/cmdline     # command line arguments
+cat /proc/1234/environ     # environment variables
+cat /proc/1234/io          # I/O stats (bytes read/written)
+
+# System info
+cat /proc/cpuinfo          # CPU details (cores, MHz, features)
+cat /proc/meminfo          # memory stats (MemTotal, MemFree...)
+cat /proc/loadavg          # 1/5/15min load average
+cat /proc/net/tcp          # TCP connections (hex format)
+cat /proc/sys/kernel/pid_max   # max PID value
+
+# Tune kernel parameters (sysctl)
+cat /proc/sys/net/core/somaxconn   # max listen backlog
+echo 65535 > /proc/sys/net/core/somaxconn  # change at runtime
+# Or permanently:
+sysctl -w net.core.somaxconn=65535
+=====================================================================

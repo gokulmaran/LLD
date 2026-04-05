@@ -1,0 +1,388 @@
+Computer Networks — Interview Q&A
+🔗 1. TCP vs UDP
+
+Q1. What is TCP? Explain the 3-way handshake.
+A: TCP (Transmission Control Protocol) is a connection-oriented, reliable transport protocol. Before any data flows, both sides must agree to communicate via a 3-way handshake.
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+VvisualizeVvisualize show_widgetStep 1 — SYN:     Client → Server  "I want to connect, my seq=100"
+Step 2 — SYN-ACK: Server → Client  "OK, my seq=200, I acknowledge seq=101"
+Step 3 — ACK:     Client → Server  "Acknowledged seq=201, ready!"
+
+Connection is now ESTABLISHED. Data flows both ways.
+TCP 4-way teardown (connection close):
+Client → FIN  →  Server
+Client ← ACK  ←  Server
+Client ← FIN  ←  Server
+Client → ACK  →  Server
+Connection CLOSED (TIME_WAIT state ~60s on client)
+
+Q2. What is UDP? When do you use it over TCP?
+A: UDP (User Datagram Protocol) is connectionless and unreliable — fires packets with no handshake, no ordering, no retransmit.
+TCP:                          UDP:
+Client ──SYN──►  Server       Client ──data──► Server
+Client ◄─SYN-ACK── Server     (no handshake, no ACK)
+Client ──ACK──►  Server
+Client ──data──► Server
+Client ◄─ACK──── Server
+FeatureTCPUDPConnectionRequired (3-way)NoneReliabilityGuaranteed deliveryBest effortOrderingIn-orderMay arrive out of orderSpeedSlowerFasterHeader size20 bytes8 bytesFlow controlYes (sliding window)NoCongestion controlYesNoUse casesHTTP, SSH, FTP, emailDNS, video, gaming, VoIP
+Use UDP when:
+✅ Speed matters more than reliability
+✅ Small occasional packet loss is acceptable
+✅ App handles its own reliability (QUIC/WebRTC)
+✅ Broadcast/multicast needed
+
+Real-world:
+- YouTube/Netflix streaming    → UDP (slight glitch OK)
+- Online gaming (CS:GO, FIFA)  → UDP (old frame = useless)
+- DNS query                    → UDP (single Q&A, fast)
+- Video calls (Zoom/Meet)      → UDP (latency > reliability)
+- Banking transaction          → TCP (must not lose data)
+
+Q3. What is TCP flow control and congestion control?
+A:
+Flow Control — prevents sender from overwhelming RECEIVER
+──────────────────────────────────────────────────────────
+Receiver advertises "window size" = how much buffer it has
+
+Sender: "I'll send 64KB"
+Receiver: "My buffer is only 16KB, window=16384"
+Sender: slows down to match receiver's capacity
+
+Congestion Control — prevents overwhelming the NETWORK
+──────────────────────────────────────────────────────────
+Algorithms: Slow Start, AIMD, CUBIC, BBR
+
+Slow Start:
+cwnd=1 → send 1 segment
+ACK received → cwnd=2
+ACK received → cwnd=4  (doubles every RTT)
+Until threshold → then linear increase
+
+Packet loss detected → cwnd slashed (congestion signal!)
+
+🔐 2. HTTP vs HTTPS
+
+Q4. What is HTTP? Explain request/response structure.
+A: HTTP (HyperText Transfer Protocol) is a stateless, text-based application-layer protocol for web communication.
+HTTP Request:
+──────────────────────────────────
+GET /api/users/42 HTTP/1.1          ← request line (method + path + version)
+Host: api.example.com               ← headers
+Accept: application/json
+Authorization: Bearer eyJhbGci...
+                                    ← blank line separates headers/body
+                                    ← body (empty for GET)
+
+HTTP Response:
+──────────────────────────────────
+HTTP/1.1 200 OK                     ← status line
+Content-Type: application/json      ← headers
+Content-Length: 87
+Cache-Control: max-age=3600
+                                    ← blank line
+{"id":42,"name":"Alice","role":"admin"}   ← body
+HTTP Methods:
+MethodPurposeIdempotentBodyGETFetch resourceYesNoPOSTCreate resourceNoYesPUTReplace resourceYesYesPATCHPartial updateNoYesDELETERemove resourceYesNoHEADHeaders onlyYesNoOPTIONSAllowed methodsYesNo
+HTTP Status Codes:
+1xx — Informational   (100 Continue)
+2xx — Success         (200 OK, 201 Created, 204 No Content)
+3xx — Redirect        (301 Moved, 302 Found, 304 Not Modified)
+4xx — Client Error    (400 Bad Request, 401 Unauth, 403 Forbidden, 404 Not Found)
+5xx — Server Error    (500 Internal, 502 Bad Gateway, 503 Unavailable)
+
+Q5. What is HTTPS? How does TLS work?
+A: HTTPS = HTTP + TLS (Transport Layer Security). It encrypts all data between client and server.
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+VvisualizeVvisualize show_widgetTLS provides 3 guarantees:
+1. Encryption    — data unreadable to eavesdroppers (AES-256)
+2. Authentication — server identity verified via certificate (CA-signed)
+3. Integrity     — data not tampered in transit (HMAC)
+
+HTTP  → port 80,  plaintext
+HTTPS → port 443, encrypted with TLS 1.2 / 1.3
+
+Q6. HTTP/1.1 vs HTTP/2 vs HTTP/3 — what changed?
+A:
+FeatureHTTP/1.1HTTP/2HTTP/3TransportTCPTCPUDP (QUIC)MultiplexingNo (HOL blocking)Yes (streams)Yes (no HOL blocking)Header compressionNoHPACKQPACKServer pushNoYesYesEncryptionOptionalEffectively requiredBuilt-in (TLS 1.3)Connection setup1.5 RTT1 RTT0 RTT (resumption)
+HTTP/1.1 HOL blocking problem:
+Request 1 ──► [waiting....... response1] ──► Request 2
+(must wait for response before next request on same connection)
+
+HTTP/2 multiplexing:
+Request 1 ──► ──────────── Response 1
+Request 2 ──►   ────── Response 2      (all on 1 TCP connection)
+Request 3 ──►       ──── Response 3
+
+HTTP/3 on QUIC (UDP):
+No TCP handshake overhead
+Packet loss on one stream doesn't block others
+Mobile-friendly (connection survives IP change)
+
+🌐 3. OSI & TCP/IP Layers
+
+Q7. Explain the OSI model. What does each layer do?
+A: OSI (Open Systems Interconnection) is a 7-layer conceptual model for how network protocols interact.
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+VvisualizeVvisualize show_widgetMemory trick: "All People Seem To Need Data Processing" (7→1)
+
+Q8. What is the TCP/IP model? How does it map to OSI?
+A: TCP/IP is the practical 4-layer model that the internet actually uses.
+OSI (7 layers)          TCP/IP (4 layers)      Protocols
+──────────────────────────────────────────────────────────
+7. Application   ─┐
+6. Presentation  ─┤── Application         HTTP, DNS, FTP, SMTP
+5. Session       ─┘
+4. Transport     ──── Transport            TCP, UDP
+3. Network       ──── Internet             IP, ICMP, ARP
+2. Data Link     ─┐
+1. Physical      ─┘── Network Access       Ethernet, Wi-Fi
+Encapsulation — data going DOWN the stack:
+App data: "GET /index.html HTTP/1.1"
+  + TCP header (port 80)     → Segment
+  + IP header (dest IP)      → Packet
+  + Ethernet header (MAC)    → Frame
+  + bits on wire             → Signal
+
+🌍 4. DNS & CDN Basics
+
+Q9. How does DNS resolution work? What is the full lookup path?
+A: DNS (Domain Name System) translates human-readable names (google.com) into IP addresses (142.250.182.46).
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+VvisualizeVvisualize show_widgetDNS Record Types:
+A     → domain → IPv4 address        google.com → 142.250.182.46
+AAAA  → domain → IPv6 address        google.com → 2404:6800::...
+CNAME → alias → another domain       www → google.com
+MX    → mail server for domain       gmail.com → mail.google.com
+NS    → nameservers for domain       google.com NS → ns1.google.com
+TXT   → arbitrary text               SPF, DKIM, verification records
+PTR   → reverse DNS (IP → domain)    142.250.x.x → google.com
+
+Q10. What is a CDN? How does it work?
+A: A CDN (Content Delivery Network) is a globally distributed network of cache servers that deliver content from the nearest location to the user.
+Without CDN:
+User (Chennai) ──────────────────────────► Origin (US)
+                        150ms round-trip
+
+With CDN:
+User (Chennai) ──► CDN Edge (Mumbai) ──► Origin (US, only on cache miss)
+                      15ms ← FAST!
+
+CDN Workflow:
+1. User requests image.jpg
+2. DNS resolves to nearest CDN edge server (via anycast)
+3. Edge has cache HIT  → serve immediately (fast!)
+4. Edge has cache MISS → fetch from origin, cache it, serve
+5. Next user gets it from cache
+
+CDN caches:
+- Static assets (JS, CSS, images, fonts)
+- API responses (with cache headers)
+- Video segments (HLS/DASH chunks)
+
+CDN providers: Cloudflare, Akamai, AWS CloudFront, Fastly
+
+🌐 5. Real-World Examples
+
+Q11. What happens when you type google.com in your browser? (Full end-to-end)
+A: This is the most famous networking interview question. Walk through all layers systematically.
+Step 1 — URL parsing
+────────────────────
+Browser parses "google.com"
+→ scheme: https (default)
+→ host: google.com
+→ path: /
+
+Step 2 — Check caches
+──────────────────────
+Browser cache       → "Did I visit google.com recently?"
+OS hosts file       → /etc/hosts — any override?
+OS DNS cache        → cached from previous lookup?
+
+Step 3 — DNS resolution (if not cached)
+────────────────────────────────────────
+OS → Recursive Resolver (ISP / 8.8.8.8)
+  → Root Server → "ask .com TLD"
+  → .com TLD    → "ask google's NS"
+  → google's NS → "142.250.182.46"
+Result: google.com = 142.250.182.46, cached with TTL
+
+Step 4 — TCP connection
+────────────────────────
+Browser → socket(AF_INET, SOCK_STREAM)
+connect(142.250.182.46, port 443)
+3-way handshake: SYN → SYN-ACK → ACK
+
+Step 5 — TLS handshake
+────────────────────────
+Client Hello → Server Hello + Certificate
+Browser verifies cert against trusted CAs
+Session key derived → encryption begins
+
+Step 6 — HTTP request
+──────────────────────
+GET / HTTP/2
+Host: www.google.com
+Accept: text/html
+Cookie: ...
+
+Step 7 — Google's infrastructure
+──────────────────────────────────
+Load Balancer receives request
+→ Routes to nearest data center
+→ Application server handles request
+→ Queries backend (search index, personalization)
+→ Builds HTML response
+
+Step 8 — Response received
+────────────────────────────
+HTTP/2 200 OK
+Content-Type: text/html; charset=UTF-8
+Content-Encoding: gzip
+[compressed HTML body]
+
+Step 9 — Browser rendering
+────────────────────────────
+Parse HTML → build DOM
+Fetch CSS  → build CSSOM
+Fetch JS   → execute
+Layout → Paint → Composite
+Page appears on screen!
+
+Step 10 — Sub-resources
+─────────────────────────
+Browser fires parallel requests for:
+- CSS files (fonts.googleapis.com)
+- JS bundles  → CDN edge near user
+- Images      → served from CDN cache
+- Analytics beacon → sent in background
+
+Q12. What is the difference between 2G, 3G, 4G, and 5G?
+A:
+GenerationSpeedLatencyTechnologyUse Case2G (GSM)9.6–384 Kbps300–1000msTDMA/CDMASMS, voice calls3G (UMTS)384Kbps–21Mbps100–500msWCDMA/HSPAMobile internet, MMS4G (LTE)10–150Mbps30–50msOFDMAHD video, apps, VoIP4G LTE-A100–1000Mbps10–30msCarrier agg.Fast streaming5G1–10 Gbps1–5msmmWave/NRIoT, AR/VR, autonomous
+2G — Digital voice + basic data
+  GSM → SMS/calls
+  GPRS/EDGE → very slow internet (9–384 Kbps)
+
+3G — Mobile internet becomes real
+  UMTS/HSPA → browse websites, YouTube (low quality)
+  Video calls possible (Skype era)
+
+4G LTE — Smartphone revolution
+  OFDMA multiplexing → spectral efficiency
+  VoLTE — voice OVER LTE (no circuit-switched voice)
+  Netflix HD on mobile, Hotspot sharing
+  Latency good enough for mobile gaming
+
+5G — Three bands:
+  Low band  (< 1GHz)  → wide coverage, ~100 Mbps
+  Mid band  (1–6GHz)  → balance of speed/coverage
+  mmWave    (>24GHz)  → Gbps speeds, very short range
+  Ultra-low latency → autonomous vehicles, surgery robots
+  Network slicing → virtual private 5G networks per use-case
+
+Q13. What are IP addresses? IPv4 vs IPv6?
+A:
+IPv4 — 32-bit address (4 bytes)
+──────────────────────────────
+192.168.1.100
+└─┘ └─┘ └┘ └─┘
+Each octet: 0–255
+
+Total addresses: 2^32 = ~4.3 billion
+Problem: Internet ran out! (2011 IANA exhaustion)
+
+Classes (historical):
+Class A: 1.0.0.0 – 126.255.255.255   /8  (16M hosts)
+Class B: 128.0.0.0 – 191.255.255.255 /16 (65K hosts)
+Class C: 192.0.0.0 – 223.255.255.255 /24 (254 hosts)
+
+Private ranges (RFC 1918):
+10.0.0.0/8        — large private nets
+172.16.0.0/12     — medium
+192.168.0.0/16    — home/office routers
+
+IPv6 — 128-bit address (16 bytes)
+──────────────────────────────────
+2001:0db8:85a3:0000:0000:8a2e:0370:7334
+
+Total: 2^128 = 3.4 × 10^38 addresses (effectively unlimited)
+Built-in: IPsec, auto-configuration, no NAT needed
+Loopback: ::1   (vs 127.0.0.1 in IPv4)
+
+NAT (Network Address Translation):
+Single public IP shared by many private IPs
+Router rewrites src/dst IP on the fly
+Workaround for IPv4 exhaustion — ubiquitous today
+
+Q14. What is a subnet mask and CIDR notation?
+A:
+CIDR: 192.168.1.0/24
+              └─ 24 bits for network, 8 bits for hosts
+
+Subnet mask: 255.255.255.0
+Binary:      11111111.11111111.11111111.00000000
+                                        ↑ 8 host bits = 256 addresses
+                                           (254 usable, -2 for net/broadcast)
+
+Common CIDR blocks:
+/32  → 1 host      (single machine)
+/30  → 4 hosts     (point-to-point links)
+/24  → 256 hosts   (typical office LAN)
+/16  → 65536 hosts (large enterprise)
+/8   → 16M hosts   (ISP allocation)
+
+Example: 10.0.0.0/22
+Network bits: 22 → host bits: 32-22 = 10
+Hosts: 2^10 - 2 = 1022 usable addresses
+Range: 10.0.0.0 – 10.0.3.255
+
+Q15. What is the difference between hub, switch, and router?
+A:
+HUB (Layer 1 — Physical)
+─────────────────────────
+Broadcasts every packet to ALL ports
+No intelligence — just electrical signal repeater
+Causes collisions (CSMA/CD needed)
+All devices share bandwidth
+Obsolete — replaced by switches
+
+SWITCH (Layer 2 — Data Link)
+──────────────────────────────
+Learns MAC addresses → builds MAC table
+Forwards frames only to the correct port
+Full-duplex — no collisions
+Each port gets dedicated bandwidth
+Used inside LANs
+
+ROUTER (Layer 3 — Network)
+───────────────────────────
+Routes packets between different networks (IP)
+Uses routing table (static or dynamic — OSPF, BGP)
+Performs NAT (private → public IP)
+Connects LAN to WAN (internet)
+Firewall capabilities
+
+Traffic flow:
+Laptop → Switch (same LAN) → Router → Internet
+          ↑ MAC-based            ↑ IP-based routing
+======================================================================================

@@ -1,0 +1,558 @@
+Database & Storage — Interview Q&A
+🗄️ 1. SQL Basics
+
+Q1. What are the SQL sublanguages? Give examples.
+A: SQL is split into four sublanguages based on what they operate on.
+sql-- DDL (Data Definition Language) — structure
+CREATE TABLE employees (
+    id      INT PRIMARY KEY AUTO_INCREMENT,
+    name    VARCHAR(100) NOT NULL,
+    dept_id INT,
+    salary  DECIMAL(10,2),
+    FOREIGN KEY (dept_id) REFERENCES departments(id)
+);
+ALTER TABLE employees ADD COLUMN email VARCHAR(255);
+DROP TABLE employees;
+TRUNCATE TABLE employees;   -- delete all rows, keep structure
+
+-- DML (Data Manipulation Language) — data
+INSERT INTO employees (name, dept_id, salary)
+       VALUES ('Alice', 2, 85000.00);
+UPDATE employees SET salary = salary * 1.1 WHERE dept_id = 2;
+DELETE FROM employees WHERE id = 5;
+
+-- DQL (Data Query Language) — read
+SELECT name, salary FROM employees WHERE salary > 70000
+ORDER BY salary DESC LIMIT 10;
+
+-- DCL (Data Control Language) — permissions
+GRANT SELECT, INSERT ON employees TO 'user1'@'localhost';
+REVOKE INSERT ON employees FROM 'user1'@'localhost';
+
+Q2. Explain all types of JOINs with examples.
+A:
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+VvisualizeVvisualize show_widgetsql-- Setup
+-- employees: id, name, dept_id
+-- departments: id, dept_name
+
+-- INNER JOIN — only rows that match in BOTH tables
+SELECT e.name, d.dept_name
+FROM employees e
+INNER JOIN departments d ON e.dept_id = d.id;
+-- Result: only employees WITH a valid department
+
+-- LEFT JOIN — all employees, NULL if no department
+SELECT e.name, d.dept_name
+FROM employees e
+LEFT JOIN departments d ON e.dept_id = d.id;
+-- Result: all employees; dept_name = NULL if no dept
+
+-- RIGHT JOIN — all departments, even with no employees
+SELECT e.name, d.dept_name
+FROM employees e
+RIGHT JOIN departments d ON e.dept_id = d.id;
+
+-- FULL OUTER JOIN — everything from both tables
+SELECT e.name, d.dept_name
+FROM employees e
+FULL OUTER JOIN departments d ON e.dept_id = d.id;
+
+-- CROSS JOIN — every combination (cartesian product)
+SELECT e.name, d.dept_name
+FROM employees e
+CROSS JOIN departments d;
+-- Result: 10 employees × 5 depts = 50 rows
+
+-- SELF JOIN — join table with itself
+SELECT a.name AS employee, b.name AS manager
+FROM employees a
+JOIN employees b ON a.manager_id = b.id;
+
+Q3. Explain GROUP BY, HAVING, and aggregate functions.
+A:
+sql-- Aggregate functions
+SELECT
+    dept_id,
+    COUNT(*)           AS headcount,
+    AVG(salary)        AS avg_salary,
+    MAX(salary)        AS top_salary,
+    MIN(salary)        AS floor_salary,
+    SUM(salary)        AS payroll
+FROM employees
+GROUP BY dept_id;
+
+-- HAVING — filter after aggregation (WHERE filters before)
+SELECT dept_id, AVG(salary) AS avg_sal
+FROM employees
+GROUP BY dept_id
+HAVING AVG(salary) > 70000;   -- ← HAVING, not WHERE!
+
+-- WHERE vs HAVING
+SELECT dept_id, COUNT(*) AS cnt
+FROM employees
+WHERE salary > 50000          -- filters ROWS before grouping
+GROUP BY dept_id
+HAVING COUNT(*) > 3;          -- filters GROUPS after grouping
+
+-- Execution order:
+-- FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT
+
+Q4. What are Window Functions? How are they different from GROUP BY?
+A: Window functions compute values across rows related to the current row without collapsing them into groups.
+sql-- GROUP BY collapses rows — you lose individual row data
+SELECT dept_id, AVG(salary) FROM employees GROUP BY dept_id;
+-- Returns: one row per department
+
+-- Window function — keeps all rows, adds computed column
+SELECT
+    name,
+    dept_id,
+    salary,
+    AVG(salary) OVER (PARTITION BY dept_id) AS dept_avg,
+    salary - AVG(salary) OVER (PARTITION BY dept_id) AS diff_from_avg,
+    RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rank_in_dept,
+    ROW_NUMBER() OVER (ORDER BY salary DESC) AS global_rank,
+    LAG(salary,  1) OVER (ORDER BY id) AS prev_salary,
+    LEAD(salary, 1) OVER (ORDER BY id) AS next_salary,
+    SUM(salary) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING) AS running_total
+FROM employees;
+
+-- Useful window functions:
+-- ROW_NUMBER() — unique sequential number
+-- RANK()       — same rank for ties, gaps after ties (1,1,3)
+-- DENSE_RANK() — same rank for ties, no gaps (1,1,2)
+-- NTILE(n)     — divide rows into n buckets
+-- LAG/LEAD     — access previous/next row value
+-- FIRST_VALUE / LAST_VALUE — first/last in window
+
+Q5. What are Subqueries? What types exist?
+A:
+sql-- Scalar subquery — returns single value
+SELECT name, salary
+FROM employees
+WHERE salary > (SELECT AVG(salary) FROM employees);
+
+-- Row subquery — returns single row
+SELECT * FROM employees
+WHERE (dept_id, salary) = (SELECT dept_id, MAX(salary)
+                            FROM employees WHERE id = 5);
+
+-- Table subquery (derived table) — returns multiple rows
+SELECT dept_id, avg_sal
+FROM (
+    SELECT dept_id, AVG(salary) AS avg_sal
+    FROM employees
+    GROUP BY dept_id
+) AS dept_averages
+WHERE avg_sal > 60000;
+
+-- Correlated subquery — references outer query (runs per row, SLOW!)
+SELECT name, salary
+FROM employees e1
+WHERE salary > (
+    SELECT AVG(salary)
+    FROM employees e2
+    WHERE e2.dept_id = e1.dept_id  -- ← references outer row
+);
+
+-- EXISTS — check existence (stops at first match, faster than IN)
+SELECT name FROM departments d
+WHERE EXISTS (
+    SELECT 1 FROM employees e WHERE e.dept_id = d.id
+);
+
+-- IN vs EXISTS:
+-- IN   → materializes subquery result, good for small sets
+-- EXISTS → stops at first match, good for large tables
+
+📊 2. Indexing
+
+Q6. What is a Database Index? How does a B-Tree index work?
+A: An index is a separate data structure that speeds up lookups by avoiding full table scans.
+Without index:                  With index (B-Tree):
+SELECT * WHERE id=500           Root node
+Scan all 1M rows ← SLOW         [100 | 300 | 700]
+                                  /    |       \
+                              [50,99] [200,299] [500,699]
+                                                  |
+                                               Leaf → row pointer
+                                 O(log n) ← FAST
+sql-- Create indexes
+CREATE INDEX idx_salary ON employees(salary);
+CREATE UNIQUE INDEX idx_email ON employees(email);
+CREATE INDEX idx_dept_sal ON employees(dept_id, salary);  -- composite
+
+-- Check if index is used
+EXPLAIN SELECT * FROM employees WHERE salary > 80000;
+-- Look for: type=range/ref (good) vs type=ALL (full scan = bad)
+
+EXPLAIN ANALYZE SELECT * FROM employees WHERE salary > 80000;
+-- Shows actual execution time + row estimates
+
+-- Drop index
+DROP INDEX idx_salary ON employees;
+
+Q7. What are the types of indexes?
+A:
+Index TypeBest ForNotesB-TreeRange, equality, ORDER BYDefault in most DBsHashExact equality onlyNo range queriesFull-textText search (LIKE '%word%')Inverted indexCompositeMulti-column queriesColumn order matters!PartialFiltered subset of rowsSmaller, fasterClusteredPrimary key lookupData stored in index orderCoveringAll columns in indexNo table lookup needed
+sql-- Composite index — column order is critical!
+CREATE INDEX idx_dept_sal ON employees(dept_id, salary);
+
+-- USES index (leftmost prefix rule):
+WHERE dept_id = 2
+WHERE dept_id = 2 AND salary > 50000
+WHERE dept_id = 2 ORDER BY salary
+
+-- DOES NOT use index:
+WHERE salary > 50000          -- skips dept_id (leftmost)
+WHERE salary > 50000 AND dept_id = 2  -- same problem
+
+-- Covering index — avoids going back to table
+CREATE INDEX idx_cover ON employees(dept_id, salary, name);
+SELECT name, salary FROM employees WHERE dept_id = 2;
+-- Entire query answered from index — zero table access!
+
+Q8. When should you NOT add an index?
+A:
+Add index when:                  Skip index when:
+✅ Column in WHERE clause        ❌ Small tables (<1000 rows)
+✅ Column in JOIN condition      ❌ Columns rarely in WHERE
+✅ High cardinality column       ❌ Low cardinality (gender, bool)
+✅ ORDER BY / GROUP BY column    ❌ Heavy write tables
+✅ Covering index possible       ❌ Too many existing indexes
+
+-- Low cardinality example — BAD index:
+CREATE INDEX idx_gender ON employees(gender);
+-- gender has 2 values → index still scans 50% of table
+-- Full scan often faster due to overhead!
+
+-- Index costs:
+-- Extra storage space
+-- Slower INSERT / UPDATE / DELETE (index must be updated)
+-- Optimizer confusion with too many indexes
+
+🔒 3. Transactions
+
+Q9. What are ACID properties? Explain each.
+A: ACID guarantees database correctness even under failures and concurrent access.
+A — Atomicity    : All or nothing. No partial transactions.
+C — Consistency  : DB goes from one valid state to another.
+I — Isolation    : Concurrent transactions don't see each other's
+                   intermediate states.
+D — Durability   : Committed data survives crashes (written to disk).
+sql-- Atomicity example — bank transfer
+BEGIN TRANSACTION;
+
+UPDATE accounts SET balance = balance - 1000 WHERE id = 1;  -- debit
+UPDATE accounts SET balance = balance + 1000 WHERE id = 2;  -- credit
+
+-- If ANYTHING fails between these two → ROLLBACK both!
+-- User never sees -1000 without the corresponding +1000
+
+COMMIT;   -- both succeed → permanent
+-- or
+ROLLBACK; -- something failed → both reverted
+
+Q10. What are Transaction Isolation Levels? What problems do they solve?
+A: Isolation levels control what dirty data a transaction can see from others.
+Problems that isolation levels prevent:
+
+Dirty Read     — reading uncommitted data from another transaction
+Non-repeatable — same SELECT returns different values within transaction
+Phantom Read   — same WHERE returns different ROW COUNT within transaction
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+VvisualizeVvisualize show_widgetsql-- Set isolation level
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+BEGIN;
+-- ... queries ...
+COMMIT;
+
+-- MySQL default: REPEATABLE READ
+-- PostgreSQL default: READ COMMITTED
+-- Most apps: READ COMMITTED is sufficient
+
+-- Dirty read example (READ UNCOMMITTED):
+-- T1: UPDATE salary = 90000 WHERE id=1  (not committed yet)
+-- T2: SELECT salary WHERE id=1  → sees 90000 (dirty!)
+-- T1: ROLLBACK
+-- T2 read data that never existed!
+
+Q11. What is a Deadlock in databases? How to prevent it?
+A:
+sql-- DEADLOCK scenario
+-- T1: locks row A, waits for row B
+-- T2: locks row B, waits for row A
+-- → circular wait → neither can proceed
+
+-- T1
+BEGIN;
+UPDATE accounts SET balance=balance-100 WHERE id=1;  -- lock row 1
+-- waits for row 2...
+UPDATE accounts SET balance=balance+100 WHERE id=2;
+
+-- T2 (runs concurrently)
+BEGIN;
+UPDATE accounts SET balance=balance-100 WHERE id=2;  -- lock row 2
+-- waits for row 1... DEADLOCK!
+UPDATE accounts SET balance=balance+100 WHERE id=1;
+
+-- Prevention strategies:
+-- 1. Always lock in same order
+UPDATE accounts WHERE id=1; -- always lock lower id first
+UPDATE accounts WHERE id=2;
+
+-- 2. Use SELECT FOR UPDATE to declare intent upfront
+BEGIN;
+SELECT * FROM accounts WHERE id IN (1,2)
+ORDER BY id
+FOR UPDATE;  -- locks both rows immediately
+UPDATE ...
+
+-- 3. Keep transactions short
+-- 4. DB detects deadlock → kills one transaction (victim)
+
+Q12. What is the difference between TRUNCATE, DELETE, and DROP?
+A:
+sql-- DELETE — removes specific rows, logged, can rollback
+DELETE FROM employees WHERE dept_id = 5;
+DELETE FROM employees;   -- all rows, but slow (logged per row)
+-- Can use WHERE, can ROLLBACK, triggers fire
+
+-- TRUNCATE — removes ALL rows, minimal logging, fast
+TRUNCATE TABLE employees;
+-- Cannot use WHERE
+-- Cannot rollback (in most DBs)
+-- Resets AUTO_INCREMENT counter
+-- Does NOT fire row-level triggers
+
+-- DROP — removes entire table structure + data
+DROP TABLE employees;
+-- Removes table, indexes, constraints, triggers
+-- Cannot rollback
+
+-- Speed: DROP > TRUNCATE >> DELETE
+-- Safety: DELETE > TRUNCATE > DROP
+
+Q13. What are Stored Procedures, Views, and Triggers?
+A:
+sql-- VIEW — saved SELECT query, virtual table
+CREATE VIEW high_earners AS
+SELECT name, salary, dept_id
+FROM employees
+WHERE salary > 80000;
+
+SELECT * FROM high_earners;   -- use like a table
+-- Pros: simplify complex queries, security (hide columns)
+-- Cons: no indexes on view itself, can be slow
+
+-- STORED PROCEDURE — reusable SQL code block
+DELIMITER //
+CREATE PROCEDURE give_raise(IN dept INT, IN pct DECIMAL(5,2))
+BEGIN
+    UPDATE employees
+    SET salary = salary * (1 + pct/100)
+    WHERE dept_id = dept;
+
+    SELECT CONCAT('Updated ', ROW_COUNT(), ' employees') AS msg;
+END //
+DELIMITER ;
+
+CALL give_raise(2, 10.0);   -- call it
+
+-- TRIGGER — auto-execute on INSERT/UPDATE/DELETE
+CREATE TRIGGER log_salary_change
+AFTER UPDATE ON employees
+FOR EACH ROW
+BEGIN
+    IF OLD.salary != NEW.salary THEN
+        INSERT INTO audit_log(emp_id, old_sal, new_sal, changed_at)
+        VALUES (OLD.id, OLD.salary, NEW.salary, NOW());
+    END IF;
+END;
+
+🌐 4. NoSQL Concepts
+
+Q14. What is NoSQL? Why was it created?
+A: NoSQL databases were built to handle what SQL struggled with at internet scale.
+SQL limitations that drove NoSQL:
+1. Vertical scaling only (bigger machine)     → NoSQL: horizontal scale-out
+2. Rigid schema (hard to change)              → NoSQL: flexible/schema-less
+3. Not great for graphs, docs, wide columns   → NoSQL: specialized models
+4. CAP theorem: SQL prioritizes CA            → NoSQL: often prioritizes AP
+
+Q15. What are the 4 types of NoSQL databases?
+A:
+┌─────────────────────────────────────────────────────────┐
+│                    NoSQL Types                          │
+│                                                         │
+│  Document      Key-Value       Column-Family    Graph   │
+│  MongoDB       Redis           Cassandra        Neo4j   │
+│  CouchDB       DynamoDB        HBase            ArangoDB│
+│                Memcached       ScyllaDB                 │
+└─────────────────────────────────────────────────────────┘
+1. Document Store (MongoDB):
+javascript// Store JSON-like documents — flexible schema
+{
+  "_id": "emp123",
+  "name": "Alice",
+  "dept": "Engineering",
+  "skills": ["C++", "Python", "Linux"],    // arrays
+  "address": {                              // nested objects
+    "city": "Chennai",
+    "pin": "600001"
+  }
+}
+
+// Query
+db.employees.find({ dept: "Engineering", "skills": "C++" })
+db.employees.updateOne({ _id: "emp123" }, { $push: { skills: "Go" } })
+2. Key-Value Store (Redis):
+bash# Simple get/set — blazing fast (in-memory)
+SET user:1001:name  "Alice"
+SET user:1001:score 9500
+GET user:1001:name       # → "Alice"
+
+# Data structures
+LPUSH queue:tasks "task1" "task2"    # list
+SADD  online:users "alice" "bob"     # set
+ZADD  leaderboard 9500 "alice"       # sorted set
+HSET  user:1001 name "Alice" age 28  # hash
+
+# TTL — expiry
+SET session:abc123 "data" EX 3600    # expires in 1 hour
+TTL session:abc123                   # check remaining time
+3. Wide-Column Store (Cassandra):
+sql-- Optimized for time-series and huge write throughput
+CREATE TABLE sensor_data (
+    device_id   UUID,
+    recorded_at TIMESTAMP,
+    temperature FLOAT,
+    humidity    FLOAT,
+    PRIMARY KEY (device_id, recorded_at)  -- partition + clustering key
+) WITH CLUSTERING ORDER BY (recorded_at DESC);
+
+-- Rows stored together per device_id partition
+-- Extremely fast writes, linear horizontal scale
+INSERT INTO sensor_data (device_id, recorded_at, temperature)
+VALUES (uuid(), toTimestamp(now()), 36.5);
+4. Graph Database (Neo4j):
+cypher// Stores nodes and relationships natively
+// Perfect for social networks, recommendations, fraud detection
+
+// Create nodes
+CREATE (alice:Person {name: 'Alice', age: 28})
+CREATE (bob:Person   {name: 'Bob',   age: 31})
+CREATE (company:Org  {name: 'TechCorp'})
+
+// Create relationships
+CREATE (alice)-[:KNOWS]->(bob)
+CREATE (alice)-[:WORKS_AT {since: 2020}]->(company)
+
+// Query — find friends of friends
+MATCH (p:Person {name:'Alice'})-[:KNOWS*2]->(fof)
+WHERE NOT (p)-[:KNOWS]->(fof)
+RETURN fof.name
+
+// Much faster than SQL self-joins for graph traversal!
+
+Q16. What is the CAP Theorem?
+A: A distributed database can only guarantee 2 out of 3 properties simultaneously.
+         Consistency
+              /\
+             /  \
+            /    \
+           /  ??  \
+          /________\
+   Availability   Partition Tolerance
+
+C — Every read gets the most recent write (or error)
+A — Every request gets a response (may not be latest)
+P — System works even if network partition occurs
+
+Since network partitions ALWAYS happen in distributed systems,
+you're really choosing between C and A during a partition:
+
+CP systems: MongoDB, HBase, ZooKeeper
+  → Refuse reads/writes when partitioned (safe, less available)
+
+AP systems: Cassandra, DynamoDB, CouchDB
+  → Accept reads/writes, may return stale data (available, less consistent)
+
+CA systems: Traditional RDBMS (PostgreSQL, MySQL)
+  → Works only on single node (no partition tolerance)
+
+Q17. What is BASE? How does it differ from ACID?
+A:
+ACID (SQL)                      BASE (NoSQL)
+─────────────────────────────────────────────────────────
+Atomic                          Basically Available
+Consistent                      Soft state
+Isolated                        Eventually consistent
+Durable
+
+ACID: Strong consistency        BASE: Eventual consistency
+      Pessimistic locking             Optimistic, no locking
+      Single node / tight cluster     Distributed, geo-spread
+      Financial systems               Social feeds, analytics
+
+"Eventually consistent" example (Cassandra):
+  Write to node A → data propagates to B and C within milliseconds
+  Brief window where B and C have stale data
+  After replication: all nodes agree → "eventual" consistency
+
+Q18. What is Sharding? What is Replication?
+A:
+SHARDING — horizontal partitioning across machines
+─────────────────────────────────────────────────
+Users table (10M rows) split by user_id:
+
+Shard 1 (IDs 0–2.5M)     Shard 2 (IDs 2.5–5M)
+┌────────────────┐        ┌────────────────┐
+│ user 1         │        │ user 2,500,001 │
+│ user 2         │        │ user 2,500,002 │
+│ ...            │        │ ...            │
+└────────────────┘        └────────────────┘
+
+Shard strategies:
+- Range sharding     — by value range (IDs 0-1M, 1M-2M...)
+- Hash sharding      — hash(key) % n  (even distribution)
+- Directory sharding — lookup table maps key → shard
+
+REPLICATION — copies of same data across machines
+─────────────────────────────────────────────────
+Primary ──── write ────────────────────────────►
+   │
+   ├──► Replica 1 (read)    } All have same data
+   ├──► Replica 2 (read)    } Replicas = fault tolerance
+   └──► Replica 3 (read)    } + read scalability
+
+- Master-Slave: writes to master only, reads from slaves
+- Master-Master: writes to any node (conflict resolution needed)
+
+Q19. SQL vs NoSQL — when to choose which?
+A:
+CriteriaSQLNoSQLSchemaFixed, structuredFlexible, dynamicRelationshipsComplex JOINsDenormalized / embeddedScalingVertical (scale up)Horizontal (scale out)ConsistencyStrong (ACID)Eventual (BASE)TransactionsFull ACIDLimited (improving)Query languagePowerful SQLLimited / customUse caseFinance, ERP, OLTPWeb scale, real-time, IoT
+Choose SQL when:
+✅ Data is relational and structured
+✅ Need complex queries and JOINs
+✅ ACID transactions required (banking, e-commerce)
+✅ Team knows SQL well
+
+Choose NoSQL when:
+✅ Massive scale (billions of records)
+✅ Flexible/evolving schema (product catalog)
+✅ Specific data model (graph, time-series, cache)
+✅ High write throughput (IoT, logging, events)
+✅ Geographic distribution required
+=======================================================
