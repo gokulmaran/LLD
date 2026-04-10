@@ -1,0 +1,716 @@
+🔥 1. Virtual Function
+
+👉 Definition:
+
+A virtual function is a member function declared with virtual that is resolved at runtime (not compile time) based on the actual object type, not the pointer type.
+
+👉 Why it exists:
+To enable runtime polymorphism
+
+👉 Example:
+
+class Base {
+public:
+    virtual void show() {
+        cout << "Base\n";
+    }
+};
+
+class Derived : public Base {
+public:
+    void show() override {
+        cout << "Derived\n";
+    }
+};
+
+👉 Key idea:
+
+Base* ptr = new Derived();
+ptr->show(); // calls Derived::show (runtime decision)
+🔥 2. Virtual Table (vtable)
+
+👉 Definition:
+
+A vtable is a compiler-generated table of function pointers that stores addresses of virtual functions for a class.
+
+👉 Key points:
+
+One vtable per class (that has virtual functions)
+Created at compile time
+Used to resolve function calls at runtime
+
+👉 Mental model:
+
+Class → vtable → function addresses
+🔥 3. Virtual Pointer (vptr)
+
+👉 Definition:
+
+A vptr is a hidden pointer inside each object that points to the vtable of its class.
+
+👉 Key points:
+
+One vptr per object
+Automatically inserted by compiler
+Initialized during object construction
+
+👉 Mental model:
+
+Object → vptr → vtable → function
+⚡ One-line Killer Summary (Use in interviews)
+Virtual function → enables runtime polymorphism
+vtable → holds addresses of virtual functions
+vptr → connects object to its vtable
+
+Virtual Destructor
+A virtual destructor is a destructor declared with the virtual keyword in a base class, 
+which ensures that when an object is deleted through a base class pointer, 
+the derived class’s destructor is called first, followed by the base class destructor.
+
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+    virtual ~Base() {
+        cout << "Base Destructor\n";
+    }
+};
+
+class Derived : public Base {
+public:
+    ~Derived() {
+        cout << "Derived Destructor\n";
+    }
+};
+
+int main() {
+    Base* obj = new Derived();
+    delete obj;
+    return 0;
+}
+---------------------------------------
+Destructor vs virtual destructor
+When you delete a derived class object through a base class pointer, a non-virtual destructor only 
+calls the base class destructor — the derived class destructor is skipped, causing a resource leak.
+=================================================================
+🔥 What is a Static Function in C++?
+✅ Definition
+
+A static function is a function that belongs to the class itself (not objects) and can be called without creating an object.
+
+2. Can access only static members
+class Test {
+    static int x;
+    int y;
+
+public:
+    static void func() {
+        x = 10;  // ✅ OK
+        // y = 20; ❌ ERROR
+    }
+};
+
+Strong answer:
+
+“Static variable is stored in static memory, initialized once, persists for program lifetime, and is shared across calls or objects depending on scope”
+==============================================================
+🚀 Growth Mechanism (MOST IMPORTANT)
+Case 1: Capacity available
+v.push_back(40);
+
+👉 Just insert → O(1)
+
+Case 2: Capacity FULL
+
+👉 This is where real logic happens:
+
+Steps:
+Allocate new memory (~2× old capacity)
+Copy/move old elements
+Delete old memory
+Update pointers
+💥 Example
+Before:
+| 1 | 2 | 3 |   capacity = 3
+
+After push_back(4):
+
+| 1 | 2 | 3 | 4 | _ | _ |   capacity ≈ 
+=============================================================
+A mutex is a synchronization primitive that ensures only one thread at a time can access a critical section of code by acquiring and releasing a lock.
+#include <iostream>
+#include <thread>
+#include <mutex>
+using namespace std;
+
+int counter = 0;
+mutex mtx;
+
+void increment() {
+    for (int i = 0; i < 1000; i++) {
+        mtx.lock();
+        counter++;
+        mtx.unlock();
+    }
+}
+
+int main() {
+    thread t1(increment);
+    thread t2(increment);
+
+    t1.join();
+    t2.join();
+
+    cout << counter << endl; // always correct
+}
+=======================================================
+
+“Atomic variable provides lock-free thread-safe operations on single variables at hardware level (using hardware primitives like CAS,)
+“CAS is a hardware atomic primitive that updates a value only if it matches an expected value, enabling lock-free synchronization without using mutexes.”
+#include <iostream>
+#include <thread>
+#include <atomic>
+using namespace std;
+
+atomic<int> counter(0);
+
+void increment() {
+    for (int i = 0; i < 1000; i++) {
+        counter++;
+    }
+}
+
+int main() {
+    thread t1(increment);
+    thread t2(increment);
+
+    t1.join();
+    t2.join();
+
+    cout << counter << endl; // always correct
+}
+==========================================================
+Condition variable 
+A condition variable is a synchronization primitive that allows threads to wait (sleep) until a specific condition becomes true, and be notified (woken up) by another thread.
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
+using namespace std;
+
+mutex mtx;
+condition_variable cv;
+bool ready = false;
+
+void worker() {
+    unique_lock<mutex> lock(mtx);
+
+    // wait until ready == true
+    cv.wait(lock, [] { return ready; });
+
+    cout << "Worker thread proceeding\n";
+}
+
+void producer() {
+    {
+        lock_guard<mutex> lock(mtx);
+        ready = true;
+    }
+    cv.notify_one(); // wake one waiting thread
+}
+
+int main() {
+    thread t1(worker);
+    thread t2(producer);
+
+    t1.join();
+    t2.join();
+}
+==========================================================
+Semaphore 
+A semaphore is a synchronization primitive that uses a counter to control access to a shared resource, 
+allowing a fixed number of threads to enter a critical section using wait (acquire) and signal (release) operations.
+
+#include <iostream>
+#include <thread>
+#include <vector>
+#include <mutex>
+#include <condition_variable>
+
+using namespace std;
+
+class Semaphore {
+private:
+    int count;
+    mutex mtx;
+    condition_variable cv;
+
+public:
+    Semaphore(int count) : count(count) {}
+
+    void acquire() {
+        unique_lock<mutex> lock(mtx);
+        cv.wait(lock, [&]() { return count > 0; });
+        count--;
+    }
+
+    void release() {
+        unique_lock<mutex> lock(mtx);
+        count++;
+        cv.notify_one();
+    }
+};
+
+Semaphore sem(3); // allow 3 threads
+
+void task(int id) {
+    sem.acquire();
+
+    cout << "Thread " << id << " entered\n";
+    this_thread::sleep_for(chrono::seconds(1));
+    cout << "Thread " << id << " leaving\n";
+
+    sem.release();
+}
+
+int main() {
+    vector<thread> threads;
+
+    for (int i = 1; i <= 6; i++) {
+        threads.emplace_back(task, i);
+    }
+
+    for (auto &t : threads) {
+        t.join();
+    }
+}
+======================================================
+Thread reader and writer problem
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
+using namespace std;
+
+mutex mtx;
+condition_variable cv;
+
+int readers = 0;
+bool writer_active = false;
+
+void reader(int id) {
+    unique_lock<mutex> lock(mtx);
+
+    cv.wait(lock, [] { return !writer_active; });
+
+    readers++;
+    cout << "Reader " << id << " reading\n";
+
+    lock.unlock();
+
+    // simulate reading
+    this_thread::sleep_for(chrono::milliseconds(500));
+
+    lock.lock();
+    readers--;
+
+    if (readers == 0)
+        cv.notify_all();
+
+    cout << "Reader " << id << " done\n";
+}
+
+void writer(int id) {
+    unique_lock<mutex> lock(mtx);
+
+    cv.wait(lock, [] { return readers == 0 && !writer_active; });
+
+    writer_active = true;
+    cout << "Writer " << id << " writing\n";
+
+    lock.unlock();
+
+    // simulate writing
+    this_thread::sleep_for(chrono::milliseconds(500));
+
+    lock.lock();
+    writer_active = false;
+
+    cv.notify_all();
+
+    cout << "Writer " << id << " done\n";
+}
+
+int main() {
+    thread r1(reader, 1);
+    thread r2(reader, 2);
+    thread w1(writer, 1);
+    thread r3(reader, 3);
+
+    r1.join();
+    r2.join();
+    w1.join();
+    r3.join();
+}
+================================================
+Smart pointers
+A smart pointer is an object that manages a dynamically allocated resource (memory) and 
+automatically handles its lifetime using RAII (Resource Acquisition Is Initialization) to prevent memory leaks.
+
+Why Smart Pointers Exist
+
+Bad code:
+
+int* p = new int(10);
+// forgot delete → memory leak ❌
+
+Good code:
+
+unique_ptr<int> p = make_unique<int>(10);
+// auto deleted ✅
+🔥 Types of Smart Pointers (Must Know)
+1. unique_ptr (Exclusive Ownership)
+
+👉 Only ONE owner
+
+#include <memory>
+using namespace std;
+
+unique_ptr<int> p1 = make_unique<int>(10);
+// unique_ptr<int> p2 = p1; ❌ not allowed
+
+✔ Fast
+✔ No overhead
+✔ Cannot be copied (only moved)
+
+2. shared_ptr (Shared Ownership)
+
+👉 Multiple owners
+
+shared_ptr<int> p1 = make_shared<int>(10);
+shared_ptr<int> p2 = p1;  // reference count++
+
+✔ Uses reference counting
+
+p1 → count = 2
+p2 → count = 2
+
+👉 Deleted when count = 0
+
+3. weak_ptr (Non-owning reference)
+
+👉 Prevents circular dependency
+
+weak_ptr<int> wp = p1;
+
+✔ Does NOT increase reference count
+✔ Used with shared_ptr
+
+⚠️ Interview Traps
+❌ shared_ptr circular reference
+class A {
+    shared_ptr<B> b;
+};
+class B {
+    shared_ptr<A> a;
+};
+
+👉 Memory leak (never reaches 0)
+
+✔ Fix:
+
+weak_ptr<A> a;
+=======================================================
+shared ptr vs weak ptr
+
+shared_ptr
+Owns the object
+Maintains a reference count
+Object is deleted when count = 0
+
+👉 Think: “I am responsible for keeping this object alive”
+
+🟡 weak_ptr
+Does NOT own the object
+Does NOT increase reference count
+Used to observe a shared_ptr
+
+👉 Think: “I just watch it, I don’t keep it alive
+
+💥 Why weak_ptr even exists (THIS is the real point)
+❌ Problem: Circular Reference (Memory Leak)
+class B;
+
+class A {
+public:
+    shared_ptr<B> b_ptr;
+};
+
+class B {
+public:
+    shared_ptr<A> a_ptr;
+};
+What happens:
+A → holds B
+B → holds A
+Ref count never becomes 0 ❌
+Memory leak
+
+👉 This is where most people fail interviews.
+
+✅ Fix using weak_ptr
+class B;
+
+class A {
+public:
+    shared_ptr<B> b_ptr;
+};
+
+class B {
+public:
+    weak_ptr<A> a_ptr;  // 👈 break cycle
+};
+
+Now:
+
+Only ONE side owns
+Other side observes
+Memory gets freed properly ✅
+========================================
+Implement unique pointer
+#include <iostream>
+using namespace std;
+
+template <typename T>
+class UniquePtr {
+private:
+    T* ptr;
+
+public:
+    // Constructor
+    explicit UniquePtr(T* p = nullptr) : ptr(p) {}
+
+    // ❌ Delete copy constructor
+    UniquePtr(const UniquePtr&) = delete;
+
+    // ❌ Delete copy assignment
+    UniquePtr& operator=(const UniquePtr&) = delete;
+
+    // ✅ Move constructor
+    UniquePtr(UniquePtr&& other) noexcept {
+        ptr = other.ptr;
+        other.ptr = nullptr;
+    }
+
+    // ✅ Move assignment
+    UniquePtr& operator=(UniquePtr&& other) noexcept {
+        if (this != &other) {
+            delete ptr;               // clean current
+            ptr = other.ptr;          // steal
+            other.ptr = nullptr;      // nullify source
+        }
+        return *this;
+    }
+
+    // Destructor
+    ~UniquePtr() {
+        delete ptr;
+    }
+
+    // Operators
+    T& operator*() {
+        return *ptr;
+    }
+
+    T* operator->() {
+        return ptr;
+    }
+
+    // Utility
+    T* get() const {
+        return ptr;
+    }
+
+    T* release() {
+        T* temp = ptr;
+        ptr = nullptr;
+        return temp;
+    }
+
+    void reset(T* p = nullptr) {
+        delete ptr;
+        ptr = p;
+    }
+};
+int main() {
+    UniquePtr<int> p1(new int(10));
+
+    // UniquePtr<int> p2 = p1; ❌ ERROR (copy not allowed)
+
+    UniquePtr<int> p2 = std::move(p1); // ✅ move
+
+    if (p1.get() == nullptr)
+        cout << "p1 is empty\n";
+
+    cout << *p2 << endl; // 10
+}
+============================================
+Implement strings
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class MyString {
+private:
+    char* data;
+    size_t size;
+    size_t capacity;
+
+    void resize(size_t newCapacity) {
+        char* newData = new char[newCapacity];
+
+        // copy old data
+        for (size_t i = 0; i < size; i++) {
+            newData[i] = data[i];
+        }
+
+        newData[size] = '\0';
+
+        delete[] data;
+        data = newData;
+        capacity = newCapacity;
+    }
+
+public:
+    // Constructor
+    MyString() {
+        capacity = 1;
+        size = 0;
+        data = new char[capacity];
+        data[0] = '\0';
+    }
+
+    // Constructor from C-string
+    MyString(const char* str) {
+        size = strlen(str);
+        capacity = size + 1;
+        data = new char[capacity];
+        strcpy(data, str);
+    }
+
+    // Copy Constructor
+    MyString(const MyString& other) {
+        size = other.size;
+        capacity = other.capacity;
+        data = new char[capacity];
+        strcpy(data, other.data);
+    }
+
+    // Assignment Operator
+    MyString& operator=(const MyString& other) {
+        if (this != &other) {
+            delete[] data;
+
+            size = other.size;
+            capacity = other.capacity;
+            data = new char[capacity];
+            strcpy(data, other.data);
+        }
+        return *this;
+    }
+
+    // Destructor
+    ~MyString() {
+        delete[] data;
+    }
+
+    // push_back
+    void push_back(char c) {
+        if (size + 1 >= capacity) {
+            resize(capacity * 2);
+        }
+
+        data[size++] = c;
+        data[size] = '\0';
+    }
+
+    // operator[]
+    char& operator[](size_t index) {
+        return data[index];
+    }
+
+    // length
+    size_t length() const {
+        return size;
+    }
+
+    // c_str
+    const char* c_str() const {
+        return data;
+    }
+};
+int main() {
+    MyString s("Hello");
+
+    s.push_back('!');
+    cout << s.c_str() << endl;  // Hello!
+
+    MyString s2 = s;
+    cout << s2.c_str() << endl; // Hello!
+
+    s2[0] = 'Y';
+    cout << s2.c_str() << endl; // Yello!
+}
+=========================================================
+🟢 std::async
+
+Runs a function asynchronously and returns a future to get the result later.
+
+🔵 std::future
+
+A placeholder that holds a value which will be available in the future.
+
+🟡 std::promise
+
+A way to set a value (or exception) that will later be read by a future.
+
+#include <iostream>
+#include <future>
+using namespace std;
+
+int compute() {
+    return 42;
+}
+
+int main() {
+    future<int> f = async(launch::async, compute);
+
+    cout << "Doing other work...\n";
+
+    cout << "Result: " << f.get() << endl;
+}
+🔥 2. promise + future (manual control)
+✅ Code
+#include <iostream>
+#include <thread>
+#include <future>
+using namespace std;
+
+void worker(promise<int> p) {
+    p.set_value(100);
+}
+
+int main() {
+    promise<int> p;
+    future<int> f = p.get_future();
+
+    thread t(worker, move(p));
+
+    cout << "Result: " << f.get() << endl;
+
+    t.join();
+}
+==============================================================

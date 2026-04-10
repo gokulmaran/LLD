@@ -1,0 +1,825 @@
+Operating Systems — Interview Q&A
+
+⚙️ 1. Process Management (fork, exec, wait)
+
+Q1. What is a Process? How is it different from a Program?
+A:
+ProgramProcessDefinitionStatic code on diskProgram in executionStatePassiveActiveMemoryNo memory allocatedHas stack, heap, data, textExistenceOne copyMultiple instances possible
+Program (on disk)  →  load into RAM  →  Process (running)
+        hello.cpp                         PID: 1234
+==============================================================
+Definition
+ProcessThreadWhat it isIndependent program in executionLightweight unit of execution within a processAlso called
+Heavyweight processLightweight process (LWP)Created byOS via fork()pthread_create() / std::thread
+======================================================
+Q2. What is fork()? What does it return?
+A: fork() creates a child process as an exact copy of the parent. It returns:
+
+> 0 (child's PID) → in parent
+= 0 → in child
+< 0 → error
+
+cpp#include <iostream>
+#include <unistd.h>
+using namespace std;
+
+int main() {
+    int x = 10;
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        cerr << "Fork failed!\n";
+    }
+    else if (pid == 0) {
+        x = 20;
+        cout << "Child:  x = " << x << ", PID = " << getpid() << "\n";
+    }
+    else {
+        cout << "Parent: x = " << x << ", PID = " << getpid() << "\n";
+        cout << "Child's PID seen by parent: " << pid << "\n";
+    }
+    return 0;
+}
+
+// Output:
+// Parent: x = 10, PID = 1001
+// Child:  x = 20, PID = 1002   ← separate copy of x!
+
+========================================================
+Q3. How many processes does this code create?
+A: A classic interview question!
+cppint main() {
+    fork();   // 1→2 processes
+    fork();   // 2→4 processes
+    fork();   // 4→8 processes
+}
+// Answer: 2^3 = 8 processes total
+// Rule: n fork() calls = 2^n processes
+
+=========================================================
+Q4. What is exec()? How is it different from fork()?
+A: exec() replaces the current process image with a new program. Unlike fork(), it does NOT create a new process.
+cpp#include <unistd.h>
+#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Before exec\n";
+
+    execl("/bin/ls", "ls", "-l", nullptr);  // replaces this process!
+
+    cout << "After exec\n";  // ← NEVER printed!
+    return 0;
+}
+// Output:
+// Before exec
+// (ls -l output here)
+fork()exec()New process?✅ Yes❌ NoMemoryCopies parentReplaces currentPIDNew PIDSame PIDReturnsIn both parent & childNever returns on success
+
+==============================================================
+Q5. What is wait()? Why is it needed?
+A: wait() makes the parent block until a child finishes. Without it, finished children become Zombie processes.
+cpp#include <unistd.h>
+#include <sys/wait.h>
+#include <iostream>
+using namespace std;
+
+int main() {
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        cout << "Child working...\n";
+        sleep(2);
+        cout << "Child done.\n";
+        exit(0);
+    }
+    else {
+        cout << "Parent waiting...\n";
+        int status;
+        wait(&status);         // parent blocks here
+        cout << "Child finished with status: "
+             << WEXITSTATUS(status) << "\n";
+    }
+    return 0;
+}
+
+========================================================
+Q6. What is a Zombie Process? What is an Orphan Process?
+A:
+Zombie ProcessOrphan ProcessDefinitionChild finished but parent hasn't called wait()Parent dies before childState"Defunct" — holds PID slotAdopted by init (PID 1)FixParent calls wait()init calls wait() automaticallyMemoryEntry in process table onlyNormal, runs fine
+Zombie:  Child exits → parent ignores → zombie entry remains in process table
+Orphan:  Parent exits first → child re-parented to init (PID 1)
+
+=========================================================
+Q7. What are the states of a Process?
+A:
+         admit              schedule
+New  ───────────► Ready ──────────────► Running ──► Terminated
+                    ▲                      │
+                    │     I/O complete     │ I/O request / wait
+                    └──── Waiting ◄────────┘
+StateDescriptionNewProcess being createdReadyWaiting for CPURunningCurrently executingWaitingWaiting for I/O or eventTerminatedFinished execution
+
+====================================================
+🕐 2. CPU Scheduling
+
+Q8. What is CPU Scheduling? What are its goals?
+A: CPU Scheduling decides which process gets the CPU when multiple are ready.
+Goals:
+
+Maximize CPU utilization, throughput
+Minimize waiting time, turnaround time, response time
+
+Key terms:
+Arrival Time  (AT) = when process enters ready queue
+Burst Time    (BT) = CPU time needed
+Completion    (CT) = when process finishes
+Turnaround    (TAT) = CT - AT
+Waiting Time  (WT)  = TAT - BT
+Response Time (RT)  = first CPU - AT
+=============================================================
+Q9. Explain FCFS with example. What is its drawback?
+A: First Come First Served — processes scheduled in arrival order. Non-preemptive.
+Process  AT  BT
+  P1      0   6
+  P2      1   4
+  P3      2   2
+
+Gantt Chart:
+| P1 (0-6) | P2 (6-10) | P3 (10-12) |
+
+TAT: P1=6, P2=9, P3=10   Avg TAT = 8.33
+WT:  P1=0, P2=5, P3=8    Avg WT  = 4.33
+Drawback → Convoy Effect: Short processes wait behind long ones.
+
+========================================================================
+Q10. Explain SJF. What is the difference between preemptive and non-preemptive SJF?
+A: Shortest Job First — picks process with smallest burst time.
+Process  AT  BT
+  P1      0   7
+  P2      2   4
+  P3      4   1
+  P4      5   4
+
+Non-Preemptive SJF:
+| P1(0-7) | P3(7-8) | P2(8-12) | P4(12-16) |
+Avg WT = (0 + 6 + 3 + 7) / 4 = 4.0
+
+Preemptive SJF (SRTF - Shortest Remaining Time First):
+| P1(0-2) | P2(2-4) | P3(4-5) | P2(5-7) | P4(7-11) | P1(11-16) |
+Avg WT = (9 + 1 + 0 + 2) / 4 = 3.0   ← always optimal!
+Non-Preemptive SJFPreemptive SJF (SRTF)Running job interrupted?❌ No✅ Yes (if shorter arrives)Optimal?Not always✅ Minimum avg WT
+
+Q11. Explain Round Robin. What is the effect of Time Quantum?
+A: Each process gets a fixed time quantum (TQ). After TQ expires, it goes back to the ready queue.
+Process  AT  BT     Time Quantum = 2
+  P1      0   5
+  P2      0   3
+  P3      0   4
+
+Gantt:
+| P1(0-2) | P2(2-4) | P3(4-6) | P1(6-8) | P2(8-9) | P3(9-11) | P1(11-12) |
+
+WT:  P1=7, P2=6, P3=7    Avg WT = 6.67
+Effect of Time Quantum:
+TQBehaviorVery smallToo many context switches → overheadVery largeBecomes FCFSOptimal~80% of burst times (rule of thumb)
+
+==========================================================================
+Q12. Explain Priority Scheduling. What is Starvation? How to fix it?
+A: Each process has a priority. CPU goes to highest priority process.
+Process  AT  BT  Priority (lower = higher priority)
+  P1      0   3      3
+  P2      0   5      1   ← highest priority
+  P3      0   1      4
+  P4      0   2      2
+
+Non-Preemptive:
+| P2(0-5) | P4(5-7) | P1(7-10) | P3(10-11) |
+Starvation: Low-priority processes never get CPU if high-priority keep arriving.
+Fix → Aging: Gradually increase priority of waiting processes over time.
+Every 1 minute waiting → priority += 1
+Eventually low-priority process gets high enough to run
+
+=========================================================
+Q13. Comparison of all scheduling algorithms?
+A:
+AlgorithmPreemptiveOptimalStarvationUse CaseFCFS❌❌❌Simple batchSJF❌✅ (avg WT)✅ YesBatch systemsSRTF✅✅ Best✅ YesTheoreticalRound Robin✅❌❌Time-sharingPriorityBoth❌✅ YesReal-time OSMultilevel QueueBoth❌✅ YesGeneral OS
+
+====================================================================
+🧠 3. Memory Management (Virtual Memory, Paging)
+
+Q14. What is Virtual Memory? Why is it needed?
+A: Virtual Memory allows processes to use more memory than physically available by using disk as an extension of RAM.
+Process thinks it has:     Actual RAM:
+┌─────────────────┐        ┌──────────┐
+│  0 to 4GB space │  ──►   │  512MB   │ + Swap space on disk
+└─────────────────┘        └──────────┘
+Benefits:
+
+Run large programs with limited RAM
+Process isolation (each has own address space)
+More processes can coexist
+
+=========================================================================
+Q15. What is Paging? Explain with diagram.
+A: Paging divides:
+
+Physical memory → fixed-size frames
+Logical memory → fixed-size pages
+
+A Page Table maps logical pages → physical frames.
+Logical Address:  [ Page Number | Offset ]
+                        ↓
+                   Page Table
+                   Page 0 → Frame 3
+                   Page 1 → Frame 7
+                   Page 2 → Frame 1
+                        ↓
+Physical Address: [ Frame Number | Offset ]
+Logical Address = 2050, Page Size = 1024
+Page Number  = 2050 / 1024 = 2  → maps to Frame 1
+Offset       = 2050 % 1024 = 2
+Physical Add = (1 × 1024) + 2   = 1026
+
+=============================================================================
+Q16. What is a Page Fault? What happens when one occurs?
+A: A page fault occurs when a process accesses a page not currently in RAM.
+Steps on Page Fault:
+1. CPU accesses virtual address
+2. MMU checks page table → page not in RAM (invalid bit)
+3. OS trap (page fault interrupt)
+4. OS finds free frame (or evicts one using replacement policy)
+5. Loads required page from disk into frame
+6. Updates page table
+7. Restarts the instruction
+Page Fault Rate affects performance massively → called Thrashing if too frequent.
+
+===============================================================================
+Q17. What is Thrashing?
+A: Thrashing occurs when a process spends more time paging than executing — too many page faults.
+Cause:   Too many processes → each gets very few frames
+Effect:  Constant page in/out → CPU utilization drops to near 0%
+
+Fix:
+1. Working Set Model — allocate frames based on locality
+2. Reduce degree of multiprogramming
+3. Add more RAM
+
+===================================================================
+Q18. Explain Page Replacement Algorithms.
+A:
+Reference String: 7 0 1 2 0 3 0 4 2 3 0 3 2    Frames = 3
+
+FIFO:
+Replace oldest page first
+Faults: 9
+
+LRU (Least Recently Used):
+Replace page not used for longest time
+Faults: 8   ← better than FIFO
+
+OPT (Optimal):
+Replace page not used farthest in future
+Faults: 7   ← theoretically best (not implementable)
+AlgorithmStrategyImplementablePerformanceFIFOOldest in → first out✅PoorLRULeast recently used✅ (costly)GoodOptimalFurthest future use❌BestLFULeast frequently used✅ModerateClockApproximation of LRU✅Good
+
+=====================================================================
+Q19. What is Segmentation? How is it different from Paging?
+A:
+PagingSegmentationDivisionFixed-size pagesVariable-size segments (code, stack, heap)User visible?❌ No✅ Yes (logical units)FragmentationInternalExternalAddressPage# + OffsetSegment# + Offset
+===================================================================
+🔒 4. Deadlock
+
+Q20. What is Deadlock? What are its 4 necessary conditions?
+A: Deadlock is a state where processes wait forever for resources held by each other.
+Coffman's 4 Conditions (ALL must hold):
+1. Mutual Exclusion   — Resource held by only one process at a time
+2. Hold and Wait      — Process holds resource while waiting for another
+3. No Preemption      — Resources can't be forcibly taken away
+4. Circular Wait      — P1 waits for P2, P2 waits for P3, P3 waits for P1
+cpp// Classic Deadlock Example
+mutex A, B;
+
+// Thread 1          // Thread 2
+lock(A);             lock(B);
+lock(B);  ←─────►   lock(A);   ← DEADLOCK!
+
+======================================================
+Q21. What are the strategies to handle Deadlock?
+A:
+                    Deadlock Handling
+                          │
+        ┌─────────────────┼──────────────────┐
+    Prevention        Avoidance          Detection
+   (break conditions) (safe state)     + Recovery
+
+===========================================================
+Q22. Explain Deadlock Prevention.
+A: Break at least one of the 4 Coffman conditions:
+ConditionPrevention StrategyMutual ExclusionUse sharable resources (read-only files)Hold and WaitRequest ALL resources at once before startingNo PreemptionAllow OS to forcibly take resourcesCircular WaitImpose ordering on resources (always lock A before B)
+cpp// Preventing Circular Wait — always acquire in fixed order
+void thread1() { lock(A); lock(B); /* work */ unlock(B); unlock(A); }
+void thread2() { lock(A); lock(B); /* work */ unlock(B); unlock(A); }
+//              ↑ same order → no circular wait!
+========================================================================
+Q23. Explain Banker's Algorithm (Deadlock Avoidance).
+A: OS checks if granting a resource leads to a safe state before allocating.
+Safe State = there exists a sequence where every process
+             can finish using available + held resources
+
+Example:
+Processes: P0, P1, P2     Resources: A=10, B=5, C=7
+
+         Allocation    Max Need    Need (Max-Alloc)   Available
+         A  B  C       A  B  C       A  B  C          A  B  C
+P0       0  1  0       7  5  3       7  4  3           3  3  2
+P1       2  0  0       3  2  2       1  2  2
+P2       3  0  2       9  0  2       6  0  0
+
+Safe sequence: P1 → P0 → P2 ✅ (Safe State)
+→ OS grants request
+
+If no safe sequence exists → OS denies request!
+===================================================================
+Q24. Explain Deadlock Detection and Recovery.
+A: Let deadlock occur, then detect and recover.
+Detection: Use Resource Allocation Graph (RAG) or Wait-for Graph.
+
+Cycle in RAG = deadlock (with single instance resources)
+
+Resource Allocation Graph:
+P1 ──► R1 ──► P2 ──► R2 ──► P1   ← CYCLE = DEADLOCK
+Recovery Strategies:
+1. Process Termination
+   a) Kill ALL deadlocked processes (costly)
+   b) Kill ONE at a time until deadlock resolved
+
+2. Resource Preemption
+   a) Rollback — take resource, roll process back to safe state
+   b) Select victim with minimum cost
+   c) Prevent starvation — don't always pick same victim
+========================================================
+🔗 IPC — Inter-Process Communication
+
+📌 PIPES
+
+Q1. What is a Pipe? What are its limitations?
+A: A pipe is a unidirectional communication channel between processes, using a producer-consumer model with a kernel buffer.
+Parent Process                    Child Process
+   write end ──────[kernel buffer]────► read end
+   fd[1]                               fd[0]
+Limitations:
+
+Unidirectional only (half-duplex)
+Works only between related processes (parent-child)
+No persistence — data lost if not read
+Fixed buffer size (typically 64KB on Linux)
+
+cpp#include <unistd.h>
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main() {
+    int fd[2];
+    pipe(fd);          // fd[0]=read end, fd[1]=write end
+
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        // Child: reads from pipe
+        close(fd[1]);  // close unused write end
+        char buf[64];
+        read(fd[0], buf, sizeof(buf));
+        cout << "Child received: " << buf << "\n";
+        close(fd[0]);
+    } else {
+        // Parent: writes to pipe
+        close(fd[0]);  // close unused read end
+        const char* msg = "Hello from parent!";
+        write(fd[1], msg, strlen(msg) + 1);
+        close(fd[1]);
+        wait(nullptr);
+    }
+    return 0;
+}
+// Output: Child received: Hello from parent!
+==================================================================
+Q2. What is the difference between Anonymous Pipe and Named Pipe (FIFO)?
+A:
+Anonymous PipeNamed Pipe (FIFO)Relation needed✅ Related processes only❌ Any two processesFile system entry❌ No✅ Yes (/tmp/mypipe)PersistenceDies with processExists until deletedDirectionUnidirectionalUnidirectionalSystem callpipe()mkfifo()
+cpp// Named Pipe (FIFO) — two unrelated processes
+
+// Process 1 (Writer)
+#include <fcntl.h>
+#include <unistd.h>
+int main() {
+    mkfifo("/tmp/mypipe", 0666);          // create FIFO
+    int fd = open("/tmp/mypipe", O_WRONLY);
+    write(fd, "hello via FIFO", 15);
+    close(fd);
+}
+
+// Process 2 (Reader)
+int main() {
+    int fd = open("/tmp/mypipe", O_RDONLY);
+    char buf[64];
+    read(fd, buf, sizeof(buf));
+    printf("Got: %s\n", buf);             // Got: hello via FIFO
+    close(fd);
+}
+
+Q3. What happens when you write to a pipe with no reader? What is SIGPIPE?
+A: Writing to a pipe with no reader sends SIGPIPE signal to the writer. Default behavior is to terminate the process.
+cpp#include <signal.h>
+#include <unistd.h>
+#include <iostream>
+
+void sigpipe_handler(int) {
+    cout << "SIGPIPE caught — reader closed!\n";
+}
+
+int main() {
+    signal(SIGPIPE, sigpipe_handler);   // handle instead of crash
+
+    int fd[2];
+    pipe(fd);
+    close(fd[0]);   // close read end immediately
+
+    char buf[] = "test";
+    write(fd[1], buf, 4);  // ← triggers SIGPIPE
+    return 0;
+}
+===============================================================
+📌 SHARED MEMORY
+
+Q4. What is Shared Memory? Why is it the fastest IPC?
+A: Shared memory maps the same physical memory pages into multiple process address spaces — no data copying, no kernel involvement after setup.
+Process A                Process B
+┌──────────────┐         ┌──────────────┐
+│ virtual addr │         │ virtual addr │
+│  0x7fff1000  │         │  0x7fff8000  │
+└──────┬───────┘         └──────┬───────┘
+       │                        │
+       └──────────┐  ┌──────────┘
+              ┌───▼──▼────────┐
+              │ Physical RAM  │  ← SAME PAGES
+              │  (shared mem) │
+              └───────────────┘
+
+No copy needed — write once, other process reads directly!
+cpp#include <sys/shm.h>
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main() {
+    // Create shared memory segment
+    key_t key = ftok("/tmp", 65);
+    int shmid = shmget(key, 1024, IPC_CREAT | 0666);
+
+    // Attach to address space
+    char* shm = (char*)shmat(shmid, nullptr, 0);
+
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        // Child: reads after parent writes
+        sleep(1);
+        cout << "Child reads: " << shm << "\n";
+        shmdt(shm);
+    } else {
+        // Parent: writes to shared memory
+        strcpy(shm, "Data via shared memory!");
+        wait(nullptr);
+        shmdt(shm);
+        shmctl(shmid, IPC_RMID, nullptr);   // cleanup
+    }
+    return 0;
+}
+// Output: Child reads: Data via shared memory!
+===================================================================================
+Q5. What is the problem with Shared Memory? How do you solve it?
+A: Shared memory has no built-in synchronization — race conditions occur without explicit locking.
+cpp// PROBLEM: Race condition on shared memory
+*shared_counter += 1;   // Thread A and B both do this
+                        // Read → Increment → Write is NOT atomic!
+
+// SOLUTION 1: Semaphore
+#include <semaphore.h>
+sem_t* sem = sem_open("/mysem", O_CREAT, 0666, 1);
+
+sem_wait(sem);          // lock
+*shared_counter += 1;   // critical section
+sem_post(sem);          // unlock
+
+// SOLUTION 2: POSIX mutex in shared memory
+pthread_mutexattr_t attr;
+pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
+pthread_mutex_t* mtx = (pthread_mutex_t*)shm_ptr;
+pthread_mutex_init(mtx, &attr);
+
+pthread_mutex_lock(mtx);
+*shared_counter += 1;
+pthread_mutex_unlock(mtx);
+=========================================================================
+Q6. What is the difference between System V Shared Memory and POSIX Shared Memory?
+A:
+System V (shmget)POSIX (shm_open)APIshmget / shmat / shmdtshm_open / mmap / munmapIdentificationNumeric keyNamed (/myshmem)VisibilityIPC namespaceFile system (/dev/shm)PersistenceUntil shmctl(IPC_RMID)Until shm_unlink()PreferredLegacy systemsModern systems ✅
+cpp// POSIX shared memory (modern approach)
+#include <sys/mman.h>
+#include <fcntl.h>
+
+int fd = shm_open("/myshm", O_CREAT | O_RDWR, 0666);
+ftruncate(fd, sizeof(int));
+int* data = (int*)mmap(nullptr, sizeof(int),
+                        PROT_READ | PROT_WRITE,
+                        MAP_SHARED, fd, 0);
+*data = 42;     // write
+munmap(data, sizeof(int));
+shm_unlink("/myshm");    // cleanup
+======================================================
+📌 SOCKETS
+
+Q7. What are Sockets? What are the types?
+A: Sockets provide bidirectional communication endpoints — between processes on the same machine or across a network.
+Same Machine:                   Across Network:
+Process A ←──Unix socket──► Process B    Host A ←──TCP/IP──► Host B
+          (AF_UNIX)                             (AF_INET)
+Types:
+TypeProtocolCharacteristicsSOCK_STREAMTCPReliable, ordered, connection-basedSOCK_DGRAMUDPUnreliable, no connection, fastSOCK_RAWRaw IPDirect IP access, custom headersUnix DomainLocal onlyFastest socket IPC (no network stack)
+==================================================================
+Q8. Explain the TCP socket lifecycle with code.
+A:
+SERVER                              CLIENT
+socket()                            socket()
+  │                                   │
+bind()                                │
+  │                                   │
+listen()                              │
+  │                                   │
+accept() ◄──── connect() ────────────►│
+  │                                   │
+read() ◄────── write() ─────────────►│
+  │                                   │
+write() ──────► read() ──────────────►│
+  │                                   │
+close()                             close()
+cpp// SERVER
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <iostream>
+using namespace std;
+
+int main() {
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+    sockaddr_in addr{};
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port = htons(8080);
+
+    bind(server_fd, (sockaddr*)&addr, sizeof(addr));
+    listen(server_fd, 5);
+
+    cout << "Server waiting...\n";
+    int client_fd = accept(server_fd, nullptr, nullptr);
+
+    char buf[256] = {};
+    read(client_fd, buf, sizeof(buf));
+    cout << "Received: " << buf << "\n";
+
+    write(client_fd, "ACK from server", 16);
+
+    close(client_fd);
+    close(server_fd);
+    return 0;
+}
+
+// CLIENT
+int main() {
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+
+    sockaddr_in addr{};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(8080);
+    inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
+
+    connect(sock, (sockaddr*)&addr, sizeof(addr));
+    write(sock, "Hello server!", 14);
+
+    char buf[256] = {};
+    read(sock, buf, sizeof(buf));
+    cout << "Server says: " << buf << "\n";  // Server says: ACK from server
+
+    close(sock);
+    return 0;
+}
+===========================================================
+Q9. What is the difference between TCP and UDP sockets?
+A:
+FeatureTCP (SOCK_STREAM)UDP (SOCK_DGRAM)Connection✅ Required (3-way handshake)❌ ConnectionlessReliability✅ Guaranteed delivery❌ Best effortOrdering✅ In-order delivery❌ May arrive out of orderSpeedSlowerFasterHeader size20 bytes8 bytesUse caseHTTP, FTP, SSHDNS, video streaming, gamingFlow control✅ Yes❌ No
+cpp// UDP — no connect/accept, just sendto/recvfrom
+int sock = socket(AF_INET, SOCK_DGRAM, 0);
+
+// Server side
+recvfrom(sock, buf, sizeof(buf), 0,
+         (sockaddr*)&client_addr, &addr_len);
+
+// Client side
+sendto(sock, "ping", 5, 0,
+       (sockaddr*)&server_addr, sizeof(server_addr));
+
+Q10. What is a Unix Domain Socket? Why is it faster than TCP localhost?
+A: Unix domain sockets use the file system as address space (/tmp/my.sock) — no network stack, no TCP/IP overhead, no loopback.
+TCP localhost:   App → TCP stack → IP stack → loopback → IP → TCP → App
+Unix socket:     App ──────────────────────────────────────────────► App
+                        (kernel copies buffer directly)
+cpp#include <sys/un.h>
+
+// Server
+int fd = socket(AF_UNIX, SOCK_STREAM, 0);
+sockaddr_un addr{};
+addr.sun_family = AF_UNIX;
+strcpy(addr.sun_path, "/tmp/my.sock");
+bind(fd, (sockaddr*)&addr, sizeof(addr));
+listen(fd, 5);
+
+// Client
+int fd = socket(AF_UNIX, SOCK_STREAM, 0);
+sockaddr_un addr{};
+addr.sun_family = AF_UNIX;
+strcpy(addr.sun_path, "/tmp/my.sock");
+connect(fd, (sockaddr*)&addr, sizeof(addr));
+==============================================================================
+📌 SIGNALS
+
+Q11. What are Signals? List important signals.
+A: Signals are asynchronous software interrupts sent to a process to notify it of an event.
+kill -SIGTERM 1234     ←── user sends signal
+        │
+        ▼
+   Process 1234
+   [signal handler runs or default action taken]
+SignalNumberDefault ActionMeaningSIGINT2TerminateCtrl+CSIGTERM15TerminateGraceful shutdownSIGKILL9TerminateForce kill (cannot catch!)SIGSEGV11Core dumpSegmentation faultSIGCHLD17IgnoreChild stopped/terminatedSIGPIPE13TerminateBroken pipeSIGALRM14TerminateTimer expiredSIGUSR1/210/12TerminateUser-definedSIGSTOP19StopPause process (cannot catch!)SIGCONT18ContinueResume paused process
+
+Q12. How do you handle signals in C++? What signals cannot be caught?
+A: Use signal() or sigaction() to register a handler. SIGKILL and SIGSTOP cannot be caught, blocked, or ignored.
+cpp#include <csignal>
+#include <iostream>
+#include <unistd.h>
+using namespace std;
+
+volatile sig_atomic_t running = 1;   // async-signal-safe type
+
+void handle_sigint(int sig) {
+    cout << "\nCaught SIGINT (" << sig << ") — shutting down\n";
+    running = 0;
+}
+
+void handle_sigusr1(int) {
+    cout << "SIGUSR1 received — reloading config\n";
+}
+
+int main() {
+    // Using sigaction (preferred over signal())
+    struct sigaction sa{};
+    sa.sa_handler = handle_sigint;
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGINT, &sa, nullptr);   // Ctrl+C
+
+    signal(SIGUSR1, handle_sigusr1);   // kill -SIGUSR1 <pid>
+
+    cout << "PID: " << getpid() << " — running...\n";
+    while (running) {
+        sleep(1);
+        cout << "tick\n";
+    }
+    cout << "Cleanup done. Bye!\n";
+    return 0;
+}
+
+Q13. What is the difference between signal() and sigaction()?
+A:
+signal()sigaction()PortabilityVaries across systemsPOSIX standard ✅ReliabilityHandler may reset after callPersistent handlerSignal masking❌ No control✅ Can block signals during handlerInfo about signal❌ No✅ siginfo_t provides detailsRecommended❌ Legacy✅ Always prefer this
+
+📌 IPC COMPARISON
+
+Q14. Compare all IPC mechanisms.
+A:
+MechanismSpeedBidirectionalUnrelated ProcsPersistenceSync NeededAnonymous PipeFast❌❌❌❌ (kernel buffers)Named Pipe (FIFO)Fast❌✅✅❌Shared MemoryFastest ⚡✅✅✅✅ (manual!)TCP SocketSlow✅✅ (network)❌❌Unix SocketFast✅✅❌❌SignalsFastest❌ (one-way)✅❌❌Message QueueModerate✅✅✅❌
+Speed ranking:
+Shared Memory > Unix Socket > Named Pipe > TCP Socket
+==================================================================================
+📁 File Systems
+
+Q15. What is a File System? What does it manage?
+A: A file system organizes how data is stored, retrieved, and managed on storage devices. It manages:
+File System responsibilities:
+┌─────────────────────────────────────────────┐
+│  • File naming and directory structure      │
+│  • Mapping file names → disk locations      │
+│  • Free space management                    │
+│  • Access control (permissions)             │
+│  • Metadata (size, owner, timestamps)       │
+│  • Crash recovery / journaling              │
+└─────────────────────────────────────────────┘
+
+Q16. What is an Inode? What does it store?
+A: An inode (index node) stores all metadata about a file except its name. The directory maps name → inode number.
+Directory entry:          Inode (inode #42):
+┌──────────────┐          ┌──────────────────────┐
+│ "report.txt" │──42─────►│ File type: regular   │
+└──────────────┘          │ Permissions: 644     │
+                          │ Owner UID: 1000      │
+                          │ Size: 4096 bytes     │
+                          │ Timestamps: atime,   │
+                          │   mtime, ctime       │
+                          │ Link count: 1        │
+                          │ Data block ptrs:     │
+                          │  [block 101]         │
+                          │  [block 205]         │
+                          │  [indirect ptr]      │
+                          └──────────────────────┘
+                                    │
+                          ┌─────────▼────────┐
+                          │   Data blocks    │
+                          │  (actual bytes)  │
+                          └──────────────────┘
+Inode does NOT store: filename, full path, file content.
+bashls -i file.txt    # shows inode number
+stat file.txt     # shows full inode info
+
+Q17. What is the difference between Hard Link and Soft Link?
+A:
+Hard Link:                          Soft Link (Symlink):
+file.txt ──►[inode 42]◄── link.txt  link.txt ──► "file.txt" ──►[inode 42]
+Both point to SAME inode            Points to the NAME, not inode
+Hard LinkSoft (Symbolic) LinkPoints toSame inodeFilename/pathWorks across filesystems❌ No✅ YesOriginal deleted✅ File still accessible❌ Dangling linkCan link directories❌ No✅ YesInode countIncreasesNo changeCommandln file linkln -s file link
+bashln   file.txt hardlink.txt    # same inode, link count = 2
+ln -s file.txt softlink.txt   # new inode, points to path
+
+Q18. What are the types of File Allocation methods?
+A: How does OS track which disk blocks belong to a file?
+1. Contiguous Allocation:
+File A: blocks [10, 11, 12, 13]   ← all contiguous
++ Fast sequential access
+- External fragmentation
+- Must know file size upfront
+2. Linked Allocation:
+Block 10 → Block 25 → Block 4 → Block 18 → NULL
++ No external fragmentation
+- Random access is slow (must traverse chain)
+- One corrupt pointer loses rest of file
+3. Indexed Allocation (used by Unix/ext2):
+Index block: [10, 25, 4, 18, ...]
+               ↓   ↓  ↓   ↓
+            data data data data
++ Fast random access
++ No external fragmentation
+- Index block overhead
+MethodSequentialRandomFragmentationContiguous✅ Fast✅ FastExternalLinked✅ OK❌ SlowNoneIndexed✅ OK✅ FastNone
+
+Q19. What is Journaling in file systems? Why is it needed?
+A: Journaling logs changes before applying them to disk — enables recovery after crash without full disk scan.
+Without journaling (crash mid-write):
+[Write metadata] ──✗ CRASH ──► inconsistent state
+→ need fsck (full disk scan, very slow!)
+
+With journaling:
+[Write to journal] → [Commit] → [Apply to disk] → [Clear journal]
+         ✗ CRASH here → replay journal on reboot (fast!)
+Journal modes:
+ModeWhat's journaledPerformanceSafetywritebackMetadata onlyFastestLeast safeorderedMetadata (data written first)Good ✅Good ✅dataMetadata + dataSlowestSafest
+
+Q20. Compare popular file systems.
+A:
+File SystemOSMax FileJournalingFeaturesext4Linux16TB✅Default Linux FSNTFSWindows16EB✅Encryption, compressionFAT32Universal4GB❌USB drives, compatibilityexFATUniversal128PB❌Large files, USBAPFSmacOS8EB✅Snapshots, encryptionXFSLinux8EB✅High-performanceBtrfsLinux16EB✅Snapshots, RAIDZFSLinux/BSD256ZB✅Data integrity, RAID-Z
+
+Q21. What is Virtual File System (VFS)?
+A: VFS is an abstraction layer in the kernel that provides a uniform interface — programs use the same open/read/write calls regardless of underlying file system.
+User program:  open("file.txt") → read() → write()
+                        │
+               ┌────────▼────────┐
+               │   VFS Layer     │  ← uniform interface
+               └──┬──────┬───┬──┘
+                  │      │   │
+               ext4    NTFS  NFS   ← different file systems
+
+Q22. What are File Permissions in Linux?
+A: Linux uses a 3×3 permission model — owner / group / others × read / write / execute.
+bash-rwxr-xr--  1  user  group  4096  file.txt
+│└──┘└──┘└──┘
+│ │   │   └── others: r-- (read only)
+│ │   └─────── group: r-x (read + execute)
+│ └─────────── owner: rwx (full)
+└──────────── file type: - (regular), d (dir), l (link)
+
+chmod 754 file.txt
+# 7 = rwx (owner), 5 = r-x (group), 4 = r-- (others)
+Special bits:
+BitEffect on fileEffect on directorySUID (4xxx)Run as file owner—SGID (2xxx)Run as group ownerNew files inherit groupSticky (1xxx)—Only owner can delete file
+bashchmod u+s file   # SUID — e.g. passwd command
+chmod +t /tmp    # sticky bit — /tmp protection
+============================================================================================

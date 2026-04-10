@@ -1,0 +1,1009 @@
+Multithreading — Complete Q&A Guide
+
+🧵 1. std::thread, join, detach
+Q1. What is std::thread and how do you create one?
+A: std::thread is a C++11 class that represents an OS-level thread.
+ You create one by passing a callable (function, lambda, functor).
+cpp#include <iostream>
+#include <thread>
+using namespace std;
+
+void task(int id) {
+    cout << "Thread " << id << " running\n";
+}
+
+int main() {
+    thread t1(task, 1);       // spawn thread
+    thread t2([]{ cout << "Lambda thread\n"; });
+
+    t1.join();   // main waits for t1 to finish
+    t2.join();
+    return 0;
+}
+====================================================================
+Q2. What is the difference between join() and detach()?
+A:
+join()detach()Main waits?✅ Yes❌ NoThread lifecycleTied to mainIndependent (daemon)Resource 
+cleanupAutomatic after joinOS handles itRiskBlockingDangling references
+cppthread t(task, 42);
+
+// Option A — join
+t.join();     // main blocks until t finishes
+
+// Option B — detach
+t.detach();   // t runs freely; main doesn't wait
+// WARNING: never access local variables of main after detach!
+
+==========================================================================
+Q3. What happens if you neither join() nor detach() a thread?
+A: The destructor calls std::terminate() and the program crashes. Always join or detach every thread.
+cpp// BAD — causes std::terminate
+void bad() {
+    thread t([]{ cout << "oops\n"; });
+}  // ← destructor called here → CRASH
+
+// GOOD — use RAII wrapper
+void good() {
+    thread t([]{ cout << "safe\n"; });
+    t.join();  // or t.detach()
+}
+
+============================================================================
+Q4. How do you pass arguments to a thread? What is the danger with references?
+A: Arguments are copied by default. Use std::ref() to pass by reference — but be careful of lifetime.
+cppvoid increment(int& x) { x++; }
+
+int main() {
+    int val = 10;
+    thread t(increment, ref(val));  // ref() needed!
+    t.join();
+    cout << val;  // 11
+}
+// WARNING: val must outlive thread t
+===============================================================
+
+🔒 2. Mutex, lock_guard, unique_lock
+Q5. What is a Race Condition? Show with example.
+A: A race condition occurs when two threads access shared data simultaneously and at least one writes, leading to undefined behavior.
+cpp#include <thread>
+#include <iostream>
+using namespace std;
+
+int counter = 0;
+
+void unsafe_increment() {
+    for (int i = 0; i < 100000; i++)
+        counter++;   // ← RACE CONDITION!
+}
+
+int main() {
+    thread t1(unsafe_increment);
+    thread t2(unsafe_increment);
+    t1.join(); t2.join();
+    cout << counter;  // Expected 200000, but gets random result!
+}
+====================================================================
+Q6. How does Mutex fix race conditions?
+A: A mutex (mutual exclusion) allows only one thread at a time to enter the critical section.
+cpp#include <thread>
+#include <mutex>
+#include <iostream>
+using namespace std;
+
+int counter = 0;
+mutex mtx;
+
+void safe_increment() {
+    for (int i = 0; i < 100000; i++) {
+        mtx.lock();
+        counter++;     // critical section
+        mtx.unlock();
+    }
+}
+
+int main() {
+    thread t1(safe_increment);
+    thread t2(safe_increment);
+    t1.join(); t2.join();
+    cout << counter;   // Always 200000 ✅
+}
+
+===========================================================================
+Q7. What is lock_guard and why prefer it over manual lock/unlock?
+A: lock_guard is a RAII wrapper — it locks on construction, unlocks on destruction automatically. Prevents forgetting to unlock or deadlock on exceptions.
+cppmutex mtx;
+int counter = 0;
+
+void safe_increment() {
+    for (int i = 0; i < 100000; i++) {
+        lock_guard<mutex> lg(mtx);  // locks here
+        counter++;
+    }  // ← automatically unlocks here (even if exception thrown)
+}
+
+================================================================================
+Q8. What is unique_lock and how is it different from lock_guard?
+A:
+Featurelock_guardunique_lockOverheadLowerSlightly higherManual unlock❌ No✅ YesDeferred locking❌ No✅ YesUse with CV❌ No✅ YesMoveable❌ No✅ Yes
+cppmutex mtx;
+
+void example() {
+    unique_lock<mutex> ul(mtx);       // locks immediately
+    // ... critical section ...
+    ul.unlock();                       // manual unlock allowed
+
+    // deferred lock
+    unique_lock<mutex> ul2(mtx, defer_lock);
+    ul2.lock();   // lock later when needed
+}
+
+=============================================================================
+📢 3. Condition Variables
+Q9. What is a Condition Variable and when do you use it?
+A: A condition variable lets threads wait until a condition is true, and notify others when it changes. Used in producer-consumer problems.
+cpp#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <queue>
+#include <iostream>
+using namespace std;
+
+mutex mtx;
+condition_variable cv;
+queue<int> q;
+
+void producer() {
+    for (int i = 1; i <= 5; i++) {
+        unique_lock<mutex> ul(mtx);
+        q.push(i);
+        cout << "Produced: " << i << "\n";
+        cv.notify_one();   // wake up consumer
+    }
+}
+
+void consumer() {
+    for (int i = 0; i < 5; i++) {
+        unique_lock<mutex> ul(mtx);
+        cv.wait(ul, []{ return !q.empty(); });  // wait until queue has data
+        cout << "Consumed: " << q.front() << "\n";
+        q.pop();
+    }
+}
+
+int main() {
+    thread t1(producer), t2(consumer);
+    t1.join(); t2.join();
+}
+
+===============================================================================
+Q10. What is a Spurious Wakeup?
+A: A thread can wake up from cv.wait() without being notified — this is a spurious wakeup. Always use a predicate (condition check) in wait to handle it.
+cpp// BAD — no predicate, vulnerable to spurious wakeup
+cv.wait(ul);
+
+// GOOD — predicate ensures correct state
+cv.wait(ul, []{ return !queue.empty(); });
+// Equivalent to:
+while (queue.empty()) cv.wait(ul);
+
+================================================================================
+⚛️ 4. std::atomic (Lock-Free)
+Q11. What is std::atomic and when should you use it?
+A: std::atomic provides lock-free thread-safe operations on simple types without needing a mutex. Best for counters and flags.
+cpp#include <atomic>
+#include <thread>
+#include <iostream>
+using namespace std;
+
+atomic<int> counter(0);   // thread-safe, no mutex needed
+
+void increment() {
+    for (int i = 0; i < 100000; i++)
+        counter++;   // atomic increment
+}
+
+int main() {
+    thread t1(increment), t2(increment);
+    t1.join(); t2.join();
+    cout << counter;   // Always 200000 ✅
+}
+
+===================================================================
+Q12. What is the difference between atomic and mutex?
+A:
+std::atomicstd::mutexUse caseSimple types (int, bool, ptr)Complex critical sectionsPerformanceFaster (lock-free)Slower (OS-level lock)ScopeSingle variableMultiple statementsDeadlock risk❌ None✅ Possible
+
+=============================================
+🔮 5. std::future / std::async
+Q13. What is std::async and std::future?
+A: std::async runs a function asynchronously and returns a std::future — a handle to retrieve the result later.
+cpp#include <future>
+#include <iostream>
+using namespace std;
+
+int compute(int x) {
+    return x * x;
+}
+
+int main() {
+    future<int> f = async(launch::async, compute, 10);
+
+    cout << "Doing other work...\n";
+
+    int result = f.get();   // blocks until result is ready
+    cout << "Result: " << result << "\n";  // Result: 100
+}
+=======================================================
+Q14. What is std::promise and how does it relate to future?
+A: A promise is the write end and future is the read end of a one-time communication channel between threads.
+cpp#include <future>
+#include <thread>
+#include <iostream>
+using namespace std;
+
+void worker(promise<int> p) {
+    p.set_value(42);   // send value to future
+}
+
+int main() {
+    promise<int> p;
+    future<int> f = p.get_future();
+
+    thread t(worker, move(p));
+    cout << "Got: " << f.get() << "\n";   // Got: 42
+    t.join();
+}
+
+=============================================
+🏊 6. Thread Pool Design
+Q15. What is a Thread Pool and why use it?
+A: A thread pool is a fixed set of worker threads that pick up tasks from a queue. Avoids the overhead of creating/destroying threads repeatedly.
+cpp#include <iostream>
+#include <thread>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <functional>
+#include <vector>
+using namespace std;
+
+class ThreadPool {
+    vector<thread> workers;
+    queue<function<void()>> tasks;
+    mutex mtx;
+    condition_variable cv;
+    bool stop = false;
+
+public:
+    ThreadPool(int n) {
+        for (int i = 0; i < n; i++) {
+            workers.emplace_back([this] {
+                while (true) {
+                    function<void()> task;
+                    {
+                        unique_lock<mutex> ul(mtx);
+                        cv.wait(ul, [this]{ return stop || !tasks.empty(); });
+                        if (stop && tasks.empty()) return;
+                        task = move(tasks.front());
+                        tasks.pop();
+                    }
+                    task();   // execute task
+                }
+            });
+        }
+    }
+
+    void enqueue(function<void()> task) {
+        unique_lock<mutex> ul(mtx);
+        tasks.push(task);
+        cv.notify_one();
+    }
+
+    ~ThreadPool() {
+        { unique_lock<mutex> ul(mtx); stop = true; }
+        cv.notify_all();
+        for (auto& w : workers) w.join();
+    }
+};
+
+int main() {
+    ThreadPool pool(4);   // 4 worker threads
+
+    for (int i = 0; i < 8; i++) {
+        pool.enqueue([i]{
+            cout << "Task " << i << " on thread "
+                 << this_thread::get_id() << "\n";
+        });
+    }
+}
+
+🧠 Quick Revision Cheatsheet
+ConceptOne-linerstd::threadSpawns an OS threadjoin()Main waits for threaddetach()Thread runs independentlymutexOnly one thread enters critical sectionlock_guardAuto RAII mutex (no manual unlock)unique_lockFlexible mutex (defer, manual unlock, CV)condition_variableThread waits/signals on a conditionstd::atomicLock-free thread-safe single variablestd::asyncRun function async, get result via futurestd::promiseWrite end of a future channelThread PoolReuse fixed threads for many tasks
+===================================================================
+Multithreading Interview Problems — With SolutionsHere are 10 classic multithreading problems asked in systems and product interviews, each with a complete C++ solution and explanation.
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+VvisualizeVvisualize show_widget
+Problem 1 — Thread-Safe Counter
+Problem: Multiple threads increment a shared counter 100,000 times each. Final value must always equal threads × 100000.
+cpp#include <iostream>
+#include <thread>
+#include <mutex>
+#include <atomic>
+using namespace std;
+
+// ❌ WRONG — race condition
+int counter_bad = 0;
+void bad_increment() {
+    for (int i = 0; i < 100000; i++)
+        counter_bad++;   // read-modify-write NOT atomic!
+}
+
+// ✅ Solution 1 — mutex
+int counter_mutex = 0;
+mutex mtx;
+void safe_increment_mutex() {
+    for (int i = 0; i < 100000; i++) {
+        lock_guard<mutex> lg(mtx);
+        counter_mutex++;
+    }
+}
+
+// ✅ Solution 2 — atomic (faster, lock-free)
+atomic<int> counter_atomic{0};
+void safe_increment_atomic() {
+    for (int i = 0; i < 100000; i++)
+        counter_atomic++;   // hardware-level atomic RMW
+}
+
+int main() {
+    vector<thread> threads;
+
+    // mutex version
+    for (int i = 0; i < 4; i++)
+        threads.emplace_back(safe_increment_mutex);
+    for (auto& t : threads) t.join();
+    cout << "Mutex:  " << counter_mutex  << "\n";  // always 400000
+
+    threads.clear();
+
+    // atomic version
+    for (int i = 0; i < 4; i++)
+        threads.emplace_back(safe_increment_atomic);
+    for (auto& t : threads) t.join();
+    cout << "Atomic: " << counter_atomic << "\n";  // always 400000
+}
+Key insight: counter++ compiles to 3 instructions — LOAD, ADD, STORE. Another thread can interrupt between any two steps. atomic<int> uses a single LOCK XADD CPU instruction.
+
+Problem 2 — Singleton with Double-Checked Locking
+Problem: Implement a thread-safe Singleton that is initialized only once even when multiple threads call getInstance() simultaneously.
+cpp#include <mutex>
+#include <atomic>
+using namespace std;
+
+// ❌ WRONG — not thread-safe
+class BadSingleton {
+    static BadSingleton* instance;
+public:
+    static BadSingleton* getInstance() {
+        if (!instance)                     // T1 and T2 both pass this!
+            instance = new BadSingleton(); // both create instances!
+        return instance;
+    }
+};
+
+// ❌ WRONG — double-checked locking without memory order
+class AlsoBad {
+    static AlsoBad* instance;
+    static mutex mtx;
+public:
+    static AlsoBad* getInstance() {
+        if (!instance) {          // check 1 — no lock (fast path)
+            lock_guard<mutex> lg(mtx);
+            if (!instance)        // check 2 — with lock
+                instance = new AlsoBad();
+            // PROBLEM: compiler/CPU can reorder:
+            //   alloc memory → set ptr → run constructor
+            // Another thread sees non-null ptr but uninitialized object!
+        }
+        return instance;
+    }
+};
+
+// ✅ Solution 1 — atomic with memory order (correct DCLP)
+class Singleton {
+    static atomic<Singleton*> instance;
+    static mutex mtx;
+    Singleton() { /* heavy init */ }
+public:
+    static Singleton* getInstance() {
+        Singleton* p = instance.load(memory_order_acquire);
+        if (!p) {
+            lock_guard<mutex> lg(mtx);
+            p = instance.load(memory_order_relaxed);
+            if (!p) {
+                p = new Singleton();
+                instance.store(p, memory_order_release);
+                // release ensures constructor completes BEFORE ptr visible
+            }
+        }
+        return p;
+    }
+};
+atomic<Singleton*> Singleton::instance{nullptr};
+mutex Singleton::mtx;
+
+// ✅ Solution 2 — Meyers Singleton (simplest, guaranteed by C++11)
+class MeyersSingleton {
+    MeyersSingleton() {}
+public:
+    static MeyersSingleton& getInstance() {
+        static MeyersSingleton instance; // C++11: init guaranteed once
+        return instance;                 // thread-safe by standard!
+    }
+    MeyersSingleton(const MeyersSingleton&) = delete;
+    MeyersSingleton& operator=(const MeyersSingleton&) = delete;
+};
+Key insight: Meyers Singleton is the modern answer. static local variables in C++11 are initialized exactly once, thread-safely, by the runtime.
+
+Problem 3 — Producer-Consumer (Bounded Buffer)
+Problem: One or more producers add items to a fixed-size buffer. One or more consumers remove them. Buffer must not overflow or underflow.
+cpp#include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <queue>
+using namespace std;
+
+class BoundedBuffer {
+    queue<int>          buf;
+    const size_t        capacity;
+    mutex               mtx;
+    condition_variable  not_full;   // producers wait here
+    condition_variable  not_empty;  // consumers wait here
+
+public:
+    explicit BoundedBuffer(size_t cap) : capacity(cap) {}
+
+    void produce(int item) {
+        unique_lock<mutex> ul(mtx);
+        not_full.wait(ul, [this]{ return buf.size() < capacity; });
+        //            ↑ predicate prevents spurious wakeups
+        buf.push(item);
+        cout << "Produced: " << item << "  (size=" << buf.size() << ")\n";
+        not_empty.notify_one();   // wake one consumer
+    }
+
+    int consume() {
+        unique_lock<mutex> ul(mtx);
+        not_empty.wait(ul, [this]{ return !buf.empty(); });
+        int item = buf.front();
+        buf.pop();
+        cout << "Consumed: " << item << "  (size=" << buf.size() << ")\n";
+        not_full.notify_one();    // wake one producer
+        return item;
+    }
+};
+
+int main() {
+    BoundedBuffer buf(5);
+
+    // 2 producers, 3 consumers
+    vector<thread> threads;
+    for (int i = 0; i < 2; i++)
+        threads.emplace_back([&buf, i]{
+            for (int j = 0; j < 5; j++)
+                buf.produce(i * 10 + j);
+        });
+    for (int i = 0; i < 3; i++)
+        threads.emplace_back([&buf]{
+            for (int j = 0; j < 3; j++)   // adjust to drain all items
+                buf.consume();
+        });
+
+    for (auto& t : threads) t.join();
+}
+Key insight: Always use a predicate with cv.wait(). Without it, a spurious wakeup will let a consumer proceed on an empty buffer — classic bug.
+
+Problem 4 — Print in Order (Thread Ordering)
+Problem: Three threads print "first", "second", "third". Guarantee they always print in order regardless of which thread OS schedules first.
+cpp#include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+using namespace std;
+
+class PrintInOrder {
+    int turn = 1;           // whose turn is it?
+    mutex mtx;
+    condition_variable cv;
+
+public:
+    void printFirst() {
+        unique_lock<mutex> ul(mtx);
+        cv.wait(ul, [this]{ return turn == 1; });
+        cout << "first\n";
+        turn = 2;
+        cv.notify_all();
+    }
+
+    void printSecond() {
+        unique_lock<mutex> ul(mtx);
+        cv.wait(ul, [this]{ return turn == 2; });
+        cout << "second\n";
+        turn = 3;
+        cv.notify_all();
+    }
+
+    void printThird() {
+        unique_lock<mutex> ul(mtx);
+        cv.wait(ul, [this]{ return turn == 3; });
+        cout << "third\n";
+    }
+};
+
+int main() {
+    PrintInOrder p;
+    // Launch in reverse order — ordering still correct!
+    thread t3([&]{ p.printThird();  });
+    thread t2([&]{ p.printSecond(); });
+    thread t1([&]{ p.printFirst();  });
+
+    t1.join(); t2.join(); t3.join();
+    // Output always: first → second → third
+}
+
+================================================================================
+Problem 5 — Readers-Writers Problem
+Problem: Multiple readers can read simultaneously. A writer needs exclusive access — no reader or other writer allowed.
+cpp#include <iostream>
+#include <thread>
+#include <shared_mutex>   // C++17
+#include <chrono>
+using namespace std;
+
+class ReadWriteLock {
+    shared_mutex rw_mtx;
+    int data = 0;
+
+public:
+    // Multiple threads can read concurrently
+    int read(int id) {
+        shared_lock<shared_mutex> sl(rw_mtx);  // shared (read) lock
+        cout << "Reader " << id << " reads: " << data << "\n";
+        this_thread::sleep_for(chrono::milliseconds(10));
+        return data;
+    }
+
+    // Only one writer at a time, blocks all readers
+    void write(int val, int id) {
+        unique_lock<shared_mutex> ul(rw_mtx);  // exclusive (write) lock
+        cout << "Writer " << id << " writes: " << val << "\n";
+        data = val;
+        this_thread::sleep_for(chrono::milliseconds(20));
+    }
+};
+
+int main() {
+    ReadWriteLock rwl;
+    vector<thread> threads;
+
+    // 5 readers + 2 writers
+    for (int i = 0; i < 5; i++)
+        threads.emplace_back([&rwl, i]{ rwl.read(i); });
+    for (int i = 0; i < 2; i++)
+        threads.emplace_back([&rwl, i]{ rwl.write(i * 10, i); });
+
+    for (auto& t : threads) t.join();
+}
+
+// Without C++17 shared_mutex — manual implementation
+class RWLockManual {
+    mutex mtx;
+    condition_variable cv;
+    int readers = 0;
+    bool writing = false;
+
+public:
+    void read_lock() {
+        unique_lock<mutex> ul(mtx);
+        cv.wait(ul, [this]{ return !writing; });
+        readers++;
+    }
+    void read_unlock() {
+        lock_guard<mutex> lg(mtx);
+        if (--readers == 0) cv.notify_all();
+    }
+    void write_lock() {
+        unique_lock<mutex> ul(mtx);
+        cv.wait(ul, [this]{ return !writing && readers == 0; });
+        writing = true;
+    }
+    void write_unlock() {
+        lock_guard<mutex> lg(mtx);
+        writing = false;
+        cv.notify_all();
+    }
+};
+
+================================================================================
+Problem 6 — Dining Philosophers
+Problem: 5 philosophers sit at a table. Each needs 2 forks to eat. Forks are shared with neighbors. Prevent deadlock and starvation.
+cpp#include <iostream>
+#include <thread>
+#include <mutex>
+#include <chrono>
+#include <vector>
+using namespace std;
+
+// ❌ Naive approach — DEADLOCK!
+// All philosophers pick up left fork simultaneously
+// → all waiting for right fork → circular wait
+
+// ✅ Solution: Resource ordering — always pick lower-index fork first
+class DiningPhilosophers {
+    vector<mutex> forks;
+    int N;
+
+public:
+    explicit DiningPhilosophers(int n) : forks(n), N(n) {}
+
+    void philosopher(int id) {
+        int left  = id;
+        int right = (id + 1) % N;
+
+        // KEY FIX: always lock lower index first → breaks circular wait
+        int first  = min(left, right);
+        int second = max(left, right);
+
+        for (int meal = 0; meal < 3; meal++) {
+            // Think
+            cout << "Philosopher " << id << " thinking\n";
+            this_thread::sleep_for(chrono::milliseconds(10));
+
+            // Pick up forks in order
+            lock(forks[first], forks[second]);  // deadlock-free lock
+            lock_guard<mutex> lg1(forks[first],  adopt_lock);
+            lock_guard<mutex> lg2(forks[second], adopt_lock);
+
+            // Eat
+            cout << "Philosopher " << id << " eating meal " << meal << "\n";
+            this_thread::sleep_for(chrono::milliseconds(15));
+            // Forks released automatically by lock_guard destructors
+        }
+    }
+};
+
+int main() {
+    const int N = 5;
+    DiningPhilosophers dp(N);
+    vector<thread> philosophers;
+
+    for (int i = 0; i < N; i++)
+        philosophers.emplace_back(
+            [&dp, i]{ dp.philosopher(i); });
+
+    for (auto& p : philosophers) p.join();
+    cout << "All done — no deadlock!\n";
+}
+Key insight: std::lock(m1, m2) acquires both locks atomically using a deadlock-avoidance algorithm (try-and-backoff). The adopt_lock tag tells lock_guard the mutex is already locked.
+
+================================================================================
+Problem 7 — Semaphore / Rate Limiter
+Problem: At most N threads can be in a critical section at once (e.g., max 3 DB connections from a pool of 10 threads).
+cpp#include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
+using namespace std;
+
+// C++20 has std::counting_semaphore — implement manually for C++17
+class Semaphore {
+    int count;
+    mutex mtx;
+    condition_variable cv;
+
+public:
+    explicit Semaphore(int n) : count(n) {}
+
+    void acquire() {
+        unique_lock<mutex> ul(mtx);
+        cv.wait(ul, [this]{ return count > 0; });
+        count--;
+    }
+
+    void release() {
+        lock_guard<mutex> lg(mtx);
+        count++;
+        cv.notify_one();
+    }
+};
+
+// RAII wrapper for Semaphore
+class SemaphoreGuard {
+    Semaphore& sem;
+public:
+    explicit SemaphoreGuard(Semaphore& s) : sem(s) { sem.acquire(); }
+    ~SemaphoreGuard() { sem.release(); }
+};
+
+Semaphore db_pool(3);   // max 3 concurrent DB connections
+
+void use_database(int thread_id) {
+    SemaphoreGuard guard(db_pool);   // acquire slot
+    cout << "Thread " << thread_id << " connected to DB\n";
+    this_thread::sleep_for(chrono::milliseconds(100));
+    cout << "Thread " << thread_id << " done with DB\n";
+}   // ← guard destructor releases slot
+
+int main() {
+    vector<thread> threads;
+    for (int i = 0; i < 10; i++)
+        threads.emplace_back(use_database, i);
+    for (auto& t : threads) t.join();
+    // At most 3 "connected to DB" lines appear simultaneously
+}
+
+================================================================================
+Problem 8 — Barrier (All Threads Sync at a Point)
+Problem: N threads do phase 1, then ALL must wait until every thread finishes phase 1 before any thread starts phase 2.
+cpp#include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+using namespace std;
+
+class Barrier {
+    int total;          // total threads
+    int waiting = 0;    // how many reached barrier
+    int generation = 0; // prevents reuse issues
+    mutex mtx;
+    condition_variable cv;
+
+public:
+    explicit Barrier(int n) : total(n) {}
+
+    void wait() {
+        unique_lock<mutex> ul(mtx);
+        int gen = generation;
+        waiting++;
+
+        if (waiting == total) {
+            // Last thread to arrive — release everyone
+            waiting = 0;
+            generation++;
+            cv.notify_all();
+        } else {
+            // Not last — wait until generation changes
+            cv.wait(ul, [this, gen]{ return generation != gen; });
+        }
+    }
+};
+
+int main() {
+    const int N = 4;
+    Barrier barrier(N);
+
+    auto worker = [&](int id) {
+        // Phase 1
+        cout << "Thread " << id << " doing phase 1\n";
+        this_thread::sleep_for(chrono::milliseconds(id * 20));
+
+        barrier.wait();   // ← ALL must reach here before anyone continues
+
+        // Phase 2 — only starts when ALL threads finished phase 1
+        cout << "Thread " << id << " doing phase 2\n";
+    };
+
+    vector<thread> threads;
+    for (int i = 0; i < N; i++)
+        threads.emplace_back(worker, i);
+    for (auto& t : threads) t.join();
+}
+
+// C++20 has std::barrier built-in:
+// #include <barrier>
+// barrier b(N);
+// b.arrive_and_wait();
+================================================================================
+Problem 9 — Thread-Safe Blocking Queue (Interview Favourite)
+Problem: Design a thread-safe queue that blocks pop() when empty and blocks push() when full — used in real producer-consumer pipelines.
+cpp#include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <queue>
+#include <optional>
+using namespace std;
+
+template<typename T>
+class BlockingQueue {
+    queue<T>           q;
+    mutable mutex      mtx;
+    condition_variable cv_push;   // wait when full
+    condition_variable cv_pop;    // wait when empty
+    size_t             max_size;
+    bool               closed = false;  // for graceful shutdown
+
+public:
+    explicit BlockingQueue(size_t max) : max_size(max) {}
+
+    // Push — blocks if full
+    bool push(T item) {
+        unique_lock<mutex> ul(mtx);
+        cv_push.wait(ul, [this]{
+            return q.size() < max_size || closed;
+        });
+        if (closed) return false;
+        q.push(move(item));
+        cv_pop.notify_one();
+        return true;
+    }
+
+    // Pop — blocks if empty, returns nullopt if closed+empty
+    optional<T> pop() {
+        unique_lock<mutex> ul(mtx);
+        cv_pop.wait(ul, [this]{
+            return !q.empty() || closed;
+        });
+        if (q.empty()) return nullopt;   // closed and empty
+        T item = move(q.front());
+        q.pop();
+        cv_push.notify_one();
+        return item;
+    }
+
+    // Try variants (non-blocking)
+    bool try_push(T item) {
+        lock_guard<mutex> lg(mtx);
+        if (q.size() >= max_size || closed) return false;
+        q.push(move(item));
+        cv_pop.notify_one();
+        return true;
+    }
+
+    optional<T> try_pop() {
+        lock_guard<mutex> lg(mtx);
+        if (q.empty()) return nullopt;
+        T item = move(q.front());
+        q.pop();
+        cv_push.notify_one();
+        return item;
+    }
+
+    // Graceful shutdown — wake all waiting threads
+    void close() {
+        lock_guard<mutex> lg(mtx);
+        closed = true;
+        cv_push.notify_all();
+        cv_pop.notify_all();
+    }
+
+    size_t size() const {
+        lock_guard<mutex> lg(mtx);
+        return q.size();
+    }
+};
+
+int main() {
+    BlockingQueue<int> bq(5);
+
+    thread producer([&]{
+        for (int i = 0; i < 10; i++) {
+            bq.push(i);
+            cout << "Pushed " << i << "\n";
+        }
+        bq.close();
+    });
+
+    thread consumer([&]{
+        while (auto item = bq.pop()) {
+            cout << "Popped " << *item << "\n";
+        }
+        cout << "Queue closed, consumer done\n";
+    });
+
+    producer.join();
+    consumer.join();
+}
+
+================================================================================
+Problem 10 — Thread Pool (Most Asked Design Problem)
+Problem: Design a thread pool that accepts tasks, distributes them to worker threads, and avoids per-task thread creation overhead.
+cpp#include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <functional>
+#include <future>
+#include <queue>
+#include <vector>
+using namespace std;
+
+class ThreadPool {
+    vector<thread>          workers;
+    queue<function<void()>> tasks;
+    mutex                   mtx;
+    condition_variable      cv;
+    bool                    stop = false;
+
+public:
+    explicit ThreadPool(size_t n) {
+        for (size_t i = 0; i < n; i++) {
+            workers.emplace_back([this] {
+                while (true) {
+                    function<void()> task;
+                    {
+                        unique_lock<mutex> ul(mtx);
+                        cv.wait(ul, [this]{
+                            return stop || !tasks.empty();
+                        });
+                        if (stop && tasks.empty()) return;
+                        task = move(tasks.front());
+                        tasks.pop();
+                    }
+                    task();   // execute OUTSIDE the lock
+                }
+            });
+        }
+    }
+
+    // Submit task — returns future for result
+    template<typename F, typename... Args>
+    auto submit(F&& f, Args&&... args)
+        -> future<invoke_result_t<F, Args...>>
+    {
+        using R = invoke_result_t<F, Args...>;
+
+        // Wrap in packaged_task for future support
+        auto pt = make_shared<packaged_task<R()>>(
+            bind(forward<F>(f), forward<Args>(args)...)
+        );
+        future<R> fut = pt->get_future();
+
+        {
+            lock_guard<mutex> lg(mtx);
+            if (stop) throw runtime_error("Pool stopped");
+            tasks.emplace([pt]{ (*pt)(); });
+        }
+        cv.notify_one();
+        return fut;
+    }
+
+    // Graceful shutdown — finish queued tasks then stop
+    ~ThreadPool() {
+        {
+            lock_guard<mutex> lg(mtx);
+            stop = true;
+        }
+        cv.notify_all();
+        for (auto& w : workers) w.join();
+    }
+};
+
+int main() {
+    ThreadPool pool(4);   // 4 worker threads
+
+    // Submit tasks and collect futures
+    vector<future<int>> results;
+
+    for (int i = 0; i < 8; i++) {
+        results.push_back(pool.submit([i]{
+            this_thread::sleep_for(chrono::milliseconds(10));
+            cout << "Task " << i << " done on thread "
+ 
+                << this_thread::get_id() << "\n";
+            return i * i;
+        }));
+    }
+
+    // Collect results
+    for (int i = 0; i < 8; i++)
+        cout << "Result " << i << " = " << results[i].get() << "\n";
+}
+================================================================================

@@ -252,6 +252,189 @@ int main() {
 }
 //============================================
 /*
+#include <bits/stdc++.h>
+using namespace std;
+
+//
+// 🚗 Vehicle
+//
+
+enum class VehicleType {
+    BIKE,
+    CAR
+};
+
+class Vehicle {
+protected:
+    string number;
+    VehicleType type;
+
+public:
+    Vehicle(string num, VehicleType t) : number(num), type(t) {}
+    virtual ~Vehicle() {}
+
+    VehicleType getType() const { return type; }
+    string getNumber() const { return number; }
+};
+
+class Car : public Vehicle {
+public:
+    Car(string number) : Vehicle(number, VehicleType::CAR) {}
+};
+
+class Bike : public Vehicle {
+public:
+    Bike(string number) : Vehicle(number, VehicleType::BIKE) {}
+};
+
+//
+// 🅿️ ParkingSpot
+//
+
+enum class SpotType {
+    BIKE,
+    CAR
+};
+
+class ParkingSpot {
+    int id;
+    SpotType type;
+    bool isFree;
+    Vehicle* vehicle;
+
+public:
+    ParkingSpot(int id, SpotType type)
+        : id(id), type(type), isFree(true), vehicle(nullptr) {}
+
+    bool canPark(Vehicle* v) {
+        if (type == SpotType::CAR && v->getType() == VehicleType::CAR)
+            return true;
+        if (type == SpotType::BIKE && v->getType() == VehicleType::BIKE)
+            return true;
+        return false;
+    }
+
+    bool park(Vehicle* v) {
+        if (!isFree || !canPark(v)) return false;
+        vehicle = v;
+        isFree = false;
+        return true;
+    }
+
+    void unpark() {
+        vehicle = nullptr;
+        isFree = true;
+    }
+
+    bool free() const { return isFree; }
+    int getId() const { return id; }
+};
+
+//
+// 🎫 Ticket
+//
+
+class Ticket {
+public:
+    Vehicle* vehicle;
+    ParkingSpot* spot;
+    time_t entryTime;
+
+    Ticket(Vehicle* v, ParkingSpot* s)
+        : vehicle(v), spot(s) {
+        entryTime = time(nullptr);
+    }
+};
+
+//
+// 💰 Payment Strategy
+//
+
+class PaymentStrategy {
+public:
+    virtual int calculateFare(time_t entryTime) = 0;
+    virtual ~PaymentStrategy() {}
+};
+
+class HourlyPayment : public PaymentStrategy {
+public:
+    int calculateFare(time_t entryTime) override {
+        time_t now = time(nullptr);
+        int hours = difftime(now, entryTime) / 3600;
+
+        if (hours == 0) hours = 1;
+        return hours * 10;
+    }
+};
+
+//
+// 🏬 ParkingLot
+//
+
+class ParkingLot {
+    vector<ParkingSpot*> spots;
+
+public:
+    ParkingLot(int carSpots, int bikeSpots) {
+        int id = 0;
+
+        for (int i = 0; i < carSpots; i++)
+            spots.push_back(new ParkingSpot(id++, SpotType::CAR));
+
+        for (int i = 0; i < bikeSpots; i++)
+            spots.push_back(new ParkingSpot(id++, SpotType::BIKE));
+    }
+
+    Ticket* parkVehicle(Vehicle* v) {
+        for (auto spot : spots) {
+            if (spot->free() && spot->canPark(v)) {
+                spot->park(v);
+                return new Ticket(v, spot);
+            }
+        }
+        return nullptr;
+    }
+
+    int unparkVehicle(Ticket* ticket, PaymentStrategy* strategy) {
+        ticket->spot->unpark();
+        return strategy->calculateFare(ticket->entryTime);
+    }
+};
+
+//
+// 🚀 Main
+//
+
+int main() {
+    ParkingLot lot(2, 2);
+
+    Vehicle* car = new Car("TN01AB1234");
+    Vehicle* bike = new Bike("TN02XY5678");
+
+    Ticket* t1 = lot.parkVehicle(car);
+    Ticket* t2 = lot.parkVehicle(bike);
+
+    if (t1)
+        cout << "Car parked at spot: " << t1->spot->getId() << endl;
+
+    if (t2)
+        cout << "Bike parked at spot: " << t2->spot->getId() << endl;
+
+    sleep(2);
+
+    PaymentStrategy* payment = new HourlyPayment();
+
+    int fare1 = lot.unparkVehicle(t1, payment);
+    cout << "Car Fare: " << fare1 << endl;
+
+    int fare2 = lot.unparkVehicle(t2, payment);
+    cout << "Bike Fare: " << fare2 << endl;
+
+    return 0;
+}
+*/
+//==================================================================================
+/*
 #include<bits/stdc++.h>
 using namespace std;
 //Parking lot system
