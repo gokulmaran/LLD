@@ -1,0 +1,19 @@
+This video serves as a comprehensive OOPS (Object-Oriented Programming Systems) crash course tailored for software engineering interviews, particularly for roles involving Low-Level Design (LLD). The creator, who has experience with major tech companies like Uber and Coinbase, breaks down the core pillars of OOPS and essential design concepts.
+
+Key Topics Covered:
+Fundamentals: An introduction to Classes and Objects (2:06), explaining their roles as blueprints and instances.
+Constructors: A detailed look at different types, including Default, Parameterized, Copy, and Private constructors (9:06 - 26:06).
+The 'this' Keyword: Understanding instance reference, constructor chaining, and object handling (34:26 - 41:29).
+
+Four Pillars of OOPS:
+Polymorphism: Covering both static (compile-time) and dynamic (run-time) methods (42:19 - 55:19).
+Inheritance: Exploring different types (single, multi-level, hierarchical, multiple) and the famous Diamond Problem (55:49 - 1:07:09).
+Encapsulation: Focuses on data hiding and controlled access via getters/setters (1:07:40 - 1:16:04).
+Abstraction: Differentiating between abstract classes and interfaces, and when to use each (1:16:34 - 2:00:37).
+
+Advanced Concepts:
+
+Access Modifiers: In-depth breakdown of public, private, protected, and default access (2:01:17 - 2:09:24).
+Class Relationships: Explanation of Association, Aggregation, Composition, Dependency, and Realization (2:10:50 - 2:20:53).
+Generics & Wildcards: How to write reusable, type-safe code for various data types (2:20:53 - 2:42:11).
+The video is highly recommended for anyone preparing for technical interviews, as it emphasizes practical application over rote memorization and highlights common traps encountered during LLD rounds.

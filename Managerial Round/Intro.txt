@@ -1,0 +1,15 @@
+Projects
+Tell me about yourself
+Hi, I’m Gokulraaj Manimaran, a Software Engineer with 4.5 years of experience in building high performance scalable backend systems.
+"In my current role, I design and own scalable, high-performance APIs for real-time systems. 
+I prioritize clean architecture, low-latency optimizations, and production-grade code. 
+I work hands-on with SQL databases, Linux systems, and Azure, and I regularly handle code reviews, on-call debugging, and production issue resolution."
+I’m now looking for an SDE role where I can work on complex distributed systems and make a measurable impact.
+
+Projects
+I worked on a project that involved building a high-performance backend system for real-time data processing.
+The challenge was handling concurrent requests efficiently while maintaining consistency and reliability during peak hrs. 
+ I worked on optimizing that module by introducing an efficient memory-caching mechanism. This reduced redundant computations, lowered CPU usage, and significantly increased the RPS and overall throughput during peak hours.
+"I owned a backend module end-to-end, from requirement analysis to production rollout. 
+I built and maintained APIs for core business workflows, designed the database schema, implemented RESTful services, handled edge cases and failure scenarios, and wrote unit tests. I was also involved in production debugging and incident resolution."
+This project improved my ability to take ownership, make design trade-offs, and deliver reliable systems under tight timelines.
