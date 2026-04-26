@@ -1,0 +1,16 @@
+
+Tell Me about Yourself
+=========================
+I’m Gokulraaj Manimaran, a Software Engineer with around 5 years of experience building highly scalable backend systems.
+
+Currently, I’m working at SBI Securities, where I design and own APIs for real-time workflows. 
+My work involves optimizing system performance, handling production issues end-to-end, and ensuring system stability under load. 
+Recently, I optimized a critical API and reduced latency under peak load by 30%.
+
+My primary tech stack includes C++, SQL databases, Linux environments, and Azure, with a strong focus on building efficient 
+and maintainable systems.
+
+I’m now looking for an opportunity to work on large-scale distributed systems, where I can take ownership, design end-to-end solutions,
+ and contribute to building systems that deliver measurable impact at scale.
+
+*************************************************************************************
