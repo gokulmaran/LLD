@@ -130,3 +130,17 @@ DP (Memoization)    AlgoMaster Blog — DP Patterns
 Greedy              AlgoMaster Blog — Greedy
 All 20 Patterns     AlgoMaster — 20 DSA Patterns
 ===========================================================
+
+1. What is OOP?
+
+Answer:
+
+Object-Oriented Programming (OOP) is a programming paradigm that models software using objects, which contain data (attributes) and behavior (methods).
+
+Its main principles are:
+
+Encapsulation
+Abstraction
+Inheritance
+Polymorphism
+==================================================
